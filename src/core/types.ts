@@ -23,8 +23,10 @@ export interface Account extends Entity {
   name: string;
   institutionId?: string;
   accountType: AccountType;
+  /** Primary/default currency for the account */
   currency: Currency;
-  openingBalance: Money;
+  /** Initial cash balances by currency */
+  openingBalances: Record<Currency, Money>;
   openingDate: DateOnly;
   includeInNetWorth: boolean;
   includeInLiquidNetWorth: boolean;

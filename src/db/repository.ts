@@ -25,7 +25,11 @@ export function validateFinanceRecord(table: FinanceTableName, input: unknown): 
   if (row.ownerId !== undefined) required(string(row.ownerId, 200));
   if (row.deviceId !== undefined) required(string(row.deviceId, 200));
   if (table === 'accounts') {
-    required(string(row.name, 200) && ACCOUNT_TYPES.includes(row.accountType as Account['accountType']) && currency(row.currency) && money(row.openingBalance, true) && validDate(row.openingDate));
+    required(string(row.name, 200) && ACCOUNT_TYPES.includes(row.accountType as Account['accountType']) && currency(row.currency) && validDate(row.openingDate));
+    if (row.openingBalances) {
+      required(typeof row.openingBalances === 'object' && !Array.isArray(row.openingBalances));
+      for (const [curr, amt] of Object.entries(row.openingBalances as Record<string, unknown>)) required(currency(curr) && money(amt as number, true));
+    } else required(money(row.openingBalance, true));
     for (const key of ['includeInNetWorth', 'includeInLiquidNetWorth', 'includeInFire', 'emergency', 'archived']) required(typeof row[key] === 'boolean');
   } else if (table === 'transactions') {
     required(TRANSACTION_TYPES.includes(row.type as Transaction['type']) && validDate(row.date) && money(row.amount, row.type === 'BALANCE_ADJUSTMENT') && currency(row.currency) && string(row.accountId, 200));
@@ -196,9 +200,27 @@ export function createFinanceRepository(db: FinanceDatabase = financeDb) {
     return { items, total };
   }
   async function accountBalances(asOf = today()) {
-    const accounts = await db.accounts.filter(active).toArray(), balances: Record<string, number> = Object.create(null);
-    for (const account of accounts) balances[account.id] = account.openingDate <= asOf ? account.openingBalance : 0;
-    await db.postings.where('date').belowOrEqual(asOf).each(posting => { if (active(posting) && Object.hasOwn(balances, posting.accountId)) { const next = balances[posting.accountId] + posting.delta; required(Number.isSafeInteger(next), 'Balance exceeds supported precision.'); balances[posting.accountId] = next; } });
+    const accounts = await db.accounts.filter(active).toArray();
+    const balances: Record<string, Record<string, number>> = Object.create(null);
+    for (const account of accounts) {
+      const b: Record<string, number> = Object.create(null);
+      if (account.openingDate <= asOf) {
+        if (account.openingBalances) {
+          for (const [curr, amt] of Object.entries(account.openingBalances)) b[curr] = amt;
+        } else if (account.openingBalance !== undefined) {
+          b[account.currency] = account.openingBalance;
+        }
+      }
+      balances[account.id] = b;
+    }
+    await db.postings.where('date').belowOrEqual(asOf).each(posting => {
+      if (active(posting) && Object.hasOwn(balances, posting.accountId)) {
+        const b = balances[posting.accountId];
+        const next = (b[posting.currency] || 0) + posting.delta;
+        required(Number.isSafeInteger(next), 'Balance exceeds supported precision.');
+        b[posting.currency] = next;
+      }
+    });
     return balances;
   }
   async function monthlyCashFlow(start: string, end: string, targetCurrency = 'PHP') {

@@ -160,16 +160,29 @@ export function postingsForTransaction(transaction: Transaction, accounts: reado
 
 export function buildLedger(accounts: readonly Account[], transactions: readonly Transaction[], asOf = today(), precision: Precision = {}) {
   throughDate(asOf);
-  const map = accountMap(accounts), balances = moneyRecord(), postings: Posting[] = [];
-  for (const account of map.values()) balances[account.id] = account.openingDate <= asOf ? account.openingBalance : 0;
+  const map = accountMap(accounts), balances: Record<string, Record<Currency, Money>> = {}, postings: Posting[] = [];
+  for (const account of map.values()) {
+    const b: Record<string, number> = Object.create(null);
+    if (account.openingDate <= asOf) {
+      if (account.openingBalances) {
+        for (const [curr, amt] of Object.entries(account.openingBalances)) b[curr] = amt;
+      } else if (account.openingBalance !== undefined) {
+        b[account.currency] = account.openingBalance;
+      }
+    }
+    balances[account.id] = b;
+  }
   for (const transaction of chronological(transactions, asOf)) {
     const entries = postingsForTransaction(transaction, map, precision);
-    for (const entry of entries) balances[entry.accountId] = add(balances[entry.accountId], entry.delta);
+    for (const entry of entries) {
+      const b = balances[entry.accountId];
+      b[entry.currency] = add(b[entry.currency] || 0, entry.delta);
+    }
     postings.push(...entries);
   }
   return { balances, postings };
 }
-export function accountBalances(accounts: readonly Account[], transactions: readonly Transaction[], asOf = today(), precision: Precision = {}): Record<string, number> {
+export function accountBalances(accounts: readonly Account[], transactions: readonly Transaction[], asOf = today(), precision: Precision = {}): Record<string, Record<string, number>> {
   return buildLedger(accounts, transactions, asOf, precision).balances;
 }
 
@@ -317,7 +330,9 @@ export function calculatePositions(transactions: readonly Transaction[], instrum
 export type ValuationSettings = Pick<FinanceSettings, 'baseCurrency' | 'currencyPrecision'>;
 export interface AccountValue {
   accountId: string;
-  /** All of these amounts use the account's native currency. */
+  /** True cash balances broken down by currency. */
+  cashBalances: Record<Currency, Money>;
+  /** All of these amounts use the account's primary currency. */
   balance: Money;
   holdings: Money | null;
   value: Money | null;
@@ -342,7 +357,7 @@ export interface NetWorthSummary {
 }
 
 /** Balances already contain trade cash postings; only the holdings are added here. */
-export function calculateNetWorthFromBalances(accounts: readonly Account[], balances: Readonly<Record<string, Money>>, positions: readonly PositionSummary[], fxRates: readonly FxRate[], settings: ValuationSettings, asOf = today()): NetWorthSummary {
+export function calculateNetWorthFromBalances(accounts: readonly Account[], balances: Readonly<Record<string, Record<Currency, Money>>>, positions: readonly PositionSummary[], fxRates: readonly FxRate[], settings: ValuationSettings, asOf = today()): NetWorthSummary {
   throughDate(asOf); currencyScale(settings.baseCurrency, settings.currencyPrecision);
   const map = accountMap(accounts), issues: CalculationIssue[] = [], accountValues: AccountValue[] = [];
   const grouped = new Map<string, PositionSummary[]>();
@@ -354,8 +369,18 @@ export function calculateNetWorthFromBalances(accounts: readonly Account[], bala
   const missing = { assets: false, liabilities: false, liquid: false, fire: false, fireDebt: false, emergency: false };
   for (const account of map.values()) {
     requireValue(Object.hasOwn(balances, account.id), 'Every account requires a calculated balance.');
-    const balance = minor(balances[account.id], 'Account balance');
-    let holdings = 0, incomplete = false;
+    const cash = balances[account.id] || {};
+    let balance = 0, incomplete = false;
+    for (const [curr, amt] of Object.entries(cash)) {
+      if (!amt) continue;
+      if (curr === account.currency) { balance = add(balance, minor(amt)); }
+      else {
+        const converted = convertMoney(amt, curr, account.currency, fxRates, asOf, settings.currencyPrecision);
+        if (converted === null) { incomplete = true; issues.push({ code: 'missing_fx', accountId: account.id, currency: curr }); }
+        else balance = add(balance, converted);
+      }
+    }
+    let holdings = 0;
     for (const position of grouped.get(account.id) ?? []) {
       requireValue(!isLiability(account), 'Liability accounts cannot contain investment positions.');
       issues.push(...position.issues);
@@ -369,7 +394,7 @@ export function calculateNetWorthFromBalances(accounts: readonly Account[], bala
     const knownBase = convertMoney(knownValue, account.currency, settings.baseCurrency, fxRates, asOf, settings.currencyPrecision);
     if (knownBase === null) issues.push({ code: 'missing_fx', accountId: account.id, currency: account.currency });
     const baseValue = value === null || knownBase === null ? null : knownBase;
-    accountValues.push({ accountId: account.id, balance, holdings: incomplete ? null : holdings, value, knownValue, currency: account.currency, baseValue });
+    accountValues.push({ accountId: account.id, cashBalances: cash, balance, holdings: incomplete ? null : holdings, value, knownValue, currency: account.currency, baseValue });
     const amount = knownBase ?? 0, absent = baseValue === null, liability = isLiability(account);
     if (account.includeInNetWorth) {
       const key = liability ? 'liabilities' : 'assets'; totals[key] = add(totals[key], amount); missing[key] ||= absent;
