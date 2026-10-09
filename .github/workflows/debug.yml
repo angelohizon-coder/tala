@@ -1,0 +1,24 @@
+name: Debug CI
+on:
+  push:
+    branches: [main]
+jobs:
+  debug:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm install
+      - run: npm run typecheck > debug.txt 2>&1 || true
+      - run: npm test > debug_test.txt 2>&1 || true
+      - run: npm run build > debug_build.txt 2>&1 || true
+      - run: |
+          git config --global user.name 'github-actions'
+          git config --global user.email 'github-actions@github.com'
+          git add debug*.txt
+          git commit -m "chore: debug logs" || true
+          git push || true
