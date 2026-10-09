@@ -5,15 +5,15 @@
 
 [1m[30m[46m RUN [49m[39m[22m [36mv5.0.3 [39m[90m/home/runner/work/tala/tala[39m
 
- [32m✓[39m tests/repository.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 299[2mms[22m[39m
- [32m✓[39m tests/backup.test.ts [2m([22m[2m7 tests[22m[2m)[22m[33m 381[2mms[22m[39m
- [32m✓[39m tests/csv.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 4[2mms[22m[39m
- [32m✓[39m tests/calculations.test.ts [2m([22m[2m31 tests[22m[2m)[22m[33m 670[2mms[22m[39m
+ [32m✓[39m tests/repository.test.ts [2m([22m[2m15 tests[22m[2m)[22m[33m 386[2mms[22m[39m
+ [32m✓[39m tests/backup.test.ts [2m([22m[2m7 tests[22m[2m)[22m[33m 410[2mms[22m[39m
+ [32m✓[39m tests/csv.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m tests/calculations.test.ts [2m([22m[2m31 tests[22m[2m)[22m[33m 931[2mms[22m[39m
    [32m✓[39m budgets, debt, duplicate preview and dated history [2m(8)[22m
-     [33m[2m✓[22m[39m aggregates a 100,000-entry ledger without counting transfers as consumption[33m 640[2mms[22m[39m
+     [33m[2m✓[22m[39m aggregates a 100,000-entry ledger without counting transfers as consumption[33m 883[2mms[22m[39m
 
 [2m Test Files [22m [1m[32m4 passed[39m[22m[90m (4)[39m
 [2m      Tests [22m [1m[32m56 passed[39m[22m[90m (56)[39m
-[2m   Start at [22m 17:29:20
-[2m   Duration [22m 886ms[2m (tests 77%, transform 14%, import 8%, worker 1%)[22m
+[2m   Start at [22m 17:33:22
+[2m   Duration [22m 1.27s[2m (tests 78%, transform 14%, import 8%, worker 1%)[22m
 

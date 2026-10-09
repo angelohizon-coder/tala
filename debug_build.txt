@@ -4,37 +4,44 @@
 
 [36mvite v8.3.4 [32mbuilding client environment for production...[36m[39m
 transforming...
-✓ 2568 modules transformed.
+[33m[vite:css][postcss] @import statements must precede all other statements (besides @charset or empty @layer) and be consecutive
+3  |  @tailwind utilities;
+4  |  
+5  |  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;450;500;550;600;650;700&family=Manrope:wght@40...
+   |  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+6  |  :root{font-family:'DM Sans',system-ui,sans-serif;color:#273d37;background:#f5f6f8;font-synthesis:none;font-size:14px;...
+7  |  @media(min-width:1700px){#page-main{padding-top:40px}.metric-value{font-size:32px}.metric-card{padding:25px}.sidebar{...[39m
+✓ 2569 modules transformed.
 rendering chunks...
 computing gzip size...
 dist/manifest.webmanifest                          0.42 kB
 dist/index.html                                    1.00 kB │ gzip:   0.59 kB
 dist/assets/LedgerPages-O-ZI-EXg.css               7.69 kB │ gzip:   1.93 kB
-dist/assets/index-VVYZOJOF.css                    19.79 kB │ gzip:   5.15 kB
-dist/assets/index.esm-t42u8VQb.js                  0.08 kB │ gzip:   0.09 kB
-dist/assets/download-B6jECMjJ.js                   0.26 kB │ gzip:   0.21 kB
+dist/assets/index-BxCU2rg4.css                    29.70 kB │ gzip:   7.46 kB
+dist/assets/index.esm-BVvf8WWB.js                  0.08 kB │ gzip:   0.09 kB
+dist/assets/download-Dkb4wU7g.js                   0.26 kB │ gzip:   0.21 kB
 dist/assets/rolldown-runtime-hePW80VL.js           0.71 kB │ gzip:   0.42 kB
-dist/assets/shared-CNvlUnfc.js                     2.61 kB │ gzip:   1.20 kB
-dist/assets/useFinance-Da4douu5.js                 3.73 kB │ gzip:   1.67 kB
+dist/assets/shared-CFZfx0wo.js                     2.61 kB │ gzip:   1.20 kB
+dist/assets/useFinance-BqojOapo.js                 3.73 kB │ gzip:   1.67 kB
 dist/assets/workbox-window.prod.es5-Bd17z0YL.js    5.65 kB │ gzip:   2.20 kB
 dist/assets/papaparse.min-BHzw_mE6.js             18.68 kB │ gzip:   6.78 kB
-dist/assets/InvestmentPages-C1eLOmNp.js           24.60 kB │ gzip:   7.58 kB
-dist/assets/DataPage-DQWtxkMx.js                  25.15 kB │ gzip:   8.42 kB
-dist/assets/Overview-LWZ22TUA.js                  29.16 kB │ gzip:   9.23 kB
-dist/assets/LedgerPages-B0uutfQz.js               55.32 kB │ gzip:  13.99 kB
-dist/assets/PlanningPages-BgTUPx4q.js             70.75 kB │ gzip:  19.97 kB
-dist/assets/providers-BTgNp5Tu.js                186.70 kB │ gzip:  98.36 kB
-dist/assets/firebase-CC8k2TF9.js                 351.65 kB │ gzip: 107.83 kB
-dist/assets/AreaChart-0KBCpf5R.js                357.66 kB │ gzip: 104.14 kB
-dist/assets/index-BOiJIgDX.js                    421.10 kB │ gzip: 135.38 kB
+dist/assets/InvestmentPages-BquLQApa.js           24.60 kB │ gzip:   7.58 kB
+dist/assets/DataPage-Bnd-Pw3V.js                  25.15 kB │ gzip:   8.42 kB
+dist/assets/Overview-DldW-PDt.js                  29.16 kB │ gzip:   9.23 kB
+dist/assets/LedgerPages-YRKLoTWA.js               55.32 kB │ gzip:  13.99 kB
+dist/assets/PlanningPages-BPHWeNOa.js             70.75 kB │ gzip:  19.97 kB
+dist/assets/providers-C95rmNFC.js                186.70 kB │ gzip:  98.36 kB
+dist/assets/firebase-Bd_ZNDia.js                 351.65 kB │ gzip: 107.83 kB
+dist/assets/AreaChart-BaWzWQP7.js                357.66 kB │ gzip: 104.14 kB
+dist/assets/index-IiayDQkM.js                    421.28 kB │ gzip: 135.44 kB
 
 [33m[33m[INEFFECTIVE_DYNAMIC_IMPORT] [0mnode_modules/firebase/auth/dist/esm/index.esm.js is dynamically imported by src/sync/firebase.ts but also statically imported by src/sync/firebase.ts, dynamic import will not move module into another chunk.
 [39m
-[32m✓ built in 410ms[39m
+[32m✓ built in 1.00s[39m
 
 [36mPWA v2.0.0[39m
 mode      [35mgenerateSW[39m
-precache  [32m40 entries[39m [2m(2217.78 KiB)[22m
+precache  [32m40 entries[39m [2m(2227.64 KiB)[22m
 files generated
   [2mdist/sw.js[22m
   [2mdist/workbox-2fbc6a65.js[22m
