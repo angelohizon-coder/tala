@@ -26,6 +26,7 @@
     "@supabase/supabase-js": "^2.117.3",
     "dexie": "^4.4.6",
     "dexie-react-hooks": "^4.4.0",
+    "firebase": "^11.0.0",
     "hyparquet": "^1.31.3",
     "hyparquet-compressors": "^1.1.2",
     "lucide-react": "^1.54.0",
