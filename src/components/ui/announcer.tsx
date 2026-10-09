@@ -21,3 +21,4 @@ export function Announcer({ message }: { message: string }) {
     </div>
   )
 }
+
