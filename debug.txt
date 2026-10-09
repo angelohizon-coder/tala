@@ -1,0 +1,5 @@
+
+> tala-market-dashboard@2.0.0 typecheck
+> tsc --noEmit
+
+tests/repository.test.ts(6,47): error TS2307: Cannot find module '../src/sync/supabase' or its corresponding type declarations.
