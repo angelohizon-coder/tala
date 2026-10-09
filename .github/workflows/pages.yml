@@ -22,7 +22,7 @@ jobs:
         with:
           node-version: 24
       - name: Install dependencies
-        run: npm ci
+        run: npm install
       - name: Test financial calculations, database and backups
         run: npm test
       - run: npm run test:market
