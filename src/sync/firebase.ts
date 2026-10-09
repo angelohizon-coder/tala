@@ -1,5 +1,5 @@
 import { app } from '../firebase';
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from 'firebase/auth';
+import { getAuth, signOut } from 'firebase/auth';
 import { getFirestore, doc, runTransaction, query, collection, where, orderBy, limit, getDocs, onSnapshot } from 'firebase/firestore';
 import { financeDb, FINANCE_TABLES, type FinanceDatabase, type FinanceTableName, type OutboxEntry, type SyncedEntity } from '../db/database';
 import { validateFinanceRecord } from '../db/repository';
@@ -135,16 +135,15 @@ export function createFirebaseSyncProvider(db: FinanceDatabase = financeDb) {
   };
   
   return Object.assign(provider, {
-    signIn: async (email: string, password: string) => { 
-      const result = await signInWithEmailAndPassword(auth, email, password); 
-      return { user: { email: result.user.email } }; 
-    },
-    signUp: async (email: string, password: string) => { 
-      const result = await createUserWithEmailAndPassword(auth, email, password); 
-      return { user: { email: result.user.email } }; 
+    signInWithGoogle: async () => {
+      const { signInWithPopup, GoogleAuthProvider } = await import('firebase/auth');
+      const authProvider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, authProvider);
+      return { user: { email: result.user.email } };
     },
     signOut: async () => { 
       await signOut(auth); 
     },
   });
 }
+
