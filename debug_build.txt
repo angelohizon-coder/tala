@@ -30,7 +30,7 @@ dist/assets/index-DE_7PrTy.js                    421.33 kB │ gzip: 135.45 kB
 
 [33m[33m[INEFFECTIVE_DYNAMIC_IMPORT] [0mnode_modules/firebase/auth/dist/esm/index.esm.js is dynamically imported by src/sync/firebase.ts but also statically imported by src/sync/firebase.ts, dynamic import will not move module into another chunk.
 [39m
-[32m✓ built in 583ms[39m
+[32m✓ built in 619ms[39m
 
 [36mPWA v2.0.0[39m
 mode      [35mgenerateSW[39m
