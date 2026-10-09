@@ -9,14 +9,14 @@ import type { Transaction } from '../core/types';
 import { toMinor } from '../core/calculations';
 import { statementAmount, statementDate, supportsStatementAccount } from '../db/csv';
 import { useFinance } from '../ui/useFinance';
-import { cloudProvider, restartSync, stopSync, syncNow, type CloudConfiguration } from '../ui/syncRuntime';
+import { cloudProvider, restartSync, stopSync, syncNow } from '../ui/syncRuntime';
 import { download, today, csvValue, Field, PageHeading, ErrorMessage, Money } from '../ui/shared';
 
 type Mapping={date:string;amount:string;debit:string;credit:string;merchant:string;reference:string;dateFormat:string};
 const defaultMapping:Mapping={date:'',amount:'',debit:'',credit:'',merchant:'',reference:'',dateFormat:'ISO'};
 
 export function DataPage(){const data=useFinance();const mode=useLiveQuery(()=>financeRepository.getSetting('privacyMode','LOCAL_ONLY'),[]);const conflicts=useLiveQuery(()=>financeDb.conflicts.filter(c=>!c.resolvedAt).toArray(),[]);const queue=useLiveQuery(()=>financeDb.syncOutbox.count(),[]);const syncState=useLiveQuery(()=>financeDb.syncState.toArray(),[]);
- const [error,setError]=useState(''),[message,setMessage]=useState(''),[busy,setBusy]=useState(false),[persistent,setPersistent]=useState<boolean|null>(null),[usage,setUsage]=useState(''),[backupPassword,setBackupPassword]=useState(''),[restoreText,setRestoreText]=useState(''),[restorePreview,setRestorePreview]=useState<FinanceBackup|null>(null),[confirmRestore,setConfirmRestore]=useState(false),[config,setConfig]=useState<CloudConfiguration>({url:'',publishableKey:''}),[email,setEmail]=useState(''),[password,setPassword]=useState(''),[signedIn,setSignedIn]=useState(''),[cloudConsent,setCloudConsent]=useState(false);
+ const [error,setError]=useState(''),[message,setMessage]=useState(''),[busy,setBusy]=useState(false),[persistent,setPersistent]=useState<boolean|null>(null),[usage,setUsage]=useState(''),[backupPassword,setBackupPassword]=useState(''),[restoreText,setRestoreText]=useState(''),[restorePreview,setRestorePreview]=useState<FinanceBackup|null>(null),[confirmRestore,setConfirmRestore]=useState(false),[email,setEmail]=useState(''),[password,setPassword]=useState(''),[signedIn,setSignedIn]=useState(''),[cloudConsent,setCloudConsent]=useState(false);
  const [rows,setRows]=useState<Record<string,string>[]>([]),[headers,setHeaders]=useState<string[]>([]),[mapping,setMapping]=useState<Mapping>(defaultMapping),[accountId,setAccountId]=useState(''),[categoryId,setCategoryId]=useState(''),[institution,setInstitution]=useState(''),[preview,setPreview]=useState<ImportPreview|null>(null),[skipDuplicates,setSkipDuplicates]=useState(true);
  useEffect(()=>{void navigator.storage?.persisted?.().then(setPersistent);void navigator.storage?.estimate?.().then(v=>setUsage(`${((v.usage||0)/1048576).toFixed(1)} MB used of ${((v.quota||0)/1048576).toFixed(0)} MB available`));},[]);
  async function perform(work:()=>Promise<void>){setBusy(true);setError('');setMessage('');try{await work();}catch(e){setError((e as Error).message);}finally{setBusy(false);}}
