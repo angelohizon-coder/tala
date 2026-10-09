@@ -11,30 +11,30 @@ dist/manifest.webmanifest                          0.42 kB
 dist/index.html                                    0.68 kB │ gzip:   0.41 kB
 dist/assets/LedgerPages-O-ZI-EXg.css               7.69 kB │ gzip:   1.93 kB
 dist/assets/index-VVYZOJOF.css                    19.79 kB │ gzip:   5.15 kB
-dist/assets/index.esm-DassYudM.js                  0.08 kB │ gzip:   0.09 kB
-dist/assets/download-Cv7bWMEO.js                   0.26 kB │ gzip:   0.21 kB
+dist/assets/index.esm-HB51n26y.js                  0.08 kB │ gzip:   0.09 kB
+dist/assets/download-AtK01_Fv.js                   0.26 kB │ gzip:   0.21 kB
 dist/assets/rolldown-runtime-hePW80VL.js           0.71 kB │ gzip:   0.42 kB
-dist/assets/shared-BCDzH2aD.js                     2.61 kB │ gzip:   1.20 kB
-dist/assets/useFinance-DJLzzKen.js                 3.73 kB │ gzip:   1.67 kB
+dist/assets/shared-ypOH3qLG.js                     2.61 kB │ gzip:   1.20 kB
+dist/assets/useFinance-DKtoZb1a.js                 3.73 kB │ gzip:   1.67 kB
 dist/assets/workbox-window.prod.es5-Bd17z0YL.js    5.65 kB │ gzip:   2.20 kB
 dist/assets/papaparse.min-BHzw_mE6.js             18.68 kB │ gzip:   6.78 kB
-dist/assets/InvestmentPages-BMWHzZ_5.js           24.60 kB │ gzip:   7.58 kB
-dist/assets/DataPage-BXTlbhsa.js                  25.15 kB │ gzip:   8.42 kB
-dist/assets/Overview-BQqXuEst.js                  29.16 kB │ gzip:   9.23 kB
-dist/assets/LedgerPages-URzYp3-8.js               55.32 kB │ gzip:  13.99 kB
-dist/assets/PlanningPages-BjRWkgGR.js             70.75 kB │ gzip:  19.97 kB
-dist/assets/providers-BMkl3hMp.js                186.70 kB │ gzip:  98.36 kB
-dist/assets/firebase-DjMps8cg.js                 351.65 kB │ gzip: 107.83 kB
-dist/assets/AreaChart-D0y1gDt6.js                357.66 kB │ gzip: 104.14 kB
-dist/assets/index-C4OPetVy.js                    419.16 kB │ gzip: 134.70 kB
+dist/assets/InvestmentPages-CdhgsrFl.js           24.60 kB │ gzip:   7.58 kB
+dist/assets/DataPage-DyLmwYPp.js                  25.15 kB │ gzip:   8.42 kB
+dist/assets/Overview-D2lRK6ty.js                  29.16 kB │ gzip:   9.23 kB
+dist/assets/LedgerPages-be-LZj2O.js               55.32 kB │ gzip:  13.99 kB
+dist/assets/PlanningPages-BwQVuHoG.js             70.75 kB │ gzip:  19.97 kB
+dist/assets/providers-OaMd37AR.js                186.70 kB │ gzip:  98.36 kB
+dist/assets/firebase-Dd_7jB6d.js                 351.65 kB │ gzip: 107.83 kB
+dist/assets/AreaChart-DU0NtOZs.js                357.66 kB │ gzip: 104.14 kB
+dist/assets/index-DE_7PrTy.js                    421.33 kB │ gzip: 135.45 kB
 
 [33m[33m[INEFFECTIVE_DYNAMIC_IMPORT] [0mnode_modules/firebase/auth/dist/esm/index.esm.js is dynamically imported by src/sync/firebase.ts but also statically imported by src/sync/firebase.ts, dynamic import will not move module into another chunk.
 [39m
-[32m✓ built in 632ms[39m
+[32m✓ built in 583ms[39m
 
 [36mPWA v2.0.0[39m
 mode      [35mgenerateSW[39m
-precache  [32m39 entries[39m [2m(2214.84 KiB)[22m
+precache  [32m39 entries[39m [2m(2216.95 KiB)[22m
 files generated
   [2mdist/sw.js[22m
   [2mdist/workbox-2fbc6a65.js[22m
