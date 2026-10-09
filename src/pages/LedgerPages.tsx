@@ -7,6 +7,9 @@ import { financeRepository } from '../db/repository';
 import { ACCOUNT_TYPES, TRANSACTION_TYPES, type Account, type Budget, type Transaction, type TransactionType } from '../core/types';
 import { toMinor, fromMinor, currencyScale, calculateBudget, calculateAmortization } from '../core/calculations';
 import { Money, Empty, Dialog } from '../ui/shared';
+import { Button, buttonVariants } from '../components/ui/button';
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '../components/ui/card';
+import { Badge } from '../components/ui/badge';
 import './ledger.css';
 
 const currencies = ['PHP', 'USD', 'HKD', 'JPY', 'GBP', 'CAD', 'AUD', 'EUR', 'SGD'];
@@ -113,15 +116,44 @@ export function AccountsPage() {
   const active = accounts.filter(account => !account.archived);
   const displayed = accounts.filter(account => showArchived || !account.archived);
   async function archive(account: Account) { try { setError(''); await financeRepository.save('accounts', { ...account, archived: !account.archived }); } catch (failure) { setError(errorText(failure)); } }
-  return <div className="page-section ledger-page"><Heading title="Your accounts" description="A complete view of your cash, investments and liabilities, in their original currencies." action={<button className="button primary" onClick={() => setEditing('new')}><Plus size={17} />Add account</button>} />
-    <div className="stat-grid"><article className="stat-card"><span>Active accounts</span><strong>{active.length}</strong></article><article className="stat-card"><span>Liquid accounts</span><strong>{active.filter(account => account.includeInLiquidNetWorth).length}</strong></article><article className="stat-card"><span>FIRE eligible</span><strong>{active.filter(account => account.includeInFire).length}</strong></article><article className="stat-card"><span>Liabilities</span><strong>{active.filter(account => liabilityTypes.has(account.accountType)).length}</strong></article></div>
-    <div className="ledger-toolbar"><p className="muted">Balances update as you record transactions, including while offline.</p><label className="inline-check"><input type="checkbox" checked={showArchived} onChange={event => setShowArchived(event.target.checked)} />Show archived</label></div><ErrorMessage message={error} />
-    {!displayed.length ? <Empty title="Start with an account" description="Add your actual bank, wallet, cash or loan balance. No personal balances are prefilled." action={<button className="button primary" onClick={() => setEditing('new')}>Add your first account</button>} /> : <div className="account-grid">{displayed.map(account => <article className={`card account-card ${account.archived ? 'is-archived' : ''}`} key={account.id}>
-      <div className="ledger-card-heading"><div><span className="eyebrow">{readable(account.accountType)}</span><h2>{account.name}</h2><p className="muted">{institutions.find(value => value.id === account.institutionId)?.name || account.institutionId || 'Personal account'} · {account.currency}</p></div><span className={`badge ${liabilityTypes.has(account.accountType) ? 'warning' : ''}`}>{account.archived ? 'Archived' : liabilityTypes.has(account.accountType) ? 'Amount owed' : 'Asset'}</span></div>
-      <div className="account-balance"><Money amount={balances[account.id] ?? account.openingBalance} currency={account.currency} /></div>
-      <div className="ledger-badges">{account.includeInNetWorth && <span className="badge">Net worth</span>}{account.includeInLiquidNetWorth && <span className="badge">Liquid</span>}{account.includeInFire && <span className="badge purple">FIRE</span>}{account.emergency && <span className="badge teal">Emergency</span>}</div>
-      <div className="ledger-card-actions"><button className="button small" onClick={() => setEditing(account)}><Pencil size={14} />Edit</button><button className="button small" onClick={() => archive(account)}>{account.archived ? <RotateCcw size={14} /> : <Archive size={14} />}{account.archived ? 'Restore' : 'Archive'}</button></div>
-    </article>)}</div>}{editing && <AccountForm account={editing === 'new' ? undefined : editing} onClose={() => setEditing(null)} />}
+  return <div className="space-y-6 max-w-[1400px] mx-auto p-4 md:p-8"><Heading title="Your accounts" description="A complete view of your cash, investments and liabilities, in their original currencies." action={<Button onClick={() => setEditing('new')}><Plus size={17} className="mr-2" />Add account</Button>} />
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <Card><CardContent className="p-6">
+        <span className="text-sm font-medium text-slate-500">Active accounts</span>
+        <strong className="block text-3xl font-bold mt-2">{active.length}</strong>
+      </CardContent></Card>
+      <Card><CardContent className="p-6">
+        <span className="text-sm font-medium text-slate-500">Liquid accounts</span>
+        <strong className="block text-3xl font-bold mt-2">{active.filter(account => account.includeInLiquidNetWorth).length}</strong>
+      </CardContent></Card>
+      <Card><CardContent className="p-6">
+        <span className="text-sm font-medium text-slate-500">FIRE eligible</span>
+        <strong className="block text-3xl font-bold mt-2">{active.filter(account => account.includeInFire).length}</strong>
+      </CardContent></Card>
+      <Card><CardContent className="p-6">
+        <span className="text-sm font-medium text-slate-500">Liabilities</span>
+        <strong className="block text-3xl font-bold mt-2">{active.filter(account => liabilityTypes.has(account.accountType)).length}</strong>
+      </CardContent></Card>
+    </div>
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-sm"><p className="text-slate-500">Balances update as you record transactions, including while offline.</p><label className="flex items-center gap-2 font-medium cursor-pointer"><input type="checkbox" className="rounded border-slate-300 text-primary focus:ring-primary h-4 w-4" checked={showArchived} onChange={event => setShowArchived(event.target.checked)} />Show archived</label></div><ErrorMessage message={error} />
+    {!displayed.length ? <Empty title="Start with an account" description="Add your actual bank, wallet, cash or loan balance. No personal balances are prefilled." action={<Button onClick={() => setEditing('new')}>Add your first account</Button>} /> : <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">{displayed.map(account => <Card className={account.archived ? 'opacity-60 grayscale' : ''} key={account.id}>
+      <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
+        <div>
+          <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">{readable(account.accountType)}</span>
+          <CardTitle className="mt-1 text-xl">{account.name}</CardTitle>
+          <p className="text-sm text-slate-500 mt-1">{institutions.find(value => value.id === account.institutionId)?.name || account.institutionId || 'Personal account'} · {account.currency}</p>
+        </div>
+        <Badge variant={account.archived ? 'secondary' : liabilityTypes.has(account.accountType) ? 'pending' : 'cleared'}>{account.archived ? 'Archived' : liabilityTypes.has(account.accountType) ? 'Amount owed' : 'Asset'}</Badge>
+      </CardHeader>
+      <CardContent>
+        <div className="text-3xl font-bold tracking-tight my-4"><Money amount={balances[account.id] ?? account.openingBalance} currency={account.currency} /></div>
+        <div className="flex flex-wrap gap-2 mt-4">{account.includeInNetWorth && <Badge variant="outline">Net worth</Badge>}{account.includeInLiquidNetWorth && <Badge variant="outline">Liquid</Badge>}{account.includeInFire && <Badge variant="outline">FIRE</Badge>}{account.emergency && <Badge variant="outline">Emergency</Badge>}</div>
+      </CardContent>
+      <CardFooter className="flex justify-end gap-2 pt-0 mt-4 border-t px-6 py-4">
+        <Button variant="outline" size="sm" onClick={() => setEditing(account)}><Pencil size={14} className="mr-1.5" />Edit</Button>
+        <Button variant="outline" size="sm" onClick={() => archive(account)}>{account.archived ? <RotateCcw size={14} className="mr-1.5" /> : <Archive size={14} className="mr-1.5" />}{account.archived ? 'Restore' : 'Archive'}</Button>
+      </CardFooter>
+    </Card>)}</div>}{editing && <AccountForm account={editing === 'new' ? undefined : editing} onClose={() => setEditing(null)} />}
   </div>;
 }
 
@@ -212,26 +244,27 @@ export function TransactionsPage() {
   const result = useLiveQuery(() => financeRepository.listTransactions({ start, end, accountId: accountId || undefined, institutionId: institutionId || undefined, categoryId: categoryId || undefined, type: type || undefined, currency: currency || undefined, tag: tag.trim() || undefined, search: search.trim() || undefined, offset, limit: pageSize }), [start, end, accountId, institutionId, categoryId, type, currency, tag, search, offset], { items: [] as Transaction[], total: 0 });
   const rows = result.items;
   const filter = (change: () => void) => { change(); setOffset(0); };
-  return <div className="page-section ledger-page"><Heading title="Your transactions" description="The events behind your balances. Add, find and reconcile entries without an internet connection." action={<button className="button primary" onClick={() => setEditing('new')}><Plus size={17} />Add transaction</button>} />
-    {!accounts.length && <Empty title="Add an account first" description="Transactions belong to an account so every balance can be reconciled." action={<a className="button primary" href="#/accounts">Create an account</a>} />}
-    <section className="card ledger-table-card"><div className="ledger-filters">
-      <Field label="Month"><input type="month" required value={month} onChange={event => event.target.value && filter(() => setMonth(event.target.value))} /></Field>
-      <Field label="Search merchant, notes or reference"><input type="search" value={search} onChange={event => filter(() => setSearch(event.target.value))} placeholder="Search your entries" /></Field>
-      <Field label="Account"><select value={accountId} onChange={event => filter(() => setAccountId(event.target.value))}><option value="">All accounts</option>{accounts.map(account => <option key={account.id} value={account.id}>{account.name}</option>)}</select></Field>
-      <Field label="Category"><select value={categoryId} onChange={event => filter(() => setCategoryId(event.target.value))}><option value="">All categories</option>{categories.map(category => <option key={category.id} value={category.id}>{category.name}{category.archived ? ' (archived)' : ''}</option>)}</select></Field>
-      <Field label="Type"><select value={type} onChange={event => filter(() => setType(event.target.value as TransactionType | ''))}><option value="">All types</option>{TRANSACTION_TYPES.map(value => <option key={value} value={value}>{readable(value)}</option>)}</select></Field>
-      <Field label="Currency"><select value={currency} onChange={event => filter(() => setCurrency(event.target.value))}><option value="">All currencies</option>{[...new Set(accounts.map(account => account.currency))].map(value => <option key={value}>{value}</option>)}</select></Field>
-      <Field label="Tag (exact match)"><input type="search" value={tag} onChange={event => filter(() => setTag(event.target.value))} placeholder="Any tag" /></Field>
-      <Field label="Institution"><select value={institutionId} onChange={event => filter(() => setInstitutionId(event.target.value))}><option value="">All institutions</option>{institutions.map(institution => <option key={institution.id} value={institution.id}>{institution.name}</option>)}</select></Field>
-    </div><div className="ledger-note muted">Transfers and card payments move balances without increasing spending. Amounts retain their original currency.</div>
-    {!rows.length ? <Empty title="No matching transactions" description="Try another filter, or record your first income, purchase or transfer." /> : <div className="table-scroll"><table className="data-table"><caption className="sr-only">Your transactions for {month}. Edit or delete an entry to update the ledger.</caption><thead><tr>{['Date', 'Description', 'Account', 'Category', 'Type', 'Amount', 'Actions'].map(value => <th scope="col" key={value}>{value}</th>)}</tr></thead><tbody>{rows.map(transaction => <tr key={transaction.id}>
-      <td>{dateText(transaction.date)}</td><td><strong>{transaction.merchant || transaction.notes || readable(transaction.type)}</strong>{transaction.tags?.length ? <small>{transaction.tags.join(' · ')}</small> : null}{transaction.reference && <small>Ref: {transaction.reference}</small>}</td>
-      <td>{accounts.find(account => account.id === transaction.accountId)?.name || 'Archived account'}{transaction.transferAccountId && <small>→ {accounts.find(account => account.id === transaction.transferAccountId)?.name || 'Destination'}</small>}</td>
-      <td>{categories.find(category => category.id === transaction.categoryId)?.name || '—'}</td><td><span className="badge">{readable(transaction.type)}</span></td><td className="numeric"><Money amount={transaction.amount} currency={transaction.currency} />{transaction.transferAmount != null && (transaction.transferCurrency || accounts.find(account => account.id === transaction.transferAccountId)?.currency || transaction.currency) !== transaction.currency && <small>Received <Money amount={transaction.transferAmount} currency={transaction.transferCurrency || accounts.find(account => account.id === transaction.transferAccountId)?.currency || transaction.currency} /></small>}</td>
-      <td><div className="row-actions"><button className="button icon small" aria-label={`Edit ${transaction.merchant || readable(transaction.type)} from ${transaction.date}`} onClick={() => setEditing(transaction)}><Pencil size={15} /></button><button className="button icon small" aria-label={`Delete ${transaction.merchant || readable(transaction.type)} from ${transaction.date}`} onClick={() => setDeleting(transaction)}><Trash2 size={15} /></button></div></td>
-    </tr>)}</tbody></table></div>}
-    <div className="ledger-pagination"><span>{rows.length} shown · {result.total} matching entries</span><div className="row-actions"><button className="button small" disabled={!offset} onClick={() => setOffset(Math.max(0, offset - pageSize))}>Previous</button><button className="button small" disabled={offset + pageSize >= result.total} onClick={() => setOffset(offset + pageSize)}>Next</button></div></div>
-    </section>{editing && <TransactionForm transaction={editing === 'new' ? undefined : editing} onClose={() => setEditing(null)} />}{deleting && <DeleteTransaction transaction={deleting} onClose={() => setDeleting(null)} />}
+  return <div className="space-y-6 max-w-[1400px] mx-auto p-4 md:p-8"><Heading title="Your transactions" description="The events behind your balances. Add, find and reconcile entries without an internet connection." action={<Button onClick={() => setEditing('new')}><Plus size={17} className="mr-2" />Add transaction</Button>} />
+    {!accounts.length && <Empty title="Add an account first" description="Transactions belong to an account so every balance can be reconciled." action={<a className={buttonVariants({ variant: 'default' })} href="/accounts">Create an account</a>} />}
+    <Card><CardContent className="p-0">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-6 border-b bg-slate-50/50">
+        <Field label="Month"><input type="month" required value={month} onChange={event => event.target.value && filter(() => setMonth(event.target.value))} /></Field>
+        <Field label="Search"><input type="search" value={search} onChange={event => filter(() => setSearch(event.target.value))} placeholder="Search your entries" /></Field>
+        <Field label="Account"><select value={accountId} onChange={event => filter(() => setAccountId(event.target.value))}><option value="">All accounts</option>{accounts.map(account => <option key={account.id} value={account.id}>{account.name}</option>)}</select></Field>
+        <Field label="Category"><select value={categoryId} onChange={event => filter(() => setCategoryId(event.target.value))}><option value="">All categories</option>{categories.map(category => <option key={category.id} value={category.id}>{category.name}{category.archived ? ' (archived)' : ''}</option>)}</select></Field>
+        <Field label="Type"><select value={type} onChange={event => filter(() => setType(event.target.value as TransactionType | ''))}><option value="">All types</option>{TRANSACTION_TYPES.map(value => <option key={value} value={value}>{readable(value)}</option>)}</select></Field>
+        <Field label="Currency"><select value={currency} onChange={event => filter(() => setCurrency(event.target.value))}><option value="">All currencies</option>{[...new Set(accounts.map(account => account.currency))].map(value => <option key={value}>{value}</option>)}</select></Field>
+        <Field label="Tag (exact match)"><input type="search" value={tag} onChange={event => filter(() => setTag(event.target.value))} placeholder="Any tag" /></Field>
+        <Field label="Institution"><select value={institutionId} onChange={event => filter(() => setInstitutionId(event.target.value))}><option value="">All institutions</option>{institutions.map(institution => <option key={institution.id} value={institution.id}>{institution.name}</option>)}</select></Field>
+      </div><div className="px-6 py-3 text-sm text-slate-500 bg-slate-50/50 border-b">Transfers and card payments move balances without increasing spending. Amounts retain their original currency.</div>
+      {!rows.length ? <div className="p-6"><Empty title="No matching transactions" description="Try another filter, or record your first income, purchase or transfer." /></div> : <div className="overflow-x-auto"><table className="w-full text-sm text-left"><caption className="sr-only">Your transactions for {month}. Edit or delete an entry to update the ledger.</caption><thead className="text-xs text-slate-500 uppercase bg-slate-50"><tr>{['Date', 'Description', 'Account', 'Category', 'Type', 'Amount', 'Actions'].map(value => <th scope="col" className="px-6 py-3 font-medium" key={value}>{value}</th>)}</tr></thead><tbody className="divide-y">{rows.map(transaction => <tr className="hover:bg-slate-50/50" key={transaction.id}>
+        <td className="px-6 py-4 whitespace-nowrap">{dateText(transaction.date)}</td><td className="px-6 py-4"><strong>{transaction.merchant || transaction.notes || readable(transaction.type)}</strong>{transaction.tags?.length ? <span className="block text-xs text-slate-500 mt-1">{transaction.tags.join(' · ')}</span> : null}{transaction.reference && <span className="block text-xs text-slate-500 mt-1">Ref: {transaction.reference}</span>}</td>
+        <td className="px-6 py-4 whitespace-nowrap">{accounts.find(account => account.id === transaction.accountId)?.name || 'Archived account'}{transaction.transferAccountId && <span className="block text-xs text-slate-500 mt-1">→ {accounts.find(account => account.id === transaction.transferAccountId)?.name || 'Destination'}</span>}</td>
+        <td className="px-6 py-4 whitespace-nowrap text-slate-600">{categories.find(category => category.id === transaction.categoryId)?.name || '—'}</td><td className="px-6 py-4"><Badge variant="secondary">{readable(transaction.type)}</Badge></td><td className="px-6 py-4 text-right whitespace-nowrap"><Money amount={transaction.amount} currency={transaction.currency} />{transaction.transferAmount != null && (transaction.transferCurrency || accounts.find(account => account.id === transaction.transferAccountId)?.currency || transaction.currency) !== transaction.currency && <span className="block text-xs text-slate-500 mt-1">Received <Money amount={transaction.transferAmount} currency={transaction.transferCurrency || accounts.find(account => account.id === transaction.transferAccountId)?.currency || transaction.currency} /></span>}</td>
+        <td className="px-6 py-4 whitespace-nowrap"><div className="flex items-center gap-2"><Button variant="ghost" size="sm" aria-label={`Edit ${transaction.merchant || readable(transaction.type)} from ${transaction.date}`} onClick={() => setEditing(transaction)}><Pencil size={15} /></Button><Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700 hover:bg-red-50" aria-label={`Delete ${transaction.merchant || readable(transaction.type)} from ${transaction.date}`} onClick={() => setDeleting(transaction)}><Trash2 size={15} /></Button></div></td>
+      </tr>)}</tbody></table></div>}
+      <div className="flex items-center justify-between px-6 py-4 border-t text-sm text-slate-500"><span>{rows.length} shown · {result.total} matching entries</span><div className="flex gap-2"><Button variant="outline" size="sm" disabled={!offset} onClick={() => setOffset(Math.max(0, offset - pageSize))}>Previous</Button><Button variant="outline" size="sm" disabled={offset + pageSize >= result.total} onClick={() => setOffset(offset + pageSize)}>Next</Button></div></div>
+    </CardContent></Card>{editing && <TransactionForm transaction={editing === 'new' ? undefined : editing} onClose={() => setEditing(null)} />}{deleting && <DeleteTransaction transaction={deleting} onClose={() => setDeleting(null)} />}
   </div>;
 }
 
