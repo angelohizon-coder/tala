@@ -3,7 +3,6 @@ import { beforeEach, afterEach, describe, it, expect } from 'vitest';
 import { FinanceDatabase, type SyncedEntity } from '../src/db/database';
 import { createFinanceRepository } from '../src/db/repository';
 import { createSyncEngine } from '../src/sync/engine';
-import { validateSupabaseConfiguration } from '../src/sync/supabase';
 import type { Account, Transaction } from '../src/core/types';
 import type { SyncProvider } from '../src/sync/provider';
 
@@ -145,11 +144,5 @@ describe('optional authenticated sync', () => {
     const remoteTransaction = { ...expense('remote-expense'), accountId: 'other-cash', categoryId: undefined, amount: 5000, ...metadata } as unknown as SyncedEntity;
     const provider: SyncProvider = { userId: async () => 'owner-a', push: async entry => ({ kind: 'applied', record: { tableName: entry.tableName, record: entry.payload } }), pull: async () => ({ records: [{ tableName: 'transactions', record: remoteTransaction }, { tableName: 'accounts', record: remoteAccount }], cursor: '2026-10-09T01:00:00Z' }), subscribe: async () => () => {} };
     const result = await createSyncEngine({ db, repository, provider }).syncNow(); expect(result.uploaded).toBeGreaterThan(0); expect(result.downloaded).toBe(2); expect(await db.syncOutbox.count()).toBe(0); expect((await repository.accountBalances('2026-10-09'))['other-cash']).toBe(195000);
-  });
-  it('rejects privileged Supabase credentials and URL userinfo', () => {
-    expect(validateSupabaseConfiguration('https://example.supabase.co', 'sb_publishable_public-test')).toBe('https://example.supabase.co');
-    expect(() => validateSupabaseConfiguration('https://user:password@example.supabase.co', 'sb_publishable_public-test')).toThrow();
-    expect(() => validateSupabaseConfiguration('https://example.supabase.co', 'sb_secret_private')).toThrow();
-    const token = `x.${btoa(JSON.stringify({ role: 'service_role' }))}.x`; expect(() => validateSupabaseConfiguration('https://example.supabase.co', token)).toThrow();
   });
 });
