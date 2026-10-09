@@ -11,7 +11,7 @@ transforming...
    |  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 6  |  :root{font-family:'DM Sans',system-ui,sans-serif;color:#273d37;background:#f5f6f8;font-synthesis:none;font-size:14px;...
 7  |  @media(min-width:1700px){#page-main{padding-top:40px}.metric-value{font-size:32px}.metric-card{padding:25px}.sidebar{...[39m
-[31m✗[39m Build failed in 849ms
+[31m✗[39m Build failed in 735ms
 
 [36mPWA v2.0.0[39m
 mode      [35mgenerateSW[39m
