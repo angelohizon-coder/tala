@@ -11,37 +11,48 @@ transforming...
    |  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 6  |  :root{font-family:'DM Sans',system-ui,sans-serif;color:#273d37;background:#f5f6f8;font-synthesis:none;font-size:14px;...
 7  |  @media(min-width:1700px){#page-main{padding-top:40px}.metric-value{font-size:32px}.metric-card{padding:25px}.sidebar{...[39m
-✓ 2569 modules transformed.
-rendering chunks...
-computing gzip size...
-dist/manifest.webmanifest                          0.42 kB
-dist/index.html                                    1.00 kB │ gzip:   0.59 kB
-dist/assets/LedgerPages-O-ZI-EXg.css               7.69 kB │ gzip:   1.93 kB
-dist/assets/index-BxCU2rg4.css                    29.70 kB │ gzip:   7.46 kB
-dist/assets/index.esm-BVvf8WWB.js                  0.08 kB │ gzip:   0.09 kB
-dist/assets/download-Dkb4wU7g.js                   0.26 kB │ gzip:   0.21 kB
-dist/assets/rolldown-runtime-hePW80VL.js           0.71 kB │ gzip:   0.42 kB
-dist/assets/shared-CFZfx0wo.js                     2.61 kB │ gzip:   1.20 kB
-dist/assets/useFinance-BqojOapo.js                 3.73 kB │ gzip:   1.67 kB
-dist/assets/workbox-window.prod.es5-Bd17z0YL.js    5.65 kB │ gzip:   2.20 kB
-dist/assets/papaparse.min-BHzw_mE6.js             18.68 kB │ gzip:   6.78 kB
-dist/assets/InvestmentPages-BquLQApa.js           24.60 kB │ gzip:   7.58 kB
-dist/assets/DataPage-Bnd-Pw3V.js                  25.15 kB │ gzip:   8.42 kB
-dist/assets/Overview-DldW-PDt.js                  29.16 kB │ gzip:   9.23 kB
-dist/assets/LedgerPages-YRKLoTWA.js               55.32 kB │ gzip:  13.99 kB
-dist/assets/PlanningPages-BPHWeNOa.js             70.75 kB │ gzip:  19.97 kB
-dist/assets/providers-C95rmNFC.js                186.70 kB │ gzip:  98.36 kB
-dist/assets/firebase-Bd_ZNDia.js                 351.65 kB │ gzip: 107.83 kB
-dist/assets/AreaChart-BaWzWQP7.js                357.66 kB │ gzip: 104.14 kB
-dist/assets/index-IiayDQkM.js                    421.28 kB │ gzip: 135.44 kB
-
-[33m[33m[INEFFECTIVE_DYNAMIC_IMPORT] [0mnode_modules/firebase/auth/dist/esm/index.esm.js is dynamically imported by src/sync/firebase.ts but also statically imported by src/sync/firebase.ts, dynamic import will not move module into another chunk.
-[39m
-[32m✓ built in 1.00s[39m
+[31m✗[39m Build failed in 849ms
 
 [36mPWA v2.0.0[39m
 mode      [35mgenerateSW[39m
-precache  [32m40 entries[39m [2m(2227.64 KiB)[22m
+precache  [32m4 entries[39m [2m(0.00 KiB)[22m
 files generated
   [2mdist/sw.js[22m
   [2mdist/workbox-2fbc6a65.js[22m
+[33mwarnings
+  One of the glob patterns doesn't match any files. Please remove or fix the following: {
+  "globDirectory": "/home/runner/work/tala/tala/dist",
+  "globPattern": "**/*.{js,css,html,svg,png,json,woff2}",
+  "globIgnores": [
+    "**/node_modules/**/*",
+    "sw.js",
+    "workbox-*.js"
+  ]
+}
+[39m
+[31merror during build:
+[31mBuild failed with 1 error:
+
+[plugin vite-plugin-pwa:build]
+Error: Build failed with 1 error:
+
+[31m[UNLOADABLE_DEPENDENCY] [0mCould not load src/firebase.ts
+   [38;5;246m╭[0m[38;5;246m─[0m[38;5;246m[[0m src/sync/firebase.ts:1:21 [38;5;246m][0m
+   [38;5;246m│[0m
+ [38;5;246m1 │[0m [38;5;249mi[0m[38;5;249mm[0m[38;5;249mp[0m[38;5;249mo[0m[38;5;249mr[0m[38;5;249mt[0m[38;5;249m [0m[38;5;249m{[0m[38;5;249m [0m[38;5;249ma[0m[38;5;249mp[0m[38;5;249mp[0m[38;5;249m [0m[38;5;249m}[0m[38;5;249m [0m[38;5;249mf[0m[38;5;249mr[0m[38;5;249mo[0m[38;5;249mm[0m[38;5;249m [0m"../firebase"[38;5;249m;[0m
+ [38;5;240m  │[0m                     ──────┬──────  
+ [38;5;240m  │[0m                           ╰──────── stream did not contain valid UTF-8
+[38;5;246m───╯[0m
+    at aggregateBindingErrorsIntoJsError (file:///home/runner/work/tala/tala/node_modules/rolldown/dist/shared/error-Dsqzw0Oa.mjs:49:18)
+    at plugin (file:///home/runner/work/tala/tala/node_modules/rolldown/dist/shared/bindingify-input-options-C0gEvtnB.mjs:1638:60)
+    at file:///home/runner/work/tala/tala/node_modules/rolldown/dist/shared/bindingify-input-options-C0gEvtnB.mjs:2118:21
+    at plugin.<computed> (file:///home/runner/work/tala/tala/node_modules/rolldown/dist/shared/bindingify-input-options-C0gEvtnB.mjs:2316:18)[31m
+    at aggregateBindingErrorsIntoJsError (file:///home/runner/work/tala/tala/node_modules/rolldown/dist/shared/error-Dsqzw0Oa.mjs:49:18)
+    at unwrapBindingResult (file:///home/runner/work/tala/tala/node_modules/rolldown/dist/shared/error-Dsqzw0Oa.mjs:19:128)
+    at #build (file:///home/runner/work/tala/tala/node_modules/rolldown/dist/shared/rolldown-D_vNlorD.mjs:133:34)
+    at async buildEnvironment (file:///home/runner/work/tala/tala/node_modules/vite/dist/node/chunks/node.js:34716:66)
+    at async Object.build (file:///home/runner/work/tala/tala/node_modules/vite/dist/node/chunks/node.js:35137:19)
+    at async Object.buildApp (file:///home/runner/work/tala/tala/node_modules/vite/dist/node/chunks/node.js:35134:153)
+    at async CAC.<anonymous> (file:///home/runner/work/tala/tala/node_modules/vite/dist/node/cli.js:780:3) {
+  errors: [Getter/Setter]
+}[39m
