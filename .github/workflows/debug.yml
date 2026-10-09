@@ -22,3 +22,4 @@ jobs:
           git add debug*.txt
           git commit -m "chore: debug logs" || true
           git push || true
+

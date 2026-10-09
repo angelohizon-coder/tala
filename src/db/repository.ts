@@ -344,5 +344,101 @@ export async function initializeFinanceDatabase(db: FinanceDatabase = financeDb)
   for (const name of ['Housing', 'Food', 'Transport', 'Healthcare', 'Insurance', 'Travel', 'Family', 'Entertainment', 'Subscriptions', 'Taxes', 'Education', 'Charity', 'Personal', 'Miscellaneous', 'Salary', 'Other income']) {
     await repository.save('categories', { id: `category-${name.toLowerCase().replaceAll(' ', '-')}`, name, kind: ['Salary', 'Other income'].includes(name) ? 'income' : 'expense', color: '#6b7280', essential: ['Housing', 'Food', 'Healthcare'].includes(name), archived: false });
   }
+
+  const accountsData = [
+    { name: 'Emergency Fund (Maya)', type: 'EWALLET', bal: 13001779 },
+    { name: 'DragonFi Investments', type: 'BROKERAGE', bal: 24341868 },
+    { name: 'UITF EQF (BDO)', type: 'UITF', bal: 1000000 },
+    { name: 'UITF STF (BDO)', type: 'UITF', bal: 101407210 },
+    { name: 'GoTrade (USD)', type: 'BROKERAGE', bal: 54997, curr: 'USD' },
+    { name: 'IBKR (USD)', type: 'BROKERAGE', bal: 3371917, curr: 'USD' },
+    { name: 'Insurance (PhilamLife)', type: 'OTHER_ASSET', bal: 926859 },
+    { name: 'PERA Account (DragonFi)', type: 'PERA', bal: 326625 },
+    { name: 'MP2 (Pag-ibig)', type: 'PAGIBIG_MP2', bal: 3000000 },
+    { name: 'MP1 (Pag-ibig)', type: 'OTHER_ASSET', bal: 1497481 },
+    { name: 'Retirement Fund (SSS)', type: 'RETIREMENT', bal: 18585000 }
+  ];
+  
+  for (const a of accountsData) {
+    await repository.save('accounts', {
+      id: `account-${a.name.replace(/[^a-z0-9]/gi, '').toLowerCase()}`,
+      name: a.name,
+      accountType: a.type as never,
+      currency: a.curr || 'PHP',
+      openingBalance: a.bal,
+      openingDate: '2026-10-01',
+      includeInNetWorth: true,
+      includeInLiquidNetWorth: true,
+      includeInFire: true,
+      emergency: a.name.includes('Emergency'),
+      archived: false
+    });
+  }
+
+  await repository.save('accounts', {
+    id: 'account-braces',
+    name: 'Braces (Healthcare)',
+    accountType: 'OTHER_LIABILITY',
+    currency: 'PHP',
+    openingBalance: 6875000,
+    openingDate: '2026-10-01',
+    includeInNetWorth: true,
+    includeInLiquidNetWorth: true,
+    includeInFire: true,
+    emergency: false,
+    archived: false
+  });
+
+  await repository.setSetting('finance', {
+    baseCurrency: 'PHP',
+    withdrawalRate: 0.04,
+    selectedAnnualSpendingBasis: 'MANUAL',
+    annualSpending: 15924 * 12 * 100,
+    essentialCategoryIds: [],
+    inflationAssumption: 0.03,
+    investmentReturnAssumption: 0.06,
+    monthlyContribution: 880000,
+    privacyMode: 'LOCAL_ONLY'
+  });
+  
+  await repository.save('goals', {
+    id: 'goal-fire',
+    name: 'Target FIRE',
+    target: 1500000000,
+    currency: 'PHP'
+  });
+  
+  await repository.save('recurringRules', {
+    id: 'rule-job1',
+    name: 'Job 1',
+    frequency: 'monthly',
+    startDate: '2026-10-01',
+    nextDate: '2026-11-01',
+    active: true,
+    template: {
+      accountId: 'account-emergencyfundmaya',
+      categoryId: 'category-salary',
+      type: 'INCOME',
+      amount: 4265000,
+      currency: 'PHP'
+    }
+  });
+
+  const expenses = [
+    { name: 'Internet', val: 179900, cat: 'subscriptions' },
+    { name: 'Water', val: 100000, cat: 'housing' },
+    { name: 'Meralco', val: 500000, cat: 'housing' },
+    { name: 'Whey Protein', val: 200000, cat: 'healthcare' }
+  ];
+  for (const e of expenses) {
+    await repository.save('budgets', {
+      id: `budget-${e.name.toLowerCase().replace(/[^a-z0-9]/gi, '')}`,
+      categoryId: `category-${e.cat}`,
+      amount: e.val,
+      currency: 'PHP',
+      periodType: 'monthly',
+      period: '2026-10'
+    });
+  }
 }
 export const initializeDatabase = initializeFinanceDatabase;
