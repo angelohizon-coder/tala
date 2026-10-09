@@ -1,0 +1,122 @@
+[
+  {
+    "symbol": "AC",
+    "name": "Ayala Corporation",
+    "assetType": "stock",
+    "sector": "Conglomerates"
+  },
+  {
+    "symbol": "BDO",
+    "name": "BDO Unibank",
+    "assetType": "stock",
+    "sector": "Banks"
+  },
+  {
+    "symbol": "SM",
+    "name": "SM Investments Corporation",
+    "assetType": "stock",
+    "sector": "Conglomerates"
+  },
+  {
+    "symbol": "SMPH",
+    "name": "SM Prime Holdings",
+    "assetType": "stock",
+    "sector": "Property"
+  },
+  {
+    "symbol": "ALI",
+    "name": "Ayala Land",
+    "assetType": "stock",
+    "sector": "Property"
+  },
+  {
+    "symbol": "BPI",
+    "name": "Bank of the Philippine Islands",
+    "assetType": "stock",
+    "sector": "Banks"
+  },
+  {
+    "symbol": "MBT",
+    "name": "Metropolitan Bank & Trust",
+    "assetType": "stock",
+    "sector": "Banks"
+  },
+  {
+    "symbol": "JFC",
+    "name": "Jollibee Foods Corporation",
+    "assetType": "stock",
+    "sector": "Consumer"
+  },
+  {
+    "symbol": "TEL",
+    "name": "PLDT",
+    "assetType": "stock",
+    "sector": "Telecommunications"
+  },
+  {
+    "symbol": "GLO",
+    "name": "Globe Telecom",
+    "assetType": "stock",
+    "sector": "Telecommunications"
+  },
+  {
+    "symbol": "ICT",
+    "name": "International Container Terminal Services",
+    "assetType": "stock",
+    "sector": "Industrials"
+  },
+  {
+    "symbol": "URC",
+    "name": "Universal Robina Corporation",
+    "assetType": "stock",
+    "sector": "Consumer"
+  },
+  {
+    "symbol": "AEV",
+    "name": "Aboitiz Equity Ventures",
+    "assetType": "stock",
+    "sector": "Conglomerates"
+  },
+  {
+    "symbol": "AP",
+    "name": "Aboitiz Power Corporation",
+    "assetType": "stock",
+    "sector": "Utilities"
+  },
+  {
+    "symbol": "MER",
+    "name": "Manila Electric Company",
+    "assetType": "stock",
+    "sector": "Utilities"
+  },
+  {
+    "symbol": "CNVRG",
+    "name": "Converge ICT Solutions",
+    "assetType": "stock",
+    "sector": "Telecommunications"
+  },
+  {
+    "symbol": "MONDE",
+    "name": "Monde Nissin Corporation",
+    "assetType": "stock",
+    "sector": "Consumer"
+  },
+  {
+    "symbol": "DMC",
+    "name": "DMCI Holdings",
+    "assetType": "stock",
+    "sector": "Conglomerates"
+  },
+  {
+    "symbol": "LTG",
+    "name": "LT Group",
+    "assetType": "stock",
+    "sector": "Conglomerates"
+  },
+  {
+    "symbol": "FMETF",
+    "name": "First Metro Philippine Equity Exchange Traded Fund",
+    "assetType": "etf",
+    "sector": "Exchange-traded fund"
+  }
+]

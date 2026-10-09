@@ -1,0 +1,4 @@
+import { validDate } from './repository';
+export function statementDate(raw:string,format:string,maxDate:string){const parts=raw.trim().split(/[\/.-]/);let result=raw.trim();if(format!=='ISO'&&parts.length===3){const [a,b,y]=parts;result=`${y}-${(format==='DMY'?b:a).padStart(2,'0')}-${(format==='DMY'?a:b).padStart(2,'0')}`;}if(!validDate(result)||result>maxDate)throw new Error(`Invalid or future statement date: ${raw}`);return result;}
+export function statementAmount(raw:string){const value=raw.trim();if(!/^-?(?:\d+|\d{1,3}(?:,\d{3})+)(?:\.\d+)?$/.test(value))throw new Error(`Invalid amount: ${raw}. Use a decimal point and optional three-digit comma groups.`);const amount=Number(value.replaceAll(',',''));if(!Number.isFinite(amount))throw new Error('Invalid statement amount.');return amount;}
+export function supportsStatementAccount(type:string){return !['CREDIT_CARD','PERSONAL_LOAN','MORTGAGE','OTHER_LIABILITY'].includes(type);}

@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en-PH">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#142d2b">
+  <meta name="description" content="Follow Philippine and international stocks with original currencies, sources and exchange timestamps. Includes PSEi, funds and ETFs when supported by your source.">
+  <title>Tala — market dashboard</title>
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg">
+  <link rel="stylesheet" href="./styles.css">
+  <script type="module" src="./src/app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to market dashboard</a>
+  <svg class="icon-library" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+    <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></symbol>
+    <symbol id="i-trend" viewBox="0 0 24 24"><path d="m3 17 6-6 4 4 8-10M15 5h6v6"/></symbol>
+    <symbol id="i-fund" viewBox="0 0 24 24"><path d="M4 20h16M6 20V9m6 11V9m6 11V9M3 7l9-4 9 4H3Z"/></symbol>
+    <symbol id="i-layers" viewBox="0 0 24 24"><path d="m12 3 9 5-9 5-9-5 9-5Zm-9 9 9 5 9-5M3 16l9 5 9-5"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9L12 3Z"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></symbol>
+    <symbol id="i-gear" viewBox="0 0 24 24"><path d="m9 3-.5 3-2 1.2-2.8-1-2 3.5 2.3 2v2.4l-2.3 2 2 3.5 2.8-1 2 1.2.5 3h4l.5-3 2-1.2 2.8 1 2-3.5-2.3-2v-2.4l2.3-2-2-3.5-2.8 1-2-1.2-.5-3h-4Z"/><circle cx="11" cy="13" r="3"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 8a8 8 0 0 0-14-3L3 8m0-5v5h5M4 16a8 8 0 0 0 14 3l3-3m0 5v-5h-5"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12m-4-4 4 4 4-4M4 15v6h16v-6"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h16m-6-6 6 6-6 6"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-10v1"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></symbol>
+  </svg>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Dashboard navigation">
+      <a class="brand" href="#overview" aria-label="Tala home"><span class="brand-mark"><svg class="icon"><use href="#i-trend"/></svg></span>tala<span class="brand-dot">.</span><span class="country-tag">PH</span></a>
+      <div class="nav-label">YOUR MARKETS</div>
+      <nav id="main-nav" aria-label="Main navigation">
+        <button class="nav-item active" data-view="overview" aria-current="page"><svg class="icon"><use href="#i-grid"/></svg>Overview</button>
+        <button class="nav-item" data-view="stocks"><svg class="icon"><use href="#i-trend"/></svg>Stocks</button>
+        <button class="nav-item" data-view="funds"><svg class="icon"><use href="#i-fund"/></svg>Mutual funds</button>
+        <button class="nav-item" data-view="etfs"><svg class="icon"><use href="#i-layers"/></svg>ETFs<span class="nav-small">1</span></button>
+        <button class="nav-item" data-view="watchlist"><svg class="icon"><use href="#i-star"/></svg>My watchlist<span class="nav-count" id="watch-count">5</span></button>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="sidebar-note"><span class="little-star">✳</span><p>A little clarity.<br>A wider perspective.</p><span>Your markets, together.</span></div>
+        <button class="nav-item guide-button" id="guide-open"><svg class="icon"><use href="#i-info"/></svg>About the data<svg class="icon guide-arrow"><use href="#i-arrow"/></svg></button>
+        <div class="sidebar-footer"><span class="status-dot"></span>Independent market dashboard</div>
+      </div>
+    </aside>
+    <div class="workspace">
+      <header class="topbar">
+        <div class="topbar-context"><button class="icon-button mobile-menu" id="menu-toggle" aria-label="Toggle navigation" aria-expanded="false"><svg class="icon"><use href="#i-menu"/></svg></button><span>Markets</span><span class="breadcrumb-divider">/</span><strong id="breadcrumb">Overview</strong></div>
+        <div class="topbar-actions">
+          <div class="search-wrap"><svg class="icon"><use href="#i-search"/></svg><label class="sr-only" for="search-input">Search stocks, ETFs and funds</label><input id="search-input" type="search" placeholder="Search a symbol or fund…" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="search-results" aria-autocomplete="list"><kbd>/</kbd><ul id="search-results" class="search-results" role="listbox" aria-label="Matching instruments" hidden></ul></div>
+          <span class="currency-pill" id="market-currency">PHP <span>₱</span></span>
+          <button class="icon-button topbar-add" id="topbar-add-stock" aria-label="Add a new stock" title="Add stock"><span aria-hidden="true">+</span></button>
+          <button class="icon-button" id="settings-open" aria-label="Data connection settings"><svg class="icon"><use href="#i-gear"/></svg></button>
+        </div>
+      </header>
+      <main id="main-content" tabindex="-1">
+        <div class="page-heading"><div><div class="eyebrow" id="market-eyebrow">THE PHILIPPINE MARKET, AT A GLANCE</div><h1 id="page-title">Your market, in focus<span>.</span></h1><p id="page-subtitle">A clearer view of stocks, funds, and everything in between.</p></div><div class="heading-date"><span id="today-date">09 October 2026</span><span class="time-zone" id="market-time-zone">Source times use each exchange’s local time</span></div></div>
+        <div class="market-toolbar"><div class="market-choice"><label for="market-select">Market</label><select id="market-select"><option value="PH">Philippines · PSE</option><option value="US">United States</option><option value="HK">Hong Kong</option><option value="JP">Japan</option><option value="GB">United Kingdom</option><option value="CA">Canada</option><option value="AU">Australia</option><option value="ALL">All saved markets</option></select></div><p id="market-state" role="status" aria-live="polite">Prices keep their original currencies. Source times follow the exchange.</p></div>
+        <div class="data-banner" id="data-banner"><span class="banner-icon"><svg class="icon"><use href="#i-info"/></svg></span><p id="market-status" role="status" aria-live="polite">Loading data connection…</p><button id="connect-data" class="banner-connect">Connect data</button><button id="refresh-data" class="banner-refresh" aria-label="Refresh market data"><svg class="icon"><use href="#i-refresh"/></svg><span>Refresh</span></button></div>
+        <section class="summary-grid" aria-label="Market summary">
+          <article class="summary-card index-card"><div class="summary-top"><span>PSE INDEX · PH</span><span class="light-badge" id="index-badge">Unavailable</span></div><div class="index-value" id="index-value">—<span>PTS</span></div><div class="index-bottom"><span class="change-pill" id="index-change">—</span><span id="index-date">Source not connected</span></div></article>
+          <article class="summary-card"><div class="summary-top"><span>YOUR WATCHLIST</span><svg class="icon muted-icon"><use href="#i-star"/></svg></div><div class="summary-value" id="watch-average">—</div><div class="summary-foot" id="watch-summary">Average daily change · 5 securities</div><div class="micro-label">An equal-weight view of your picks</div></article>
+          <article class="summary-card"><div class="summary-top"><span>MARKET DIRECTION</span><svg class="icon muted-icon"><use href="#i-trend"/></svg></div><div class="breadth-numbers"><span class="up" id="advancers">—</span><span class="breadth-slash">/</span><span class="down" id="decliners">—</span></div><div class="breadth-bar" aria-hidden="true" hidden><span id="breadth-fill"></span></div><div class="summary-foot" id="breadth-label">Advancing / declining · covered stocks</div></article>
+          <article class="summary-card nav-summary"><div class="summary-top"><span>PH FUND VALUATION</span><svg class="icon muted-icon"><use href="#i-fund"/></svg></div><div class="summary-value nav-date" id="fund-date">—</div><div class="summary-foot"><span class="small-dot"></span><span id="fund-count">Daily NAV · — Philippine funds</span></div><div class="micro-label">Valuation date, separately timestamped</div></article>
+        </section>
+        <section class="chart-grid" aria-label="Selected instrument and watchlist">
+          <article class="card chart-card">
+            <div class="section-header chart-heading"><div><div class="section-eyebrow" id="detail-category">INDEX PERFORMANCE</div><h2><span id="detail-symbol">PSEi</span><span class="detail-name" id="detail-name">Philippine Stock Exchange Index</span></h2></div><button class="icon-button detail-watch" id="detail-watch" aria-label="Add selected instrument to watchlist" hidden><svg class="icon"><use href="#i-star"/></svg></button></div>
+            <div class="chart-controls"><div class="chart-quote"><strong id="detail-value">—</strong><span class="chart-change" id="detail-change">—</span><span class="chart-value-type" id="detail-value-type">Index points</span></div><div class="range-switch" id="chart-range" role="group" aria-label="Historical chart range"><button data-range="1w" aria-pressed="false">1W</button><button data-range="1m" class="active" aria-pressed="true">1M</button><button data-range="3m" aria-pressed="false">3M</button><button data-range="1y" aria-pressed="false">1Y</button></div></div>
+            <div class="chart-stage" id="chart-stage"><svg id="history-chart" role="img" aria-labelledby="chart-title chart-desc" viewBox="0 0 900 252"><title id="chart-title">PSEi history</title><desc id="chart-desc">Loading. The history data table appears below the chart.</desc></svg><div id="chart-tooltip" class="chart-tooltip" hidden></div><p id="chart-empty" hidden>No historical data is available for this instrument.</p></div>
+            <div class="chart-meta"><span><span class="legend-dot"></span><span id="history-label">Daily close · source unavailable</span></span><span id="detail-asof">As of —</span></div>
+            <div id="etf-nav-detail" class="etf-nav-detail" hidden></div>
+            <details id="history-details" class="history-details"><summary>View historical data <span id="history-point-count"></span></summary><div class="history-table-scroll"><table id="history-table"><caption class="sr-only">Historical values for selected instrument</caption><thead><tr><th scope="col" id="history-date-heading">Exchange session date</th><th scope="col" id="history-value-heading">Value</th><th scope="col">Source</th></tr></thead><tbody></tbody></table></div></details>
+          </article>
+          <article class="card radar-card"><div class="section-header"><div><div class="section-eyebrow">YOUR PERSONAL PULSE</div><h2>On your radar</h2></div><svg class="icon muted-icon"><use href="#i-star"/></svg></div><div id="radar-list" class="radar-list"></div><button class="text-link radar-link" data-view="watchlist">View your watchlist<svg class="icon"><use href="#i-arrow"/></svg></button><div class="radar-note"><span class="radar-note-icon">↗</span><div><strong>Keep the bigger picture.</strong><p>Compare daily changes. Explore the history behind every move.</p></div></div></article>
+        </section>
+        <section class="card explore-card" aria-labelledby="explore-title">
+          <div class="section-header explore-header"><div><div class="section-eyebrow">FIND YOUR NEXT PERSPECTIVE</div><h2 id="explore-title">Explore the market</h2></div><div class="explore-actions"><button class="primary-button" id="add-stock-open"><span aria-hidden="true">+</span>Add stock</button><button class="outline-button" id="export-csv"><svg class="icon"><use href="#i-download"/></svg>Export CSV</button></div></div>
+          <div class="table-toolbar"><div class="table-tabs" role="group" aria-label="Instrument category"><button data-table-view="stocks" class="active" aria-pressed="true">Stocks<span id="stocks-count">19</span></button><button data-table-view="funds" aria-pressed="false">Mutual funds</button><button data-table-view="etfs" aria-pressed="false">ETFs</button><button data-table-view="watchlist" aria-pressed="false">My watchlist</button></div><div class="table-filter"><label class="sr-only" for="table-filter">Filter table by symbol or name</label><svg class="icon"><use href="#i-search"/></svg><input id="table-filter" type="search" placeholder="Filter instruments…"></div></div>
+          <div class="table-scroll"><table id="instrument-table"><caption class="sr-only">Market instruments. Select a name to view its history. Star a stock to save it.</caption><thead id="instrument-head"></thead><tbody></tbody></table></div>
+          <div class="table-bottom"><span id="table-count">Loading instruments…</span><span id="table-data-note">Loading data connection…</span></div>
+        </section>
+        <footer class="main-footer"><span class="footer-brand">tala<span>.</span><span class="footer-divider">/</span><span id="footer-market">Your perspective on Philippine markets.</span></span><button id="footer-guide" class="text-link">Data sources & freshness<svg class="icon"><use href="#i-arrow"/></svg></button></footer>
+        <p class="footer-notice" id="footer-notice">Connect a data provider to load actual market values. Missing prices are never filled with invented data.</p>
+        <p class="footer-notice" id="free-source-reference" hidden><a href="https://edge.pse.com.ph/" target="_blank" rel="noopener noreferrer">PSE EDGE source ↗</a> <span id="free-original-source" hidden>· <a href="https://edge.pse.com.ph/" target="_blank" rel="noopener noreferrer">Original PSE EDGE reference ↗</a></span> · Stock and index snapshots with original timestamps.</p>
+      </main>
+    </div>
+  </div>
+  <dialog id="add-stock-dialog" class="app-dialog" aria-labelledby="add-stock-title">
+    <form id="add-stock-form">
+      <div class="dialog-heading"><div><div class="section-eyebrow">BUILD YOUR OWN WATCHLIST</div><h2 id="add-stock-title">Add a stock.</h2></div><button type="button" class="icon-button" data-close-dialog aria-label="Close add stock"><svg class="icon"><use href="#i-close"/></svg></button></div>
+      <p id="add-stock-help" class="dialog-intro">Choose an exchange, then search a company or enter its ticker.</p>
+      <label for="add-stock-market">Stock market</label><select id="add-stock-market"><option value="PH">Philippines · PSE</option><option value="US">United States</option><option value="HK">Hong Kong</option><option value="JP">Japan</option><option value="GB">United Kingdom</option><option value="CA">Canada</option><option value="AU">Australia</option></select>
+      <label for="add-stock-input" id="add-stock-input-label">Symbol or company name</label><input id="add-stock-input" type="search" placeholder="e.g. AREIT, DNL, SPNEC" autocomplete="off" maxlength="100"><ul id="add-stock-results" class="add-stock-results" aria-label="Matching stocks"></ul><p id="add-stock-error" class="form-error" role="alert" hidden></p>
+      <div class="dialog-actions"><button type="button" class="outline-button" data-close-dialog>Cancel</button><button id="add-stock-submit" class="primary-button" type="submit">Add symbol<svg class="icon"><use href="#i-star"/></svg></button></div>
+    </form>
+  </dialog>
+  <dialog id="settings-dialog" class="app-dialog" aria-labelledby="settings-title">
+    <form id="settings-form">
+      <div class="dialog-heading"><div><div class="section-eyebrow">YOUR DATA CONNECTION</div><h2 id="settings-title">Connect actual market data.</h2></div><button type="button" class="icon-button" data-close-dialog aria-label="Close settings"><svg class="icon"><use href="#i-close"/></svg></button></div>
+      <p class="dialog-intro">Choose a data connection. Every available value retains its source and original timestamp.</p>
+      <label for="connection-mode">Data source</label>
+      <select id="connection-mode"><option value="free" id="free-mode-option" hidden>Free market sources (no API key)</option><option value="unconfigured">Not connected — prices unavailable</option><option value="local" id="local-mode-option" hidden>EODHD on this computer (personal use)</option><option value="gateway">Licensed market-data gateway</option><option value="demo">Sample mode — fictional prices</option></select>
+      <p class="field-help" id="free-data-help" hidden>Philippine stock and PSEi snapshots use PSE EDGE; international stocks use the connected public source when reachable. Each quote keeps its currency, source and exchange time. Missing quotes, mutual-fund NAV and ETF NAV remain unavailable.</p>
+      <div id="local-setup" hidden><label for="local-token">EODHD API key</label><input id="local-token" type="password" autocomplete="off" placeholder="Enter your own provider key"><p class="field-help">Stored by the local server outside the published site. It is never saved in browser storage or included in site assets.</p><label class="checkbox-label"><input type="checkbox" id="local-use">I’m connecting my own account for personal use on this computer.</label><p class="field-help">EODHD provides delayed stock quotes and daily history. PSEi, mutual funds and ETF NAV require their own approved sources.</p></div>
+      <label for="api-url">Gateway base URL</label><input id="api-url" type="url" placeholder="https://your-gateway.workers.dev" aria-describedby="api-help"><p id="api-help" class="field-help">For a published site, connect a gateway with the required display rights. Provider keys belong on its server.</p><p id="settings-error" class="form-error" role="alert" hidden></p>
+      <div class="dialog-actions"><button type="button" class="outline-button" data-close-dialog>Cancel</button><button class="primary-button" type="submit">Save connection<svg class="icon"><use href="#i-arrow"/></svg></button></div>
+    </form>
+  </dialog>
+  <dialog id="guide-dialog" class="app-dialog guide-dialog" aria-labelledby="guide-title"><div class="dialog-heading"><div><div class="section-eyebrow">A CLEARER PICTURE</div><h2 id="guide-title">Know what you’re looking at.</h2></div><button class="icon-button" data-close-dialog aria-label="Close data guide"><svg class="icon"><use href="#i-close"/></svg></button></div><p class="dialog-intro">Every value has a source and a timestamp. Different instruments move at different speeds.</p><div class="guide-row"><span class="guide-tag">PSEi & stocks</span><p>Index points and last-traded prices. Licensed gateway quotes carry their provider’s delay and original timestamp; older quotes are marked stale.</p></div><div class="guide-row"><span class="guide-tag">Mutual funds</span><p>Daily NAVPS or NAVPU, with the actual valuation date. A previous-day valuation is separate from an intraday quote.</p></div><div class="guide-row"><span class="guide-tag">ETFs</span><p>Exchange-traded price and NAV or indicative NAV are separate values, with independent source timestamps.</p></div><div class="guide-row"><span class="guide-tag">Sample mode</span><p>All prices, changes, fund names and history are fictional. The example snapshot is dated 8 October 2026. Refreshing reloads this snapshot.</p></div><div class="guide-row"><span class="guide-tag">Saved locally</span><p>Your watchlist and connection settings stay in this browser. Cached quotes can be displayed for up to 30 minutes after a failed refresh.</p></div><div class="guide-links"><a href="https://www.pse.com.ph/market-data/" target="_blank" rel="noopener noreferrer">PSE market data ↗</a><a href="https://pifa.com.ph/facts-figures/" target="_blank" rel="noopener noreferrer">PIFA fund valuations ↗</a></div><p class="field-help">Reference links are informational. They are not the source of this dashboard’s sample data. This dashboard does not provide investment advice.</p></dialog>
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+</body>
+</html>
