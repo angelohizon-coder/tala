@@ -347,7 +347,14 @@ try {
   const context = await browser.newContext({ viewport: { width: 1440, height: 1100 }, timezoneId: 'Asia/Manila', acceptDownloads: true, reducedMotion: 'reduce' });
   const page = await context.newPage(); observe(page); page.setDefaultTimeout(15000);
   await page.goto(origin + '/', { waitUntil: 'domcontentloaded' });
-  await expect(main(page).getByRole('heading', { level: 1 })).toHaveText(/A little clarity/);
+  try {
+    await expect(main(page).getByRole('heading', { level: 1 })).toHaveText(/A little clarity/);
+  } catch (err) {
+    console.error('FAILED TO FIND HEADING. Page HTML:', await page.content());
+    console.error('CONSOLE ERRORS:', consoleErrors);
+    console.error('RUNTIME ERRORS:', runtimeErrors);
+    throw err;
+  }
 
   await journey('empty private ledger has no invented personal balances', async () => {
     const data = await readLedger(page);
