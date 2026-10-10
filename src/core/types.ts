@@ -26,13 +26,15 @@ export interface Account extends Entity {
   /** Primary/default currency for the account */
   currency: Currency;
   /** Initial cash balances by currency */
-  openingBalances: Record<Currency, Money>;
+  openingBalances?: Record<Currency, Money>;
   openingDate: DateOnly;
   includeInNetWorth: boolean;
   includeInLiquidNetWorth: boolean;
   includeInFire: boolean;
   emergency: boolean;
   archived: boolean;
+  /** Legacy singular balance, kept for backwards compatibility during migration */
+  openingBalance?: Money;
 }
 
 export const TRANSACTION_TYPES = [

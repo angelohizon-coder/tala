@@ -72,9 +72,9 @@ describe('ledger with natural account balances', () => {
       transaction('refund', { type: 'REFUND', amount: 2000 }), transaction('deleted', { deletedAt: NOW }),
       transaction('future', { date: '2026-11-01', amount: 20000 })];
     expect(calculateNetWorth(data(), 'PHP', AS_OF).netWorth).toBe(0);
-    expect(accountBalances(accounts, rows, AS_OF)).toEqual({ cash: 142000, future: 0 });
-    expect(accountBalances(accounts, rows.filter(row => row.id !== 'expense'), AS_OF).cash).toBe(152000);
-    expect(accountBalances(accounts, rows.map(row => row.id === 'expense' ? { ...row, amount: 5000 } : row), AS_OF).cash).toBe(147000);
+    expect(accountBalances(accounts, rows, AS_OF)).toEqual({ cash: { PHP: 142000 }, future: {} });
+    expect(accountBalances(accounts, rows.filter(row => row.id !== 'expense'), AS_OF).cash.PHP).toBe(152000);
+    expect(accountBalances(accounts, rows.map(row => row.id === 'expense' ? { ...row, amount: 5000 } : row), AS_OF).cash.PHP).toBe(147000);
   });
   it('counts card purchases once and a payment reduces cash and positive debt', () => {
     const accounts = [account('cash', { openingBalance: 100000 }), account('card', { accountType: 'CREDIT_CARD', openingBalance: 5000, includeInFire: false })];
@@ -82,7 +82,7 @@ describe('ledger with natural account balances', () => {
       transaction('payment', { type: 'TRANSFER', amount: 15000, transferAccountId: 'card' }),
       transaction('refund', { type: 'REFUND', accountId: 'card', amount: 1000 }),
       transaction('interest', { type: 'INTEREST', accountId: 'card', amount: 500 })];
-    expect(buildLedger(accounts, rows, AS_OF).balances).toEqual({ cash: 85000, card: 9500 });
+    expect(buildLedger(accounts, rows, AS_OF).balances).toEqual({ cash: { PHP: 85000 }, card: { PHP: 9500 } });
     const flow = calculateCashFlow(rows, accounts, { to: AS_OF });
     expect(flow.expenses).toBe(19500); expect(flow.income).toBe(0);
     expect(flow.debtPrincipal).toBe(0);
@@ -93,14 +93,14 @@ describe('ledger with natural account balances', () => {
     const rows = [transaction('transfer', { type: 'TRANSFER', amount: 10000, transferAccountId: 'broker' }),
       transaction('contribute', { type: 'INVESTMENT_CONTRIBUTION', amount: 20000, transferAccountId: 'broker' }),
       transaction('withdraw', { type: 'INVESTMENT_WITHDRAWAL', amount: 5000, accountId: 'broker', transferAccountId: 'cash' })];
-    expect(accountBalances(accounts, rows, AS_OF)).toEqual({ cash: 75000, broker: 25000 });
+    expect(accountBalances(accounts, rows, AS_OF)).toEqual({ cash: { PHP: 75000 }, broker: { PHP: 25000 } });
     expect(calculateCashFlow(rows, accounts, { to: AS_OF }).net).toBe(0);
     expect(() => postingsForTransaction(transaction('bad', { type: 'INVESTMENT_CONTRIBUTION' }), accounts)).toThrow();
   });
   it('requires explicit actual destination money for cross-currency transfers', () => {
     const accounts = [account('cash', { openingBalance: 560000 }), account('usd', { currency: 'USD' })];
     const move = transaction('fxmove', { type: 'TRANSFER', amount: 560000, transferAccountId: 'usd', transferAmount: 10000, transferCurrency: 'USD' });
-    expect(accountBalances(accounts, [move], AS_OF)).toEqual({ cash: 0, usd: 10000 });
+    expect(accountBalances(accounts, [move], AS_OF)).toEqual({ cash: { PHP: 0 }, usd: { USD: 10000 } });
     expect(calculateNetWorth(data({ accounts, transactions: [move], fxRates: [fx()] }), 'PHP', AS_OF).netWorth).toBe(560000);
     expect(() => postingsForTransaction({ ...move, transferAmount: undefined }, accounts)).toThrow(/explicit destination/);
     expect(() => postingsForTransaction({ ...move, transferCurrency: 'JPY' }, accounts)).toThrow(/Destination currency/);
@@ -115,7 +115,7 @@ describe('ledger with natural account balances', () => {
     expect(() => postingsForTransaction(transaction('bad', { amount: 1.5 }), accounts)).toThrow(/integer/);
     expect(() => postingsForTransaction(transaction('bad', { type: 'TRANSFER', transferAccountId: 'cash' }), accounts)).toThrow(/different/);
     expect(() => postingsForTransaction(transaction('bad', { fees: 1 }), accounts)).toThrow(/separate/);
-    expect(accountBalances(accounts, [transaction('adjust', { type: 'BALANCE_ADJUSTMENT', amount: -100 })], AS_OF).cash).toBe(-100);
+    expect(accountBalances(accounts, [transaction('adjust', { type: 'BALANCE_ADJUSTMENT', amount: -100 })], AS_OF).cash.PHP).toBe(-100);
   });
 });
 
@@ -316,12 +316,12 @@ describe('budgets, debt, duplicate preview and dated history', () => {
     expect(transactionFingerprint({ ...second, reference: 'ref-2' })).not.toBe(transactionFingerprint(first));
     expect(findDuplicateTransactions([first], [second, { ...second, id: 'three', reference: 'ref-2' }])).toEqual([{ index: 0, matches: ['one'] }]);
     expect(findDuplicateTransactions([], [first, second])).toEqual([{ index: 1, matches: ['one'] }]);
-    expect(buildLedger([account('cash', { openingBalance: 100000 })], [first, second], AS_OF).balances.cash).toBe(80000);
+    expect(buildLedger([account('cash', { openingBalance: 100000 })], [first, second], AS_OF).balances.cash.PHP).toBe(80000);
   });
   it('safely aggregates reserved object-key strings as ordinary user labels', () => {
     const accounts = [account('__proto__', { openingBalance: 10000 })];
     const rows = [transaction('one', { accountId: '__proto__', categoryId: 'constructor', amount: 1000 })];
-    expect(accountBalances(accounts, rows, AS_OF)['__proto__']).toBe(9000);
+    expect(accountBalances(accounts, rows, AS_OF)['__proto__'].PHP).toBe(9000);
     expect(calculateCashFlow(rows, accounts, { to: AS_OF }).byCategory.constructor).toBe(1000);
   });
   it('produces exact requested historical dates with no future transaction, quote or FX leakage', () => {
@@ -340,7 +340,7 @@ describe('budgets, debt, duplicate preview and dated history', () => {
     const rows = Array.from({ length: 100000 }, (_, index) => transaction(`entry-${index}`, {
       type: 'TRANSFER', amount: 1, accountId: index % 2 ? 'other' : 'cash', transferAccountId: index % 2 ? 'cash' : 'other',
     }));
-    expect(accountBalances(accounts, rows, AS_OF)).toEqual({ cash: 100000, other: 0 });
+    expect(accountBalances(accounts, rows, AS_OF)).toEqual({ cash: { PHP: 100000 }, other: { PHP: 0 } });
     expect(calculateCashFlow(rows, accounts, { to: AS_OF }).expenses).toBe(0);
   });
 });

@@ -47,18 +47,18 @@ The local Philippine adapter reads PSE EDGE with its named 21-stock public mirro
 
 Optional daily FX uses the [ExchangeRate-API open endpoint](https://www.exchangerate-api.com/docs/free), retains the provider’s date, and caches refreshes for an hour. [Rates by ExchangeRate-API](https://www.exchangerate-api.com). Manual dated conversion rates are also supported. No private market credential is bundled into this application.
 
-## Optional Supabase synchronization
+## Optional Firebase synchronization
 
 Local Only is the default and the sync engine returns before any financial provider call. Public price requests contain ticker or currency identifiers only. Cloud synchronization is an explicit optional feature.
 
-1. Create your own Supabase project, then run [supabase/schema.sql](supabase/schema.sql) in its SQL editor. Review the owner RLS policies, compare-and-swap RPC and private Realtime broadcast policy.
-2. In Data & sync, save the project HTTPS URL and its **publishable or anon** browser key. Privileged/service-role keys are rejected.
-3. Sign in or register, including email confirmation if your project requires it.
+1. Connect your Firebase project configured with Google Authentication and Firestore in `src/firebase.ts`.
+2. Deploy Firestore security rules (`firestore.rules`) enforcing strict user UID isolation under `/users/{uid}/{tableName}/{id}` and rejecting unauthenticated or anonymous access.
+3. Sign in via Google OAuth in Data & sync.
 4. Review the upload consent and select **Enable cloud sync**. Signing in alone does not authorize finance uploads.
 
-The authenticated owner is bound to local records; switching owners with an existing database is blocked. Auth sessions stay in IndexedDB sync state and are excluded from backups. Writes are queued locally and retried after connectivity returns. Server versions use compare-and-swap; conflicts retain both values for manual review. Tombstones preserve deletes. Incoming records are owner- and schema-validated before local application. Private Realtime updates are written to IndexedDB.
+The authenticated owner is bound to local records; switching owners with an existing database is blocked. Auth sessions stay in IndexedDB sync state and are excluded from backups. Writes are queued locally in Dexie (`syncOutbox`) and serialized across tabs using Web Locks (`navigator.locks`). Server writes use compare-and-swap transactions; conflicts retain both values for manual review. Pulls use composite per-table cursors to prevent cross-table sync starvation. Tombstones preserve deletes. Incoming records are owner- and schema-validated before local application.
 
-Choose **Use Local Only** to stop financial sync; queued changes stay available locally. Configuration or connectivity errors do not prevent offline finance work. No remote Supabase account is configured by the repository. Live two-device sync and owner-isolation acceptance must be verified against your configured project; local contract tests do not substitute for those live checks.
+Choose **Use Local Only** to stop financial sync; queued changes stay available locally. Configuration or connectivity errors do not prevent offline finance work.
 
 ## Verification
 

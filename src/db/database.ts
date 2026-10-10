@@ -1,6 +1,10 @@
 import Dexie, { type Table } from 'dexie';
 import type { Account, Transaction, Posting, Category, Instrument, Price, FxRate, Budget, Entity } from '../core/types';
 
+export type AccountEntity = Account;
+export type CategoryEntity = Category;
+export type TransactionEntity = Transaction;
+
 export interface NamedEntity extends Entity { name: string; color?: string; }
 export interface TransactionTag extends Entity { transactionId: string; tagId: string; }
 export interface InvestmentLot extends Entity { accountId: string; instrumentId: string; transactionId: string; date: string; units: number; costBasis: number; currency: string; realizedGain?: number; }

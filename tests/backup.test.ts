@@ -21,12 +21,12 @@ it('exports a consistent ledger with schema metadata and excludes authentication
 it('requires explicit restore confirmation and restores committed values atomically', async () => {
   const backup = await exportBackup(db); await repository.saveTransaction({ id: 'second', date: '2026-10-09', type: 'EXPENSE', accountId: 'cash', currency: 'PHP', amount: 5000 });
   await expect(restoreBackup(db, backup, { confirmed: false })).rejects.toThrow('confirmation'); expect(await db.transactions.count()).toBe(2);
-  await restoreBackup(db, backup, { confirmed: true }); expect(await db.transactions.count()).toBe(1); expect((await repository.accountBalances('2026-10-09')).cash).toBe(90000); expect(await repository.getSetting('privacyMode')).toBe('LOCAL_ONLY');
+  await restoreBackup(db, backup, { confirmed: true }); expect(await db.transactions.count()).toBe(1); expect((await repository.accountBalances('2026-10-09')).cash.PHP).toBe(90000); expect(await repository.getSetting('privacyMode')).toBe('LOCAL_ONLY');
 });
 it('rejects corrupted amounts, orphaned accounts and mismatched postings without clearing current data', async () => {
   const backup = await exportBackup(db);
   for (const change of [(value: typeof backup) => { (value.tables.transactions[0] as { amount: number }).amount = 999; }, (value: typeof backup) => { value.tables.accounts = []; }, (value: typeof backup) => { (value.tables.postings[0] as { delta: number }).delta = 0; }]) {
-    const corrupt = structuredClone(backup); change(corrupt); await expect(restoreBackup(db, corrupt, { confirmed: true })).rejects.toThrow(); expect((await repository.accountBalances('2026-10-09')).cash).toBe(90000);
+    const corrupt = structuredClone(backup); change(corrupt); await expect(restoreBackup(db, corrupt, { confirmed: true })).rejects.toThrow(); expect((await repository.accountBalances('2026-10-09')).cash.PHP).toBe(90000);
   }
 });
 it('password encryption uses random salts/IVs, rejects wrong passwords and altered ciphertext', async () => {
@@ -43,7 +43,7 @@ it('rejects orphaned valuations and category cycles before replacing a valid dat
   await expect(restoreBackup(db, orphan, { confirmed: true })).rejects.toThrow('orphaned price');
   const cycle = structuredClone(backup); cycle.tables.categories.push(...['one', 'two'].map((id, index) => ({ id, name: id, parentId: index ? 'one' : 'two', kind: 'expense', color: '#aaa', essential: false, archived: false })));
   await expect(restoreBackup(db, cycle, { confirmed: true })).rejects.toThrow('cycle');
-  expect((await repository.accountBalances('2026-10-09')).cash).toBe(90000);
+  expect((await repository.accountBalances('2026-10-09')).cash.PHP).toBe(90000);
 });
 it('validates future trade chronology even when its journal is otherwise consistent', async () => {
   const backup = await exportBackup(db);

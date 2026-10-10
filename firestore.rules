@@ -2,10 +2,36 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    // Authenticated non-anonymous user check
+    function isAuthenticated() {
+      return request.auth != null 
+        && request.auth.token.firebase.sign_in_provider != 'anonymous';
+    }
+
+    // Strict UID-isolated user tables
+    match /users/{uid}/{tableName}/{id} {
+      allow read: if isAuthenticated() && request.auth.uid == uid;
+      
+      allow delete: if isAuthenticated() && request.auth.uid == uid;
+
+      allow create, update: if isAuthenticated() && request.auth.uid == uid 
+                   && (request.resource.data.owner_id == null || request.resource.data.owner_id == uid)
+                   && request.resource.data.entity_type == tableName
+                   && request.resource.data.id == id;
+    }
+    
+    // Legacy support for migration
     match /finance_entities/{document} {
-      allow read, write: if request.auth != null && request.auth.uid == resource.data.owner_id;
-      allow create: if request.auth != null && request.auth.uid == request.resource.data.owner_id;
+      allow read: if isAuthenticated() && resource != null && request.auth.uid == resource.data.owner_id;
+      allow delete: if isAuthenticated() && resource != null && request.auth.uid == resource.data.owner_id;
+      allow update: if isAuthenticated() && resource != null && request.auth.uid == resource.data.owner_id
+                    && request.auth.uid == request.resource.data.owner_id;
+      allow create: if isAuthenticated() && request.auth.uid == request.resource.data.owner_id;
+    }
+
+    // Explicit deny-by-default for any unmapped paths
+    match /{document=**} {
+      allow read, write: false;
     }
   }
 }
-

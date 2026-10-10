@@ -102,7 +102,7 @@ function AccountForm({ account, onClose }: { account?: Account; onClose: () => v
       <label><input type="checkbox" checked={fire} onChange={event => setFire(event.target.checked)} />FIRE assets</label>
       <label><input type="checkbox" checked={emergency} onChange={event => setEmergency(event.target.checked)} />Emergency fund</label>
     </fieldset><p className="muted ledger-note">Balances are derived from this opening balance and posted transactions. Archived accounts keep their history.</p>
-    <ErrorMessage message={error} /><div className="dialog-actions"><button type="button" className="button" onClick={onClose}>Cancel</button><button className="button primary" disabled={busy}>{busy ? 'SavingÃ¢â‚¬Â¦' : 'Save account'}</button></div>
+    <ErrorMessage message={error} /><div className="dialog-actions"><button type="button" className="button" onClick={onClose}>Cancel</button><button className="button primary" disabled={busy}>{busy ? 'Saving…' : 'Save account'}</button></div>
   </form></Dialog>;
 }
 

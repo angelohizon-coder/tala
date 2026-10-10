@@ -1,0 +1,13 @@
+[
+  { "id": "cat_utilities", "name": "Utilities & Bills", "dbCategoryId": "category-housing" },
+  { "id": "cat_groceries", "name": "Groceries", "dbCategoryId": "category-food" },
+  { "id": "cat_dining", "name": "Food & Dining", "dbCategoryId": "category-food" },
+  { "id": "cat_income", "name": "Salary & Income", "dbCategoryId": "category-salary" },
+  { "id": "cat_transport", "name": "Transportation", "dbCategoryId": "category-transport" },
+  { "id": "cat_entertainment", "name": "Entertainment", "dbCategoryId": "category-entertainment" },
+  { "id": "cat_healthcare", "name": "Healthcare", "dbCategoryId": "category-healthcare" },
+  { "id": "cat_investment", "name": "Investments", "dbCategoryId": "category-miscellaneous" },
+  { "id": "cat_housing", "name": "Housing", "dbCategoryId": "category-housing" },
+  { "id": "cat_travel", "name": "Travel", "dbCategoryId": "category-travel" },
+  { "id": "cat_other", "name": "Other / Miscellaneous", "dbCategoryId": "category-miscellaneous" }
+]

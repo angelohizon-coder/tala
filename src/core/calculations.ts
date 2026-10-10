@@ -87,7 +87,15 @@ function accountMap(accounts: readonly Account[] | ReadonlyMap<string, Account>)
     requireValue(Boolean(account.id) && !result.has(account.id), 'Accounts must have unique identifiers.');
     requireValue(ACCOUNT_TYPES.includes(account.accountType), 'Unknown account type.');
     requireValue(validDate(account.openingDate), 'Opening date must be a valid calendar date.');
-    minor(account.openingBalance, 'Opening balance'); currencyScale(account.currency);
+    if (account.openingBalances && typeof account.openingBalances === 'object') {
+      for (const [curr, amt] of Object.entries(account.openingBalances)) {
+        currencyScale(curr);
+        minor(amt as number, `Opening balance for ${curr}`);
+      }
+    } else {
+      minor(account.openingBalance ?? 0, 'Opening balance');
+    }
+    currencyScale(account.currency);
     result.set(account.id, account);
   }
   return result;
@@ -111,7 +119,7 @@ export function postingsForTransaction(transaction: Transaction, accounts: reado
   requireValue(source, 'Choose an existing account.');
   requireValue(validDate(transaction.date) && transaction.date >= source.openingDate, 'Transaction cannot precede the account opening date.');
   requireValue(TRANSACTION_TYPES.includes(transaction.type), 'Unknown transaction type.');
-  requireValue(source.currency === transaction.currency, 'Transaction currency must match its account.');
+  requireValue(source.currency === transaction.currency || (source.openingBalances && transaction.currency in source.openingBalances), 'Transaction currency must match its account.');
   minor(transaction.amount);
   requireValue(transaction.type === 'BALANCE_ADJUSTMENT' || transaction.amount > 0, 'Amount must be positive.');
   const fees = minor(transaction.fees ?? 0, 'Fees');
@@ -119,24 +127,33 @@ export function postingsForTransaction(transaction: Transaction, accounts: reado
   requireValue(TRADE_TYPES.has(transaction.type) || fees === 0, 'Record other fees as a separate fee transaction.');
   const posting = (account: Account, delta: number, suffix: string, extra: Partial<Posting> = {}): Posting => ({
     id: `${transaction.id}:${suffix}`, transactionId: transaction.id, accountId: account.id, date: transaction.date,
-    currency: account.currency, delta: minor(delta), ...extra,
+    currency: extra.currency ?? transaction.currency, delta: minor(delta), ...extra,
   });
   const sign = isLiability(source) ? -1 : 1;
   if (transaction.type === 'TRANSFER' || transaction.type === 'INVESTMENT_CONTRIBUTION' || transaction.type === 'INVESTMENT_WITHDRAWAL') {
     const destination = map.get(transaction.transferAccountId ?? '');
-    requireValue(destination && destination.id !== source.id, 'Choose a different destination account.');
+    requireValue(destination && (destination.id !== source.id || transaction.currency !== transaction.transferCurrency), 'Choose a different destination account or destination currency.');
     requireValue(transaction.date >= destination.openingDate, 'Transaction cannot precede the destination account opening date.');
-    requireValue(transaction.transferCurrency === undefined || transaction.transferCurrency === destination.currency, 'Destination currency does not match its account.');
+    if (destination.id === source.id) {
+      requireValue(transaction.transferCurrency && transaction.transferCurrency !== transaction.currency, 'Choose a different destination currency.');
+    } else {
+      requireValue(transaction.transferCurrency === undefined || transaction.transferCurrency === destination.currency || (destination.openingBalances && transaction.transferCurrency in destination.openingBalances), 'Destination currency does not match its account.');
+    }
+    const destCurrency = transaction.transferCurrency ?? destination.currency;
     const received = transaction.transferAmount ?? transaction.amount;
     minor(received, 'Destination amount'); requireValue(received > 0, 'Destination amount must be positive.');
-    requireValue(source.currency === destination.currency || transaction.transferAmount !== undefined, 'Cross-currency transfers require an explicit destination amount.');
-    requireValue(source.currency !== destination.currency || received === transaction.amount, 'Same-currency transfers must move equal amounts.');
+    const isCrossCurrency = transaction.currency !== destCurrency;
+    requireValue(!isCrossCurrency || transaction.transferAmount !== undefined, 'Cross-currency transfers require an explicit destination amount.');
+    requireValue(isCrossCurrency || received === transaction.amount, 'Same-currency transfers must move equal amounts.');
     if (transaction.principalAmount !== undefined) {
       minor(transaction.principalAmount, 'Principal payment');
       requireValue(!isLiability(source) && isLiability(destination) && destination.accountType !== 'CREDIT_CARD'
         && transaction.principalAmount >= 0 && transaction.principalAmount <= received, 'Principal split requires a loan payment and cannot exceed its destination amount.');
     }
-    return [posting(source, -sign * transaction.amount, 'from'), posting(destination, (isLiability(destination) ? -1 : 1) * received, 'to')];
+    return [
+      posting(source, -sign * transaction.amount, 'from', { currency: transaction.currency }),
+      posting(destination, (isLiability(destination) ? -1 : 1) * received, 'to', { currency: destCurrency })
+    ];
   }
   requireValue(transaction.principalAmount === undefined, 'Principal split applies only to a loan-payment transfer.');
   if (TRADE_TYPES.has(transaction.type)) {
@@ -160,7 +177,7 @@ export function postingsForTransaction(transaction: Transaction, accounts: reado
 
 export function buildLedger(accounts: readonly Account[], transactions: readonly Transaction[], asOf = today(), precision: Precision = {}) {
   throughDate(asOf);
-  const map = accountMap(accounts), balances: Record<string, Record<Currency, Money>> = {}, postings: Posting[] = [];
+  const map = accountMap(accounts), balances: Record<string, Record<Currency, Money>> = Object.create(null), postings: Posting[] = [];
   for (const account of map.values()) {
     const b: Record<string, number> = Object.create(null);
     if (account.openingDate <= asOf) {
@@ -175,7 +192,7 @@ export function buildLedger(accounts: readonly Account[], transactions: readonly
   for (const transaction of chronological(transactions, asOf)) {
     const entries = postingsForTransaction(transaction, map, precision);
     for (const entry of entries) {
-      const b = balances[entry.accountId];
+      const b = balances[entry.accountId] ??= Object.create(null);
       b[entry.currency] = add(b[entry.currency] || 0, entry.delta);
     }
     postings.push(...entries);
@@ -357,7 +374,7 @@ export interface NetWorthSummary {
 }
 
 /** Balances already contain trade cash postings; only the holdings are added here. */
-export function calculateNetWorthFromBalances(accounts: readonly Account[], balances: Readonly<Record<string, Record<Currency, Money>>>, positions: readonly PositionSummary[], fxRates: readonly FxRate[], settings: ValuationSettings, asOf = today()): NetWorthSummary {
+export function calculateNetWorthFromBalances(accounts: readonly Account[], balances: Readonly<Record<string, Record<Currency, Money> | Money>>, positions: readonly PositionSummary[], fxRates: readonly FxRate[], settings: ValuationSettings, asOf = today()): NetWorthSummary {
   throughDate(asOf); currencyScale(settings.baseCurrency, settings.currencyPrecision);
   const map = accountMap(accounts), issues: CalculationIssue[] = [], accountValues: AccountValue[] = [];
   const grouped = new Map<string, PositionSummary[]>();
@@ -368,8 +385,11 @@ export function calculateNetWorthFromBalances(accounts: readonly Account[], bala
   const totals = { assets: 0, liabilities: 0, liquid: 0, fire: 0, fireDebt: 0, emergency: 0 };
   const missing = { assets: false, liabilities: false, liquid: false, fire: false, fireDebt: false, emergency: false };
   for (const account of map.values()) {
-    requireValue(Object.hasOwn(balances, account.id), 'Every account requires a calculated balance.');
-    const cash = balances[account.id] || {};
+    requireValue(Object.hasOwn(balances, account.id) || balances[account.id] !== undefined, 'Every account requires a calculated balance.');
+    const rawCash = balances[account.id];
+    const cash: Record<string, number> = typeof rawCash === 'number'
+      ? { [account.currency]: rawCash }
+      : (rawCash || {});
     let balance = 0, incomplete = false;
     for (const [curr, amt] of Object.entries(cash)) {
       if (!amt) continue;
@@ -624,17 +644,28 @@ export function findDuplicateTransactions(existing: readonly Transaction[], inco
 export function netWorthHistory(data: FinanceData, baseCurrencyOrSettings: Currency | ValuationSettings, dates: readonly string[]): (NetWorthSummary & { date: string })[] {
   const settings = typeof baseCurrencyOrSettings === 'string' ? { baseCurrency: baseCurrencyOrSettings } : baseCurrencyOrSettings;
   const days = [...new Set(dates)].sort(); days.forEach(throughDate);
-  const map = accountMap(data.accounts), ordered = chronological(data.transactions), balances = moneyRecord();
+  const map = accountMap(data.accounts), ordered = chronological(data.transactions);
+  const balances: Record<string, Record<Currency, Money>> = Object.create(null);
   const opened = new Set<string>(), trades: Transaction[] = [];
-  for (const account of map.values()) balances[account.id] = 0;
+  for (const account of map.values()) balances[account.id] = Object.create(null);
   let index = 0;
   return days.map(date => {
     for (const account of map.values()) if (!opened.has(account.id) && account.openingDate <= date) {
-      balances[account.id] = add(balances[account.id], account.openingBalance); opened.add(account.id);
+      if (account.openingBalances) {
+        for (const [curr, amt] of Object.entries(account.openingBalances)) {
+          balances[account.id][curr] = add(balances[account.id][curr] || 0, amt);
+        }
+      } else if (account.openingBalance !== undefined) {
+        balances[account.id][account.currency] = add(balances[account.id][account.currency] || 0, account.openingBalance);
+      }
+      opened.add(account.id);
     }
     while (index < ordered.length && ordered[index].date <= date) {
       const transaction = ordered[index++];
-      for (const posting of postingsForTransaction(transaction, map, settings.currencyPrecision)) balances[posting.accountId] = add(balances[posting.accountId], posting.delta);
+      for (const posting of postingsForTransaction(transaction, map, settings.currencyPrecision)) {
+        const b = balances[posting.accountId] ??= Object.create(null);
+        b[posting.currency] = add(b[posting.currency] || 0, posting.delta);
+      }
       if (transaction.instrumentId && (TRADE_TYPES.has(transaction.type) || transaction.type === 'DIVIDEND' || transaction.type === 'INTEREST')) trades.push(transaction);
     }
     const positions = calculatePositions(trades, data.instruments, data.prices, { asOf: date, currencyPrecision: settings.currencyPrecision });

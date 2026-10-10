@@ -24,14 +24,14 @@ describe('atomic offline ledger', () => {
   it('saves, edits and deletes journal entries without double-counting; reopened data persists', async () => {
     const first = await repository.saveTransaction(expense());
     expect(first.version).toBe(1); expect(first.ownerId).toBe('local');
-    expect((await repository.accountBalances('2026-10-09')).cash).toBe(1915000);
+    expect((await repository.accountBalances('2026-10-09')).cash.PHP).toBe(1915000);
     await repository.saveTransaction({ ...first, amount: 50000 });
-    expect((await repository.accountBalances('2026-10-09')).cash).toBe(1950000);
+    expect((await repository.accountBalances('2026-10-09')).cash.PHP).toBe(1950000);
     expect((await db.transactions.get(first.id))?.version).toBe(2);
     db.close(); await db.open();
     expect((await repository.monthlyCashFlow('2026-10-01', '2026-10-31')).expenses).toBe(50000);
     await repository.deleteTransaction(first.id);
-    expect((await repository.accountBalances('2026-10-09')).cash).toBe(2000000);
+    expect((await repository.accountBalances('2026-10-09')).cash.PHP).toBe(2000000);
     expect((await db.transactions.get(first.id))?.deletedAt).toBeTruthy();
     expect(await db.postings.filter(row => !row.deletedAt).count()).toBe(0);
   });
@@ -40,7 +40,7 @@ describe('atomic offline ledger', () => {
     await repository.saveTransaction({ ...expense('card-expense'), accountId: 'card', amount: 125000 });
     await repository.saveTransaction({ ...expense('payment'), type: 'TRANSFER', amount: 200000, transferAccountId: 'card', categoryId: undefined });
     const balances = await repository.accountBalances('2026-10-09');
-    expect(balances.cash).toBe(800000); expect(balances.wallet).toBe(1010000); expect(balances.card).toBe(25000);
+    expect(balances.cash.PHP).toBe(800000); expect(balances.wallet.PHP).toBe(1010000); expect(balances.card.PHP).toBe(25000);
     const flow = await repository.monthlyCashFlow('2026-10-01', '2026-10-31'); expect(flow.expenses).toBe(125000); expect(flow.income).toBe(0);
   });
   it('rolls back transaction, postings and outbox together if the queue write fails', async () => {
@@ -53,7 +53,7 @@ describe('atomic offline ledger', () => {
     await repository.saveTransaction({ id: 'buy', type: 'INVESTMENT_BUY', date: '2026-10-01', accountId: 'broker', instrumentId: 'security', currency: 'PHP', amount: 100000, units: 10, unitPrice: 100, fees: 100 });
     await repository.saveTransaction({ id: 'sell', type: 'INVESTMENT_SELL', date: '2026-10-02', accountId: 'broker', instrumentId: 'security', currency: 'PHP', amount: 48000, units: 4, unitPrice: 120, fees: 100 });
     const lot = await db.investmentLots.get('position:broker:security'); expect(lot?.units).toBe(6); expect(lot?.costBasis).toBe(60060); expect(lot?.realizedGain).toBe(7860);
-    expect((await repository.accountBalances('2026-10-09')).broker).toBe(947800);
+    expect((await repository.accountBalances('2026-10-09')).broker.PHP).toBe(947800);
     expect((await repository.monthlyCashFlow('2026-10-01', '2026-10-31')).expenses).toBe(200);
     await expect(repository.saveTransaction({ id: 'bad-sale', type: 'INVESTMENT_SELL', date: '2026-10-03', accountId: 'broker', instrumentId: 'security', currency: 'PHP', amount: 70000, units: 7, unitPrice: 100 })).rejects.toThrow();
     expect(await db.transactions.get('bad-sale')).toBeUndefined(); expect((await db.investmentLots.get('position:broker:security'))?.units).toBe(6);
@@ -130,12 +130,12 @@ describe('optional authenticated sync', () => {
     const remotePosting = { ...posting, delta: -50000, version: posting.version + 1 };
     await repository.applyRemoteRecords([{ tableName: 'postings', record: remotePosting }, { tableName: 'transactions', record: remote }], 'owner-a');
     expect((await db.transactions.get('expense'))?.amount).toBe(85000);
-    expect((await repository.accountBalances('2026-10-09')).cash).toBe(1915000);
+    expect((await repository.accountBalances('2026-10-09')).cash.PHP).toBe(1915000);
     const childConflict = await db.conflicts.where('entityId').equals(posting.id).first(); expect(childConflict?.local.delta).toBe(-85000); expect(childConflict?.remote.delta).toBe(-50000);
     await expect(repository.resolveConflict(childConflict!.id, 'remote')).rejects.toThrow('parent transaction');
     const parentConflict = await db.conflicts.where('entityId').equals(local.id).first();
     await repository.resolveConflict(parentConflict!.id, 'remote'); await repository.resolveConflict(childConflict!.id, 'remote');
-    expect((await repository.accountBalances('2026-10-09')).cash).toBe(1950000);
+    expect((await repository.accountBalances('2026-10-09')).cash.PHP).toBe(1950000);
   });
   it('acknowledges successful uploads and atomically derives incoming device transactions', async () => {
     await repository.assignOwner('owner-a', { confirmed: true }); await db.syncOutbox.clear(); await repository.saveTransaction(expense()); await repository.setSetting('privacyMode', 'CLOUD_SYNC');
@@ -143,6 +143,6 @@ describe('optional authenticated sync', () => {
     const remoteAccount = { ...account('other-cash', 'CASH', 200000), ...metadata } as unknown as SyncedEntity;
     const remoteTransaction = { ...expense('remote-expense'), accountId: 'other-cash', categoryId: undefined, amount: 5000, ...metadata } as unknown as SyncedEntity;
     const provider: SyncProvider = { userId: async () => 'owner-a', push: async entry => ({ kind: 'applied', record: { tableName: entry.tableName, record: entry.payload } }), pull: async () => ({ records: [{ tableName: 'transactions', record: remoteTransaction }, { tableName: 'accounts', record: remoteAccount }], cursor: '2026-10-09T01:00:00Z' }), subscribe: async () => () => {} };
-    const result = await createSyncEngine({ db, repository, provider }).syncNow(); expect(result.uploaded).toBeGreaterThan(0); expect(result.downloaded).toBe(2); expect(await db.syncOutbox.count()).toBe(0); expect((await repository.accountBalances('2026-10-09'))['other-cash']).toBe(195000);
+    const result = await createSyncEngine({ db, repository, provider }).syncNow(); expect(result.uploaded).toBeGreaterThan(0); expect(result.downloaded).toBe(2); expect(await db.syncOutbox.count()).toBe(0); expect((await repository.accountBalances('2026-10-09'))['other-cash'].PHP).toBe(195000);
   });
 });
