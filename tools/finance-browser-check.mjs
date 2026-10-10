@@ -181,12 +181,12 @@ function observe(page) {
   currentPage = page;
   page.on('pageerror', error => runtimeErrors.push(error.message));
   page.on('console', message => {
-    if (message.type() !== 'error') return;
+    const msgType = message.type();
     const source = message.location().url || '';
     // A static Pages-style finance test deliberately has no market-data gateway.
     if (!liveSource && /Failed to load resource/.test(message.text()) && (source.includes('/api/') || /ERR_INTERNET_DISCONNECTED/.test(message.text()))) return;
     if (/play\(\) failed/.test(message.text()) || /The play\(\) request was interrupted/.test(message.text()) || /NotSupportedError/.test(message.text()) || /Failed to load resource.*sounds\//.test(message.text())) return;
-    consoleErrors.push(`${message.text()} ${source}`.trim());
+    consoleErrors.push(`[${msgType}] ${message.text()} ${source}`.trim());
   });
 }
 
