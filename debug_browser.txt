@@ -14,7 +14,9 @@ FAILED TO FIND HEADING. Page HTML: <!DOCTYPE html><html lang="en"><head><meta ch
   <link rel="stylesheet" crossorigin="" href="./assets/index-BZfoV1sV.css">
 <link rel="manifest" href="./manifest.webmanifest"></head><body><div id="root"></div>
 </body></html>
-CONSOLE ERRORS: []
+CONSOLE ERRORS: [
+  `[warning] <Router basename="/./"> is not able to match the URL "/" because it does not start with the basename, so the <Router> won't render anything. http://127.0.0.1:43625/assets/index-7VsdxBs_.js`
+]
 RUNTIME ERRORS: []
 Error: expect(locator).toHaveText(expected) failed
 
