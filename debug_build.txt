@@ -8,35 +8,35 @@ transforming...
 rendering chunks...
 computing gzip size...
 dist/manifest.webmanifest                          0.42 kB
-dist/index.html                                    1.00 kB │ gzip:   0.59 kB
+dist/index.html                                    0.68 kB │ gzip:   0.41 kB
 dist/assets/monteCarlo.worker-orA4zcvU.js          2.07 kB
 dist/assets/categorizer.worker-Cp8817w9.js         5.77 kB
 dist/assets/LedgerPages-O-ZI-EXg.css               7.69 kB │ gzip:   1.93 kB
 dist/assets/index-BZfoV1sV.css                    39.07 kB │ gzip:   8.81 kB
-dist/assets/download-oqs4uMbz.js                   0.26 kB │ gzip:   0.21 kB
+dist/assets/download-DQnW5U4U.js                   0.26 kB │ gzip:   0.21 kB
 dist/assets/clsx-DB0hHKMi.js                       0.36 kB │ gzip:   0.23 kB
 dist/assets/rolldown-runtime-hePW80VL.js           0.71 kB │ gzip:   0.42 kB
-dist/assets/TrendIndicator-DRgl1vE3.js             3.46 kB │ gzip:   1.54 kB
-dist/assets/useFinance-M97U8SyV.js                 3.73 kB │ gzip:   1.67 kB
-dist/assets/shared-BcQhPytS.js                     3.92 kB │ gzip:   1.67 kB
+dist/assets/TrendIndicator-gu4lYslh.js             3.46 kB │ gzip:   1.54 kB
+dist/assets/useFinance-DvR-6Upv.js                 3.73 kB │ gzip:   1.67 kB
+dist/assets/shared-BHQ8ELwr.js                     3.92 kB │ gzip:   1.67 kB
 dist/assets/workbox-window.prod.es5-Bd17z0YL.js    5.65 kB │ gzip:   2.20 kB
 dist/assets/papaparse.min-BHzw_mE6.js             18.68 kB │ gzip:   6.78 kB
-dist/assets/InvestmentPages-CAnoGz1q.js           25.24 kB │ gzip:   7.67 kB
-dist/assets/Overview-cd_LYDVc.js                  30.83 kB │ gzip:   9.52 kB
-dist/assets/DataPage-CoAUyijs.js                  34.75 kB │ gzip:  11.72 kB
-dist/assets/PlanningPages-eQPpEGRM.js             78.00 kB │ gzip:  22.39 kB
-dist/assets/LedgerPages-CVZKI0df.js               81.45 kB │ gzip:  22.64 kB
+dist/assets/InvestmentPages-TNW38nQo.js           25.24 kB │ gzip:   7.66 kB
+dist/assets/Overview-BSujvZEx.js                  30.83 kB │ gzip:   9.52 kB
+dist/assets/DataPage-C4DyDvGK.js                  34.75 kB │ gzip:  11.72 kB
+dist/assets/PlanningPages-BRMOjItE.js             78.00 kB │ gzip:  22.39 kB
+dist/assets/LedgerPages-D5mBam4k.js               81.45 kB │ gzip:  22.64 kB
 dist/assets/firebase-BGV0jow-.js                 100.99 kB │ gzip:  31.33 kB
-dist/assets/providers-BsIubzI7.js                187.10 kB │ gzip:  98.56 kB
-dist/assets/firebase-C4Z0eny-.js                 246.62 kB │ gzip:  76.06 kB
-dist/assets/AreaChart-BVmAzmIz.js                357.32 kB │ gzip: 104.00 kB
-dist/assets/index-7VsdxBs_.js                    429.24 kB │ gzip: 137.80 kB
+dist/assets/providers-tsFj4qrT.js                187.10 kB │ gzip:  98.56 kB
+dist/assets/firebase-Cg1jWbDO.js                 246.62 kB │ gzip:  76.06 kB
+dist/assets/AreaChart-Dx2Q9Nca.js                357.32 kB │ gzip: 104.00 kB
+dist/assets/index-BvrRfNCC.js                    429.47 kB │ gzip: 137.88 kB
 
-[32m✓ built in 942ms[39m
+[32m✓ built in 1.25s[39m
 
 [36mPWA v2.0.0[39m
 mode      [35mgenerateSW[39m
-precache  [32m46 entries[39m [2m(2313.21 KiB)[22m
+precache  [32m45 entries[39m [2m(2312.38 KiB)[22m
 files generated
   [2mdist/sw.js[22m
   [2mdist/workbox-2fbc6a65.js[22m
