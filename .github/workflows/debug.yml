@@ -16,6 +16,9 @@ jobs:
       - run: npm run typecheck > debug.txt 2>&1 || true
       - run: npm test > debug_test.txt 2>&1 || true
       - run: npm run build > debug_build.txt 2>&1 || true
+      - env:
+          CHROME_PATH: /usr/bin/google-chrome
+        run: npm run test:browser > debug_browser.txt 2>&1 || true
       - run: |
           git config --global user.name 'github-actions'
           git config --global user.email 'github-actions@github.com'
