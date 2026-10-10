@@ -6,6 +6,6 @@ AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
 
 12 !== 0
 
-    at file:///home/runner/work/tala/tala/tools/finance-browser-check.mjs:361:12
+    at file:///home/runner/work/tala/tala/tools/finance-browser-check.mjs:372:12
     at async journey (file:///home/runner/work/tala/tala/tools/finance-browser-check.mjs:160:3)
-    at async file:///home/runner/work/tala/tala/tools/finance-browser-check.mjs:359:3
+    at async file:///home/runner/work/tala/tala/tools/finance-browser-check.mjs:370:3
