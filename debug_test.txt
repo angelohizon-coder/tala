@@ -5,16 +5,59 @@
 
 [1m[30m[46m RUN [49m[39m[22m [36mv5.0.3 [39m[90m/home/runner/work/tala/tala[39m
 
- [32m✓[39m tests/repository.test.ts [2m([22m[2m15 tests[22m[2m)[22m[33m 405[2mms[22m[39m
- [32m✓[39m tests/backup.test.ts [2m([22m[2m7 tests[22m[2m)[22m[33m 525[2mms[22m[39m
-   [33m[2m✓[22m[39m password encryption uses random salts/IVs, rejects wrong passwords and altered ciphertext[33m 333[2mms[22m[39m
- [32m✓[39m tests/csv.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 5[2mms[22m[39m
- [32m✓[39m tests/calculations.test.ts [2m([22m[2m31 tests[22m[2m)[22m[33m 912[2mms[22m[39m
+ [31m❯[39m tests/adversarial-tier5-hardening.test.ts [2m([22m[2m0 test[22m[2m)[22m
+ [32m✓[39m tests/challenger-financial-integrity.test.ts [2m([22m[2m21 tests[22m[2m)[22m[32m 44[2mms[22m[39m
+ [32m✓[39m tests/challenger-m2-adversarial.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 239[2mms[22m[39m
+ [32m✓[39m tests/firestore-adversarial.test.ts [2m([22m[2m69 tests[22m[2m)[22m[32m 29[2mms[22m[39m
+ [32m✓[39m tests/challenger-sync-adversarial.test.ts [2m([22m[2m7 tests[22m[2m)[22m[33m 442[2mms[22m[39m
+ [31m❯[39m tests/market-gateway.test.ts [2m([22m[2m0 test[22m[2m)[22m
+ [32m✓[39m tests/ml-categorization.test.ts [2m([22m[2m23 tests[22m[2m)[22m[32m 91[2mms[22m[39m
+ [32m✓[39m tests/sync.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 192[2mms[22m[39m
+ [32m✓[39m tests/calculations.test.ts [2m([22m[2m31 tests[22m[2m)[22m[33m 1665[2mms[22m[39m
    [32m✓[39m budgets, debt, duplicate preview and dated history [2m(8)[22m
-     [33m[2m✓[22m[39m aggregates a 100,000-entry ledger without counting transfers as consumption[33m 858[2mms[22m[39m
+     [33m[2m✓[22m[39m aggregates a 100,000-entry ledger without counting transfers as consumption[33m 1599[2mms[22m[39m
+ [32m✓[39m tests/repository.test.ts [2m([22m[2m15 tests[22m[2m)[22m[33m 449[2mms[22m[39m
+ [32m✓[39m tests/financial-integrity.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 32[2mms[22m[39m
+ [32m✓[39m tests/ui-accessibility.test.ts [2m([22m[2m20 tests[22m[2m)[22m[32m 52[2mms[22m[39m
+ [32m✓[39m tests/firestore-rules.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m tests/csv.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m tests/monte-carlo.test.ts [2m([22m[2m16 tests[22m[2m)[22m[33m 1208[2mms[22m[39m
+ [32m✓[39m tests/backup.test.ts [2m([22m[2m7 tests[22m[2m)[22m[33m 388[2mms[22m[39m
 
-[2m Test Files [22m [1m[32m4 passed[39m[22m[90m (4)[39m
-[2m      Tests [22m [1m[32m56 passed[39m[22m[90m (56)[39m
-[2m   Start at [22m 17:42:19
-[2m   Duration [22m 1.32s[2m (tests 77%, transform 15%, import 8%, worker 1%)[22m
+[31m⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Suites 2 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
 
+[41m[1m FAIL [22m[49m tests/adversarial-tier5-hardening.test.ts[2m [ tests/adversarial-tier5-hardening.test.ts ][22m
+[31m[1mError[22m: Cannot find package 'firebase-functions/v2/https' imported from /home/runner/work/tala/tala/functions/src/index.ts[39m
+[36m [2m❯[22m functions/src/index.ts:[2m1:1[22m[39m
+    [90m  1|[39m import { onRequest } from "firebase-functions/v2/https";
+    [90m   |[39m [31m^[39m
+    [90m  2|[39m import * as logger from "firebase-functions/logger";
+    [90m  3|[39m import * as admin from "firebase-admin";
+[90m [2m❯[22m tests/adversarial-tier5-hardening.test.ts:[2m33:1[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/market-gateway.test.ts[2m [ tests/market-gateway.test.ts ][22m
+[31m[1mError[22m: Cannot find package 'firebase-functions/v2/https' imported from /home/runner/work/tala/tala/functions/src/index.ts[39m
+[36m [2m❯[22m functions/src/index.ts:[2m1:1[22m[39m
+    [90m  1|[39m import { onRequest } from "firebase-functions/v2/https";
+    [90m   |[39m [31m^[39m
+    [90m  2|[39m import * as logger from "firebase-functions/logger";
+    [90m  3|[39m import * as admin from "firebase-admin";
+[90m [2m❯[22m tests/market-gateway.test.ts:[2m16:1[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m2 failed[39m[22m[2m | [22m[1m[32m14 passed[39m[22m[90m (16)[39m
+[2m      Tests [22m [1m[32m255 passed[39m[22m[90m (255)[39m
+[2m   Start at [22m 02:26:25
+[2m   Duration [22m 3.24s[2m (tests 78%, import 12%, transform 9%, worker 1%)[22m
+
+[2m    Isolate [22m [33m16 workers spawned[39m[2m · ~158ms startup each (spawn + environment, per file)[22m
+[2m            [22m [2mat least ~686ms faster with [22m[33misolate: false[39m[2m — reuses workers across files instead of one per file[22m
+
+
+::error file=/home/runner/work/tala/tala/functions/src/index.ts,title=tests/adversarial-tier5-hardening.test.ts,line=1,column=1::Error: Cannot find package 'firebase-functions/v2/https' imported from /home/runner/work/tala/tala/functions/src/index.ts%0A ❯ functions/src/index.ts:1:1%0A ❯ tests/adversarial-tier5-hardening.test.ts:33:1%0A%0A⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯%0ASerialized Error: { code: 'ERR_MODULE_NOT_FOUND' }%0A
+
+::error file=/home/runner/work/tala/tala/functions/src/index.ts,title=tests/market-gateway.test.ts,line=1,column=1::Error: Cannot find package 'firebase-functions/v2/https' imported from /home/runner/work/tala/tala/functions/src/index.ts%0A ❯ functions/src/index.ts:1:1%0A ❯ tests/market-gateway.test.ts:16:1%0A%0A⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯%0ASerialized Error: { code: 'ERR_MODULE_NOT_FOUND' }%0A
