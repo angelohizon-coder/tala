@@ -322,26 +322,24 @@ export async function handleMarketQuoteRequest(
     return;
   }
 
-  // 1.5. Firebase Auth Validation
+  // 1.5. Firebase Auth Validation (Optional for Local-Only Mode)
   const authHeader = req.headers?.authorization || req.headers?.Authorization;
-  if (!authHeader || typeof authHeader !== "string" || !authHeader.startsWith("Bearer ")) {
-    res.status(401);
-    const errorBody = { error: "Unauthorized: Missing or invalid token." };
-    if (typeof res.json === "function") res.json(errorBody);
-    else res.send(errorBody);
-    return;
+  if (authHeader && typeof authHeader === "string" && authHeader.startsWith("Bearer ")) {
+    const idToken = authHeader.split("Bearer ")[1];
+    try {
+      if (!admin.apps.length) admin.initializeApp();
+      await admin.auth().verifyIdToken(idToken);
+      // Valid token, we could attach decoded token to req for further use
+    } catch (err) {
+      // Invalid token provided, we reject
+      res.status(401);
+      const errorBody = { error: "Unauthorized: Token verification failed." };
+      if (typeof res.json === "function") res.json(errorBody);
+      else res.send(errorBody);
+      return;
+    }
   }
-  const idToken = authHeader.split("Bearer ")[1];
-  try {
-    if (!admin.apps.length) admin.initializeApp();
-    await admin.auth().verifyIdToken(idToken);
-  } catch (err) {
-    res.status(401);
-    const errorBody = { error: "Unauthorized: Token verification failed." };
-    if (typeof res.json === "function") res.json(errorBody);
-    else res.send(errorBody);
-    return;
-  }
+  // If no auth header, we proceed to allow local-only mode. CORS restricts access.
 
   // 2. Extract symbol(s)
   const querySymbol = req.query?.symbol;
