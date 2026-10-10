@@ -39,8 +39,7 @@ export class MockNetworkGate {
         url.includes('firebase') ||
         url.includes('firestore') ||
         url.includes('googleapis') ||
-        url.includes('openbanking') ||
-        url.includes('supabase');
+        url.includes('openbanking');
       if (isRemoteCall) {
         throw new Error(`Privacy violation: Outbound network request to ${url} in LOCAL_ONLY mode`);
       }

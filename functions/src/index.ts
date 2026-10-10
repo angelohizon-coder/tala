@@ -32,7 +32,9 @@ export const ALLOWED_ORIGINS: readonly string[] = [
   "http://localhost:5173",
   "http://localhost:5174",
   "http://127.0.0.1:5173",
-  "http://127.0.0.1:5174"
+  "http://127.0.0.1:5174",
+  "https://kotoba-41ab0.web.app",
+  "https://kotoba-41ab0.firebaseapp.com"
 ];
 
 /**
@@ -313,18 +315,31 @@ export async function handleMarketQuoteRequest(
     return;
   }
 
-  // Set CORS headers for authorized origins
-  if (origin && typeof res.setHeader === "function") {
-    res.setHeader("Access-Control-Allow-Origin", origin);
-    res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  }
-
-  // Handle HTTP OPTIONS preflight
   if (req.method === "OPTIONS") {
     res.status(204);
     if (typeof res.end === "function") res.end();
     else res.send("");
+    return;
+  }
+
+  // 1.5. Firebase Auth Validation
+  const authHeader = req.headers?.authorization || req.headers?.Authorization;
+  if (!authHeader || typeof authHeader !== "string" || !authHeader.startsWith("Bearer ")) {
+    res.status(401);
+    const errorBody = { error: "Unauthorized: Missing or invalid token." };
+    if (typeof res.json === "function") res.json(errorBody);
+    else res.send(errorBody);
+    return;
+  }
+  const idToken = authHeader.split("Bearer ")[1];
+  try {
+    if (!admin.apps.length) admin.initializeApp();
+    await admin.auth().verifyIdToken(idToken);
+  } catch (err) {
+    res.status(401);
+    const errorBody = { error: "Unauthorized: Token verification failed." };
+    if (typeof res.json === "function") res.json(errorBody);
+    else res.send(errorBody);
     return;
   }
 

@@ -46,10 +46,15 @@ export function Overview(){
         title="A little clarity. A bigger future"
         description="Your money, your milestones, your pace."
         action={
-          <span className="date-label">
-            {new Date(today()+'T12:00:00').toLocaleDateString('en-PH',{day:'numeric',month:'long',year:'numeric'})}
-            <small>Saved on this device</small>
-          </span>
+          <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
+            <select aria-label="Base currency" value={currency} onChange={async e=>{const value=e.target.value;await financeRepository.setSetting('finance',{...settings,baseCurrency:value});}} style={{ padding: '4px 8px', borderRadius: '4px', border: '1px solid #d1d5db', background: 'transparent' }}>
+              {['PHP','USD','EUR','GBP','JPY','HKD','CAD','AUD','SGD'].map(c=><option key={c}>{c}</option>)}
+            </select>
+            <span className="date-label">
+              {new Date(today()+'T12:00:00').toLocaleDateString('en-PH',{day:'numeric',month:'long',year:'numeric'})}
+              <small>Saved on this device</small>
+            </span>
+          </div>
         }
       />
       {!hasAccounts && (
