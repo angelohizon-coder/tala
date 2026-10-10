@@ -1,9 +1,6 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
-import { cp, readFile, stat } from 'node:fs/promises';
-import { resolve, extname, sep } from 'node:path';
-
 export default defineConfig({
   base: process.env.VITE_BASE || './',
   plugins: [react(), VitePWA({
