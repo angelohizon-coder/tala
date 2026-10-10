@@ -1,7 +1,7 @@
-# BRIEFING — 2026-10-10T12:29:15Z
+# BRIEFING — 2026-10-10T13:02:45Z
 
 ## Mission
-Sentinel monitoring and lifecycle governance for the Tala UI overhaul: UI animations, sound cues, accessibility controls, and verification.
+Sentinel monitoring and lifecycle governance for the Tala codebase overhaul: removal of dead code, legacy modules (site/), Cloudflare worker, redundant tooling/tests, unused devDependencies, gitignore artifacts, and build/CI verification.
 
 ## 🔒 My Identity
 - Archetype: sentinel
@@ -11,6 +11,8 @@ Sentinel monitoring and lifecycle governance for the Tala UI overhaul: UI animat
 - Active Orchestrator: 70aacd32-1475-457c-a20e-3878c97d92ae (orchestrator_2)
 - Crons: task-28 (Progress @ */8m), task-30 (Liveness @ */10m)
 - Victory Auditor (UI Overhaul): ef87ccce-6f3c-4ef6-8179-0887bd9dc93a (victory_auditor_3)
+- Active Orchestrator (Codebase Overhaul): 54c49357-94e2-4f13-991f-18e0c1fe9cf7 (orchestrator_3)
+- Crons (Overhaul): task-28 (Progress @ */8m), task-30 (Liveness @ */10m)
 
 ## 🔒 Key Constraints
 - No technical decisions — relay only
@@ -19,20 +21,18 @@ Sentinel monitoring and lifecycle governance for the Tala UI overhaul: UI animat
 - Keep context ultra-light
 
 ## User Context
-- **Last user request**: Add UI animations (page transitions, modal open/close, chart render) and sound cues (open-source assets for key interactions) to Tala with accessibility controls (prefers-reduced-motion, global mute toggle), unit/accessibility tests, and agent-as-judge UI/UX review.
+- **Last user request**: Full codebase overhaul of Tala: remove dead code, legacy modules (site/), Cloudflare Worker (worker/), legacy .agents/ scaffolding, artifacts/ from git, debug workflow & debug*.txt, redundant market tools/tests, unused devDependencies, clean up vite.config.ts, and verify pages.yml and test suites.
 - **Pending clarifications**: none
-- **Delivered results**: Comprehensive UI overhaul completed, verified, and audited with VICTORY CONFIRMED verdict by independent Victory Auditor (victory_auditor_3). Zero regressions across all Vitest, Node, and E2E test suites.
+- **Delivered results**: Dispatched Project Orchestrator (orchestrator_3). Set progress and liveness crons.
 
 ## Project Status
-- **Phase**: complete
+- **Phase**: in progress
 
 ## Victory Audit Status
-- **Triggered**: yes
-- **Verdict**: VICTORY CONFIRMED
+- **Triggered**: no
+- **Verdict**: pending
 - **Retry count**: 0
 
 ## Artifact Index
 - e:\Visual Studio Code\tala\.agents\teamwork\ORIGINAL_REQUEST.md — Authoritative user requirements
-- e:\Visual Studio Code\tala\.agents\teamwork\orchestrator_2\ — Active orchestrator workspace
-- e:\Visual Studio Code\tala\.agents\teamwork\orchestrator_2\handoff.md — Orchestrator completion handoff
-- e:\Visual Studio Code\tala\.agents\teamwork\victory_auditor_3\handoff.md — Victory Audit Report (VICTORY CONFIRMED)
+- e:\Visual Studio Code\tala\.agents\teamwork\orchestrator_3\ — Active orchestrator workspace

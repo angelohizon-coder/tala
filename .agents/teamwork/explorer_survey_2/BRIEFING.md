@@ -1,46 +1,34 @@
-# BRIEFING — 2026-10-10T03:35:00Z
+# BRIEFING — 2026-10-10T05:05:00Z
 
 ## Mission
-Survey sound cues architecture & interaction points for Tala SPA (identifying key user interactions, audio asset strategy, sound service / useSound playback architecture, mute state storage, autoplay handling).
+Survey configuration files, build scripts, npm scripts, and CI workflows affected by the Tala codebase overhaul (R1, R4, R5, R6, R8, R9) and formulate exact diffs/proposals for downstream implementation.
 
 ## 🔒 My Identity
 - Archetype: explorer
-- Roles: investigator, data modeler, synthesis
-- Working directory: e:\Visual Studio Code\tala\.agents\teamwork\explorer_survey_2
-- Original parent: 64bc598d-7c84-4fe3-b439-553f079769f4
-- Milestone: Phase 0 Architecture & Codebase Survey
-- Archetype: explorer
-- Roles: sound cues investigator, audio architecture surveyor
-- Working directory: e:\Visual Studio Code\tala\.agents\teamwork\explorer_survey_2
-- Original parent: 70aacd32-1475-457c-a20e-3878c97d92ae
-- Milestone: UI Overhaul - Sound Cues Architecture & Interaction Points
+- Roles: Build & CI Config Explorer (Explorer 2)
+- Working directory: e:/Visual Studio Code/tala/.agents/teamwork/explorer_survey_2
+- Original parent: 54c49357-94e2-4f13-991f-18e0c1fe9cf7
+- Milestone: Tala codebase overhaul survey
 
 ## 🔒 Key Constraints
-- Read-only investigation — do NOT implement or modify application source code
-- Files for content delivery, messages for coordination
-- Handoff report with 5 components (Observation, Logic Chain, Caveats, Conclusion, Verification Method)
-- Self-contained handoff and survey report
-- Sound cues must respect global mute toggle, browser autoplay policies, and prevent concurrency/clipping issues
+- Read-only investigation — do NOT implement changes in repo source/config files
+- Survey configuration files, build scripts, npm scripts, and CI workflows affected by the overhaul
+- Produce analysis.md and handoff.md in working directory
+- Communicate with caller via send_message
 
 ## Current Parent
-- Conversation ID: 70aacd32-1475-457c-a20e-3878c97d92ae
-- Updated: 2026-10-10T03:35:00Z
+- Conversation ID: 54c49357-94e2-4f13-991f-18e0c1fe9cf7
+- Updated: not yet
 
 ## Investigation State
-- **Explored paths**: `src/App.tsx`, `src/pages/LedgerPages.tsx`, `src/pages/InvestmentPages.tsx`, `src/pages/PlanningPages.tsx`, `src/pages/DataPage.tsx`, `src/pages/Overview.tsx`, `src/ui/shared.tsx`, `src/db/database.ts`, `src/db/repository.ts`, `package.json`, `vitest.config.ts`.
-- **Key findings**:
-  1. Identified all 20+ user interaction points mapped to a clean 5-semantic-cue sound palette (`success`, `error`, `delete`, `dialog_open`, `dialog_close`).
-  2. Proposed hybrid asset strategy: lightweight CC0 MP3 assets (<15KB total in `public/sounds/`) with a procedural Web Audio API synthesizer fallback (zero external dependencies, 100% offline).
-  3. Formulated audio playback architecture with lazy `AudioContext` autoplay unlocking, 120ms debounce throttling, max 3-voice limiting, master volume control, and dynamics compression.
-  4. Designed dual mute persistence combining synchronous `localStorage` caching with canonical Dexie `settings` table storage (`soundMuted`) and reactive `useLiveQuery` integration.
-- **Unexplored areas**: None within the sound cues survey scope.
+- **Explored paths**: ORIGINAL_REQUEST.md
+- **Key findings**: Overhaul requires removing legacy market module from vite.config.ts, cleaning package.json scripts, ensuring artifacts/ in .gitignore, removing debug.yml, ensuring pages.yml and tools/finance-browser-check.mjs are intact and functional.
+- **Unexplored areas**: vite.config.ts, package.json, .gitignore, .github/workflows/pages.yml, .github/workflows/debug.yml, tools/finance-browser-check.mjs.
 
 ## Key Decisions Made
-- Selected 5-semantic-cue taxonomy instead of single-purpose audio bloat to maintain calm, pleasant UX.
-- Formulated zero-npm-dependency architecture (native Web Audio API + HTMLAudioElement) avoiding heavy libraries like Howler.
-- Placed global mute toggle in Topbar (`src/App.tsx`) and Settings page (`src/pages/PlanningPages.tsx`).
+- Initiated survey of build, CI, and config assets.
 
 ## Artifact Index
-- `DISPATCH.md` — Dispatch log
-- `progress.md` — Liveness heartbeat and progress tracker
-- `handoff.md` — Comprehensive 5-component survey and architectural handoff report
+- `DISPATCH.md` — Log of incoming dispatches
+- `BRIEFING.md` — Agent state and persistent memory
+- `progress.md` — Liveness and execution progress tracker

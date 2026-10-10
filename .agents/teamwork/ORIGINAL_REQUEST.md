@@ -100,3 +100,78 @@ Respect the user's `prefers-reduced-motion` OS settings by disabling animations 
 
 ---
 *Next: when approved → delegate via invoke_subagent (see Delegation Protocol)*
+
+
+## 2026-10-10T05:00:46Z
+
+Perform a full codebase overhaul of the Tala personal finance app (a React/TypeScript SPA deployed on GitHub Pages, using Firebase for auth and Firestore sync) by removing dead code, legacy modules, redundant tooling, and infrastructure artifacts that do not belong in a Firebase + GitHub Pages deployment.
+
+Working directory: e:/Visual Studio Code/tala
+Integrity mode: development
+
+---
+
+## What to Keep
+- `src/` — all application source code (App.tsx, pages, hooks, db, sync, ui, workers, market, core, components)
+- `functions/` — Firebase Cloud Functions (market data gateway) 
+- `public/` — static assets (icons, sounds, models)
+- `tests/` — Vitest unit + integration tests (`*.test.ts`) and the browser journey test (`tools/finance-browser-check.mjs`)
+- `.github/workflows/pages.yml` — the GitHub Actions deployment pipeline
+- `firebase.json`, `firestore.indexes.json`, `firestore.rules` (if it exists) — Firebase config
+- `vite.config.ts`, `tailwind.config.js`, `postcss.config.js`, `tsconfig.json`, `package.json`
+
+---
+
+## Requirements
+
+### R1. Remove Legacy Market Dashboard (the `site/` directory)
+The `site/` directory contains a standalone vanilla-JS market dashboard (`site/index.html`, `site/styles.css`, `site/src/*.js`, `site/data/*.json`) that predates the React app. It is bundled into the Vite build via `vite.config.ts` (`preserve-market-module` plugin copying `site/` into `dist/legacy-market/`). Remove the `site/` directory entirely. Remove the `preserve-market-module` plugin block from `vite.config.ts`. Remove any scripts, tools, or tests that exist exclusively to serve or test this legacy module (e.g. `tools/serve.mjs`, `tools/check.mjs`, `tools/browser-check.mjs`, `tests/client.test.mjs`, `tests/data.test.mjs`, `tests/worker.test.mjs`). Remove the `"market:dev"` and `"test:market:browser"` npm scripts.
+
+### R2. Remove Cloudflare Worker Infrastructure
+The `worker/` directory contains a Cloudflare Worker gateway (`worker/index.mjs`, `worker/wrangler.toml`, `worker/README.md`) that duplicates what the Firebase Cloud Function in `functions/` already does. Remove the `worker/` directory entirely.
+
+### R3. Remove `.agents/` Teamwork Scaffolding
+The `.agents/` directory contains internal teamwork agent scaffolding files from previous AI agent runs (briefings, handoffs, progress notes). This is not application code. Remove the `.agents/` directory entirely.
+
+### R4. Remove `artifacts/` Directory from Git
+The `artifacts/` directory contains local CI test screenshots and JSON data dumps (e.g. screenshots, market fixture data, edge profile caches). These are CI-generated and should not live in source control. Remove the `artifacts/` directory and add `artifacts/` to `.gitignore`. Retain the `artifacts/` directory in `.gitignore` to prevent future CI-generated files from being committed.
+
+### R5. Remove Debug Workflow and Debug Log Files
+The `.github/workflows/debug.yml` workflow was a temporary diagnostic tool. It commits debug log files (`debug.txt`, `debug_test.txt`, `debug_build.txt`, `debug_browser.txt`) back to `main`. Remove `debug.yml` entirely. Delete the existing committed `debug*.txt` files. Remove any other temporary/scratch files at the repo root (e.g. `ORIGINAL_REQUEST.md`, any `.md` files that are agent-generated planning docs at the repo root — but keep `README.md` if it exists).
+
+### R6. Remove Redundant Market Tools and Tests
+The `tools/` directory contains several tools for probing and testing free market data sources (PSE, global, mirror) that are not part of the production deployment or CI pipeline. Remove: `tools/free-market.mjs`, `tools/free-pse.mjs`, `tools/free-global.mjs`, `tools/free-global-mirror.mjs`, `tools/probe-free-source.mjs`, `tools/generate-icons.mjs`. Remove corresponding tests: `tests/free-market.test.mjs`, `tests/free-pse.test.mjs`, `tests/free-global.test.mjs`, `tests/free-global-mirror.test.mjs`, `tests/local-gateway.test.mjs`, `tests/acceptance/` directory, `tests/e2e/` directory. Remove the `"check:source"` npm script. Update `package.json` to remove the `"test:market"` script that runs these `.mjs` tests if they are removed (or update it to point only to remaining `.test.mjs` files).
+
+### R7. Remove Unused devDependencies
+After removals, audit `package.json` devDependencies and remove packages that are no longer used anywhere in the remaining codebase. Specifically: `axios` (used only in `functions/src/index.ts` which has its own `functions/package.json`; not used in the frontend/tests), `class-variance-authority`, `tailwind-merge`, `clsx` (check if any remaining `.tsx`/`.ts` file actually imports these before removing). Do not remove `firebase-admin` or `firebase-functions` — they are needed to type-check `functions/` during root-level `tsc`. Keep all other devDependencies that are genuinely used.
+
+### R8. Clean Up `vite.config.ts`
+After removing the `site/` directory and legacy market module plugin (R1), simplify `vite.config.ts`. The `preserve-market-module` plugin block should be removed entirely (it references `site/` and copies it to `dist/legacy-market/`). The `workbox` navigateFallbackDenylist should also drop `/legacy-market/` from its deny list since that path no longer exists.
+
+### R9. Fix `debug.yml` Removal Impact on `pages.yml`
+Verify that `pages.yml` is self-contained, passes `npm test` and `npm run build` after all removals, and that `npm run test:browser` still works. Update the CI pipeline if any scripts or test references were changed as part of the cleanup (e.g. if `"test:market"` script changes).
+
+---
+
+## Acceptance Criteria
+
+### Codebase Cleanliness
+- [ ] `site/` directory does not exist in the repository after cleanup.
+- [ ] `worker/` directory does not exist in the repository after cleanup.
+- [ ] `.agents/` directory does not exist in the repository after cleanup.
+- [ ] `artifacts/` is listed in `.gitignore` and not tracked by git.
+- [ ] `.github/workflows/debug.yml` does not exist. No `debug*.txt` files are committed.
+- [ ] `ORIGINAL_REQUEST.md` and any other agent-generated planning `.md` files at the repo root are removed (keep `README.md` if present).
+
+### Build Integrity
+- [ ] `npm run build` (`tsc --noEmit && vite build`) succeeds without type errors after all removals.
+- [ ] `npm test` (vitest) passes with all tests that remain after cleanup (no regressions in `tests/*.test.ts`).
+- [ ] `vite.config.ts` does not reference `site/`, `legacy-market`, or the `preserve-market-module` plugin.
+
+### CI Pipeline Integrity  
+- [ ] `.github/workflows/pages.yml` runs all remaining steps successfully: `npm install`, `npm test`, `npm run build`, `npm run test:browser`.
+- [ ] The `npm run test:market` script in `package.json` either points only to existing `.mjs` test files or is removed if no such files remain.
+
+### No Broken Imports
+- [ ] `npm run typecheck` (`tsc --noEmit`) passes with zero errors after removals.
+- [ ] No `src/` file imports from a path that no longer exists.

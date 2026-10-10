@@ -1,7 +1,7 @@
-# BRIEFING — 2026-10-10T03:36:00Z
+# BRIEFING — 2026-10-10T05:05:00Z
 
 ## Mission
-Comprehensive Survey of UI Animations, Page Transitions, Modal Lifecycles, and Chart Renderings for Tala SPA.
+Comprehensive Catalog & Mapping of Files and Directories Targeted for Removal (R1, R2, R4, R5, R6) in Tala Overhaul.
 
 ## 🔒 My Identity
 - Archetype: teamwork_preview_explorer
@@ -11,6 +11,8 @@ Comprehensive Survey of UI Animations, Page Transitions, Modal Lifecycles, and C
 - Milestone: Phase 0 Architecture & Codebase Survey
 - Subagent Invocation: 2026-10-10 UI Animations & Component Transitions Survey
 - Assigned by: orchestrator_2 (70aacd32-1475-457c-a20e-3878c97d92ae)
+- New Invocation: 2026-10-10T05:03:51Z File Catalog Explorer (Explorer 1) for Tala codebase overhaul
+- Current caller: 54c49357-94e2-4f13-991f-18e0c1fe9cf7
 
 ## 🔒 Key Constraints
 - Read-only investigation — do NOT implement
@@ -19,26 +21,24 @@ Comprehensive Survey of UI Animations, Page Transitions, Modal Lifecycles, and C
 - Communicate via send_message to parent 64bc598d-7c84-4fe3-b439-553f079769f4
 - Strictly read-only: propose solutions, architectures, and design patterns; do not edit app source code.
 - Respect prefers-reduced-motion and performance constraints (zero layout thrashing).
+- Read-only investigation for Tala overhaul — do NOT delete or modify files outside `.agents/teamwork/explorer_survey_1`
+- Map and catalog exact file paths, git tracking status, and dependencies for R1, R2, R4, R5, R6
+- Check if active code in `src/` or `functions/` references any targeted removal files
 
 ## Current Parent
-- Conversation ID: 70aacd32-1475-457c-a20e-3878c97d92ae
-- Updated: 2026-10-10T03:36:00Z
+- Conversation ID: 54c49357-94e2-4f13-991f-18e0c1fe9cf7
+- Updated: 2026-10-10T05:05:00Z
 
 ## Investigation State
-- **Explored paths**: `src/App.tsx`, `src/pages/Overview.tsx`, `src/pages/LedgerPages.tsx`, `src/pages/InvestmentPages.tsx`, `src/pages/PlanningPages.tsx`, `src/pages/DataPage.tsx`, `src/ui/shared.tsx`, `src/styles.css`, `tailwind.config.js`, `postcss.config.js`, `tests/ui-accessibility.test.ts`.
-- **Key findings**:
-  1. Routing: `react-router-dom` v7 with 11 top-level views. `useRouteFocus()` manages accessibility focus on h1. Entrance animations using lightweight CSS keyframe `opacity` + `translateY` on page container ensure immediate DOM mounting and seamless focus.
-  2. Modals: All 17 modals in the entire SPA use a single centralized `<Dialog>` component in `src/ui/shared.tsx` with native HTML `<dialog>`. Adding entrance and exit lifecycle to `<Dialog>` cleanly animates every modal without altering any modal form.
-  3. Charts: 6 Recharts visualizations across Overview and PlanningPages currently hardcode `isAnimationActive={false}`. Re-enabling SVG animations (`isAnimationActive={!prefersReducedMotion}`) with fixed-height `.chart-container` elements prevents layout thrashing completely.
-  4. Tailwind: Tailwind 3.4.4 can be cleanly extended with custom keyframes & animation tokens, backed by `motion-safe:` / `motion-reduce:` and `src/styles.css` media queries.
-- **Unexplored areas**: None for UI animation scope; survey complete.
+- **Explored paths**: Starting catalog of R1, R2, R4, R5, R6
+- **Key findings**: [In progress]
+- **Unexplored areas**: Exact file listing, git tracking status, references in src/ and functions/
 
 ## Key Decisions Made
-- Recommend pure CSS composite-only animations (`opacity`, `transform`) over heavy JS animation libraries.
-- Center modal transitions on `src/ui/shared.tsx` `Dialog` component.
-- Implement reactive `useReducedMotion()` hook to control Recharts SVG `isAnimationActive`.
+- Systematic audit per requirement (R1, R2, R4, R5, R6), cross-referencing git ls-files, filesystem checks, and grep in src/ and functions/.
 
 ## Artifact Index
-- `handoff.md` — 5-Component Handoff Report for orchestrator_2
-- `progress.md` — Real-time progress and liveness heartbeat
-- `DISPATCH.md` — Incoming task specifications
+- `analysis.md` — Detailed survey & file catalog
+- `handoff.md` — 5-Component Handoff Report
+- `progress.md` — Liveness heartbeat and step tracking
+- `DISPATCH.md` — Incoming dispatch log
