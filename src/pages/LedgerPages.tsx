@@ -138,17 +138,17 @@ export function AccountsPage() {
       </CardContent></Card>
     </div>
     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-sm"><p className="text-slate-500">Balances update as you record transactions, including while offline.</p><label className="flex items-center gap-2 font-medium cursor-pointer"><input type="checkbox" className="rounded border-slate-300 text-primary focus:ring-primary h-4 w-4" checked={showArchived} onChange={event => setShowArchived(event.target.checked)} />Show archived</label></div><ErrorMessage message={error} />
-    {!displayed.length ? <Empty title="Start with an account" description="Add your actual bank, wallet, cash or loan balance. No personal balances are prefilled." action={<Button onClick={() => setEditing('new')}>Add your first account</Button>} /> : <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">{displayed.map(account => <Card className={account.archived ? 'opacity-60 grayscale' : ''} key={account.id}>
+    {!displayed.length ? <Empty title="Start with an account" description="Add your actual bank, wallet, cash or loan balance. No personal balances are prefilled." action={<Button onClick={() => setEditing('new')}>Add your first account</Button>} /> : <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">{displayed.map(account => <Card className={`account-card ${account.archived ? 'opacity-60 grayscale' : ''}`} key={account.id}>
       <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
         <div>
           <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">{readable(account.accountType)}</span>
           <CardTitle className="mt-1 text-xl">{account.name}</CardTitle>
-          <p className="text-sm text-slate-500 mt-1">{institutions.find(value => value.id === account.institutionId)?.name || account.institutionId || 'Personal account'} Ã‚Â· {account.currency}</p>
+          <p className="text-sm text-slate-500 mt-1">{institutions.find(value => value.id === account.institutionId)?.name || account.institutionId || 'Personal account'} · {account.currency}</p>
         </div>
         <Badge variant={account.archived ? 'secondary' : liabilityTypes.has(account.accountType) ? 'pending' : 'cleared'}>{account.archived ? 'Archived' : liabilityTypes.has(account.accountType) ? 'Amount owed' : 'Asset'}</Badge>
       </CardHeader>
       <CardContent>
-        <div className="text-3xl font-bold tracking-tight my-4"><Money amount={balances[account.id]?.[account.currency] ?? account.openingBalances?.[account.currency] ?? account.openingBalance ?? 0} currency={account.currency} /></div>
+        <div className="account-balance text-3xl font-bold tracking-tight my-4"><Money amount={balances[account.id]?.[account.currency] ?? account.openingBalances?.[account.currency] ?? account.openingBalance ?? 0} currency={account.currency} /></div>
         <div className="flex flex-wrap gap-2 mt-4">{account.includeInNetWorth && <Badge variant="outline">Net worth</Badge>}{account.includeInLiquidNetWorth && <Badge variant="outline">Liquid</Badge>}{account.includeInFire && <Badge variant="outline">FIRE</Badge>}{account.emergency && <Badge variant="outline">Emergency</Badge>}</div>
       </CardContent>
       <CardFooter className="flex justify-end gap-2 pt-0 mt-4 border-t px-6 py-4">

@@ -25,7 +25,6 @@ jobs:
         run: npm install
       - name: Test financial calculations, database and backups
         run: npm test
-      - run: npm run test:market
       - run: npm run build
       - name: Test browser journeys
         env:

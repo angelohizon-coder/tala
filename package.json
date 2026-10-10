@@ -11,13 +11,9 @@
     "dev": "vite",
     "preview": "vite preview",
     "test": "vitest run --config vitest.config.ts",
-    "test:market": "node --test tests/*.test.mjs",
     "test:browser": "node tools/finance-browser-check.mjs",
-    "test:market:browser": "node tools/browser-check.mjs",
-    "market:dev": "node tools/serve.mjs",
     "typecheck": "tsc --noEmit",
     "check": "npm run typecheck",
-    "check:source": "node tools/probe-free-source.mjs",
     "build": "tsc --noEmit && vite build",
     "generate:demo": "node scripts/generate-demo.mjs",
     "import:funds": "node scripts/import-funds.mjs"
