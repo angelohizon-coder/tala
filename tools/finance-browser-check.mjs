@@ -347,6 +347,17 @@ try {
   const context = await browser.newContext({ viewport: { width: 1440, height: 1100 }, timezoneId: 'Asia/Manila', acceptDownloads: true, reducedMotion: 'reduce' });
   const page = await context.newPage(); observe(page); page.setDefaultTimeout(15000);
   await page.goto(origin + '/', { waitUntil: 'domcontentloaded' });
+  // Purge any IndexedDB data left from a previous CI run so we always start clean.
+  await page.evaluate(async () => {
+    const dbName = 'tala-finance';
+    await new Promise((resolve, reject) => {
+      const req = indexedDB.deleteDatabase(dbName);
+      req.onsuccess = resolve;
+      req.onerror = () => reject(req.error);
+      req.onblocked = resolve; // treat blocked as ok; page reload clears it
+    });
+  });
+  await page.reload({ waitUntil: 'domcontentloaded' });
   try {
     await expect(main(page).getByRole('heading', { level: 1 })).toHaveText(/A little clarity/);
   } catch (err) {
