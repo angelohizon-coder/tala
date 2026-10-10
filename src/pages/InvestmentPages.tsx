@@ -105,7 +105,7 @@ export function MarketsPage(){
    finally{setSaving(false);}
  }
  return <>
-   <PageHeading eyebrow="A WIDER PERSPECTIVE" title="Markets beyond borders" description="Free public quotes, original currencies, and clear source dates. Market requests contain tickers only." action={<a className="button" href={`${import.meta.env.BASE_URL}legacy-market/`} target="_blank" rel="noreferrer">Full market dashboard<ArrowUpRight size={14}/></a>}/>
+   <PageHeading eyebrow="A WIDER PERSPECTIVE" title="Markets beyond borders" description="Free public quotes, original currencies, and clear source dates. Market requests contain tickers only."/>
    <div className="card page-section"><form className="inline-form" onSubmit={search}>
      <Field label="Stock market"><select value={market} onChange={e=>changeMarket(e.target.value)}>{Object.entries(marketNames).map(([code,name])=><option value={code} key={code}>{name}</option>)}</select></Field>
      <Field label="Company or ticker"><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search a company or exchange ticker"/></Field>

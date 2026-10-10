@@ -25,9 +25,7 @@ jobs:
         run: npm install
       - name: Test financial calculations, database and backups
         run: npm test
-      - name: Build
-        run: |
-          npm run build || (echo "=== BUILD FAILED ===" && npx tsc --noEmit && exit 1)
+      - run: npm run build
       - name: Test browser journeys
         env:
           CHROME_PATH: /usr/bin/google-chrome
