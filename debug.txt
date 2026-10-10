@@ -2,9 +2,4 @@
 > tala-market-dashboard@2.0.0 typecheck
 > tsc --noEmit
 
-functions/src/index.ts(1,27): error TS2307: Cannot find module 'firebase-functions/v2/https' or its corresponding type declarations.
-functions/src/index.ts(2,25): error TS2307: Cannot find module 'firebase-functions/logger' or its corresponding type declarations.
-functions/src/index.ts(3,24): error TS2307: Cannot find module 'firebase-admin' or its corresponding type declarations.
 functions/src/index.ts(4,19): error TS2307: Cannot find module 'axios' or its corresponding type declarations.
-functions/src/index.ts(420,10): error TS7006: Parameter 'req' implicitly has an 'any' type.
-functions/src/index.ts(420,15): error TS7006: Parameter 'res' implicitly has an 'any' type.
