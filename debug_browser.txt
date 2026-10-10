@@ -1,0 +1,19 @@
+
+> tala-market-dashboard@2.0.0 test:browser
+> node tools/finance-browser-check.mjs
+
+Error: expect(locator).toHaveText(expected) failed
+
+Locator: locator('#page-main').getByRole('heading', { level: 1 })
+Expected pattern: /A little clarity/
+Timeout: 5000ms
+Error: element(s) not found
+
+Call log:
+  - Expect "toHaveText" locator('#page-main').getByRole('heading', { level: 1 }) with timeout 5000ms
+  - waiting for locator('#page-main').getByRole('heading', { level: 1 })
+
+    at captureRawStack (/home/runner/work/tala/tala/node_modules/playwright-core/lib/coreBundle.js:9282:17)
+    at callMatcherAsStep (/home/runner/work/tala/tala/node_modules/playwright/lib/matchers/expect.js:13316:57)
+    at Object.toHaveText (/home/runner/work/tala/tala/node_modules/playwright/lib/matchers/expect.js:13308:23)
+    at /home/runner/work/tala/tala/tools/finance-browser-check.mjs:350:63
