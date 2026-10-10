@@ -32,7 +32,7 @@ dist/assets/firebase-Cg1jWbDO.js                 246.62 kB │ gzip:  76.06 kB
 dist/assets/AreaChart-Dx2Q9Nca.js                357.32 kB │ gzip: 104.00 kB
 dist/assets/index-BvrRfNCC.js                    429.47 kB │ gzip: 137.88 kB
 
-[32m✓ built in 1.25s[39m
+[32m✓ built in 888ms[39m
 
 [36mPWA v2.0.0[39m
 mode      [35mgenerateSW[39m
