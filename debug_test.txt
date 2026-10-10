@@ -5,63 +5,174 @@
 
 [1m[30m[46m RUN [49m[39m[22m [36mv5.0.3 [39m[90m/home/runner/work/tala/tala[39m
 
- [32m✓[39m tests/challenger-financial-integrity.test.ts [2m([22m[2m21 tests[22m[2m)[22m[32m 57[2mms[22m[39m
- [31m❯[39m tests/adversarial-tier5-hardening.test.ts [2m([22m[2m0 test[22m[2m)[22m
- [32m✓[39m tests/challenger-m2-adversarial.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 166[2mms[22m[39m
- [32m✓[39m tests/firestore-adversarial.test.ts [2m([22m[2m69 tests[22m[2m)[22m[32m 19[2mms[22m[39m
- [32m✓[39m tests/challenger-sync-adversarial.test.ts [2m([22m[2m7 tests[22m[2m)[22m[33m 469[2mms[22m[39m
- [31m❯[39m tests/market-gateway.test.ts [2m([22m[2m0 test[22m[2m)[22m
- [32m✓[39m tests/ml-categorization.test.ts [2m([22m[2m23 tests[22m[2m)[22m[32m 68[2mms[22m[39m
- [32m✓[39m tests/sync.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 229[2mms[22m[39m
- [32m✓[39m tests/calculations.test.ts [2m([22m[2m31 tests[22m[2m)[22m[33m 1561[2mms[22m[39m
+ [32m✓[39m tests/challenger-financial-integrity.test.ts [2m([22m[2m21 tests[22m[2m)[22m[32m 39[2mms[22m[39m
+ [32m✓[39m tests/challenger-sync-adversarial.test.ts [2m([22m[2m7 tests[22m[2m)[22m[33m 369[2mms[22m[39m
+ [32m✓[39m tests/challenger-m2-adversarial.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 143[2mms[22m[39m
+ [32m✓[39m tests/firestore-adversarial.test.ts [2m([22m[2m69 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+ [32m✓[39m tests/calculations.test.ts [2m([22m[2m31 tests[22m[2m)[22m[33m 1103[2mms[22m[39m
    [32m✓[39m budgets, debt, duplicate preview and dated history [2m(8)[22m
-     [33m[2m✓[22m[39m aggregates a 100,000-entry ledger without counting transfers as consumption[33m 1490[2mms[22m[39m
- [32m✓[39m tests/repository.test.ts [2m([22m[2m15 tests[22m[2m)[22m[33m 443[2mms[22m[39m
- [32m✓[39m tests/ui-accessibility.test.ts [2m([22m[2m20 tests[22m[2m)[22m[32m 53[2mms[22m[39m
- [32m✓[39m tests/financial-integrity.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 33[2mms[22m[39m
- [32m✓[39m tests/firestore-rules.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 10[2mms[22m[39m
- [32m✓[39m tests/csv.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 11[2mms[22m[39m
- [32m✓[39m tests/monte-carlo.test.ts [2m([22m[2m16 tests[22m[2m)[22m[33m 1097[2mms[22m[39m
- [32m✓[39m tests/backup.test.ts [2m([22m[2m7 tests[22m[2m)[22m[33m 445[2mms[22m[39m
+     [33m[2m✓[22m[39m aggregates a 100,000-entry ledger without counting transfers as consumption[33m 1044[2mms[22m[39m
+ [32m✓[39m tests/ml-categorization.test.ts [2m([22m[2m23 tests[22m[2m)[22m[32m 44[2mms[22m[39m
+[90mstderr[2m | tests/market-gateway.test.ts[2m > [22m[2mMarket Data Gateway — Standardized Schema & Multi-Tier Resolution[2m > [22m[2mTier 2: Falls back to FCS API when Yahoo Finance fails
+[22m[39m{"severity":"WARNING","message":"Primary Yahoo provider failed for ALI.PS: Error: Yahoo rate limited (429)\n    at /home/runner/work/tala/tala/tests/market-gateway.test.ts:262:52\n    at file:///home/runner/work/tala/tala/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:1628:35\n    at file:///home/runner/work/tala/tala/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2783:26\n    at file:///home/runner/work/tala/tala/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:3321:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///home/runner/work/tala/tala/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:3316:10)\n    at file:///home/runner/work/tala/tala/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:3301:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///home/runner/work/tala/tala/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:3259:10)\n    at file:///home/runner/work/tala/tala/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:3882:64"}
 
-[31m⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Suites 2 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+[90mstderr[2m | tests/market-gateway.test.ts[2m > [22m[2mMarket Data Gateway — STALE Cache Preservation & Critical Zero-Price Defense[2m > [22m[2mTier 3: Serves STALE quote from Firestore cache when both external providers fail
+[22m[39m{"severity":"WARNING","message":"Primary Yahoo provider failed for SMPH.PS: Error: Yahoo network timeout\n    at /home/runner/work/tala/tala/tests/market-gateway.test.ts:326:52\n    at file:///home/runner/work/tala/tala/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:1628:35\n    at file:///home/runner/work/tala/tala/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2783:26\n    at file:///home/runner/work/tala/tala/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:3321:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///home/runner/work/tala/tala/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:3316:10)\n    at file:///home/runner/work/tala/tala/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:3301:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///home/runner/work/tala/tala/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:3259:10)\n    at file:///home/runner/work/tala/tala/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:3882:64"}
 
-[41m[1m FAIL [22m[49m tests/adversarial-tier5-hardening.test.ts[2m [ tests/adversarial-tier5-hardening.test.ts ][22m
-[31m[1mError[22m: Cannot find package 'axios' imported from /home/runner/work/tala/tala/functions/src/index.ts[39m
-[36m [2m❯[22m functions/src/index.ts:[2m4:1[22m[39m
-    [90m  2|[39m import * as logger from "firebase-functions/logger";
-    [90m  3|[39m import * as admin from "firebase-admin";
-    [90m  4|[39m import axios from "axios";
-    [90m   |[39m [31m^[39m
-    [90m  5|[39m
-    [90m  6|[39m /**
-[90m [2m❯[22m tests/adversarial-tier5-hardening.test.ts:[2m33:1[22m[39m
+[90mstderr[2m | tests/market-gateway.test.ts[2m > [22m[2mMarket Data Gateway — STALE Cache Preservation & Critical Zero-Price Defense[2m > [22m[2mTier 3: Serves STALE quote from Firestore cache when both external providers fail
+[22m[39m{"severity":"WARNING","message":"Secondary FCS provider failed for SMPH.PS: Error: FCS API service unavailable\n    at /home/runner/work/tala/tala/tests/market-gateway.test.ts:327:50\n    at file:///home/runner/work/tala/tala/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:1628:35\n    at file:///home/runner/work/tala/tala/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2783:26\n    at file:///home/runner/work/tala/tala/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:3321:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///home/runner/work/tala/tala/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:3316:10)\n    at file:///home/runner/work/tala/tala/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:3301:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///home/runner/work/tala/tala/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:3259:10)\n    at file:///home/runner/work/tala/tala/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:3882:64"}
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯[22m[39m
+[90mstderr[2m | tests/market-gateway.test.ts[2m > [22m[2mMarket Data Gateway — STALE Cache Preservation & Critical Zero-Price Defense[2m > [22m[2mCRITICAL ZERO-PRICE DEFENSE: Never returns price: 0 or coerces failed quote to zero
+[22m[39m{"severity":"WARNING","message":"Primary Yahoo provider failed for BPI.PS: Error: DNS resolution failed\n    at /home/runner/work/tala/tala/tests/market-gateway.test.ts:365:52\n    at file:///home/runner/work/tala/tala/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:1628:35\n    at file:///home/runner/work/tala/tala/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2783:26\n    at file:///home/runner/work/tala/tala/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:3321:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///home/runner/work/tala/tala/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:3316:10)\n    at file:///home/runner/work/tala/tala/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:3301:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///home/runner/work/tala/tala/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:3259:10)\n    at file:///home/runner/work/tala/tala/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:3882:64"}
 
-[41m[1m FAIL [22m[49m tests/market-gateway.test.ts[2m [ tests/market-gateway.test.ts ][22m
-[31m[1mError[22m: Cannot find package 'axios' imported from /home/runner/work/tala/tala/functions/src/index.ts[39m
-[36m [2m❯[22m functions/src/index.ts:[2m4:1[22m[39m
-    [90m  2|[39m import * as logger from "firebase-functions/logger";
-    [90m  3|[39m import * as admin from "firebase-admin";
-    [90m  4|[39m import axios from "axios";
-    [90m   |[39m [31m^[39m
-    [90m  5|[39m
-    [90m  6|[39m /**
-[90m [2m❯[22m tests/market-gateway.test.ts:[2m16:1[22m[39m
+[90mstderr[2m | tests/market-gateway.test.ts[2m > [22m[2mMarket Data Gateway — STALE Cache Preservation & Critical Zero-Price Defense[2m > [22m[2mCRITICAL ZERO-PRICE DEFENSE: Never returns price: 0 or coerces failed quote to zero
+[22m[39m{"severity":"WARNING","message":"Secondary FCS provider failed for BPI.PS: Error: 500 Internal Server Error\n    at /home/runner/work/tala/tala/tests/market-gateway.test.ts:366:50\n    at file:///home/runner/work/tala/tala/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:1628:35\n    at file:///home/runner/work/tala/tala/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2783:26\n    at file:///home/runner/work/tala/tala/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:3321:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///home/runner/work/tala/tala/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:3316:10)\n    at file:///home/runner/work/tala/tala/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:3301:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///home/runner/work/tala/tala/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:3259:10)\n    at file:///home/runner/work/tala/tala/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:3882:64"}
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯[22m[39m
+[90mstderr[2m | tests/market-gateway.test.ts[2m > [22m[2mMarket Data Gateway — STALE Cache Preservation & Critical Zero-Price Defense[2m > [22m[2mComplete outage without prior cache returns 503 error, NEVER a zero-price quote
+[22m[39m{"severity":"WARNING","message":"Primary Yahoo provider failed for UNKNOWN.PS: Error: Yahoo API down\n    at /home/runner/work/tala/tala/tests/market-gateway.test.ts:394:52\n    at file:///home/runner/work/tala/tala/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:1628:35\n    at file:///home/runner/work/tala/tala/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2783:26\n    at file:///home/runner/work/tala/tala/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:3321:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///home/runner/work/tala/tala/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:3316:10)\n    at file:///home/runner/work/tala/tala/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:3301:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///home/runner/work/tala/tala/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:3259:10)\n    at file:///home/runner/work/tala/tala/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:3882:64"}
+
+[90mstderr[2m | tests/market-gateway.test.ts[2m > [22m[2mMarket Data Gateway — STALE Cache Preservation & Critical Zero-Price Defense[2m > [22m[2mComplete outage without prior cache returns 503 error, NEVER a zero-price quote
+[22m[39m{"severity":"WARNING","message":"Secondary FCS provider failed for UNKNOWN.PS: Error: FCS API down\n    at /home/runner/work/tala/tala/tests/market-gateway.test.ts:395:50\n    at file:///home/runner/work/tala/tala/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:1628:35\n    at file:///home/runner/work/tala/tala/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2783:26\n    at file:///home/runner/work/tala/tala/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:3321:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///home/runner/work/tala/tala/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:3316:10)\n    at file:///home/runner/work/tala/tala/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:3301:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///home/runner/work/tala/tala/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:3259:10)\n    at file:///home/runner/work/tala/tala/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:3882:64"}
+
+[90mstderr[2m | tests/market-gateway.test.ts[2m > [22m[2mMarket Data Gateway — STALE Cache Preservation & Critical Zero-Price Defense[2m > [22m[2mComplete outage without prior cache returns 503 error, NEVER a zero-price quote
+[22m[39m{"severity":"ERROR","message":"Error resolving quote for UNKNOWN.PS: Error: Market quote unavailable for UNKNOWN.PS; no prior valid quote recorded.\n    at resolveMarketQuote (/home/runner/work/tala/tala/functions/src/index.ts:296:9)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at handleMarketQuoteRequest (/home/runner/work/tala/tala/functions/src/index.ts:396:19)\n    at /home/runner/work/tala/tala/tests/market-gateway.test.ts:404:5\n    at async file:///home/runner/work/tala/tala/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2783:20"}
+
+ [31m❯[39m tests/market-gateway.test.ts [2m([22m[2m17 tests[22m[2m | [22m[31m2 failed[39m[2m)[22m[32m 29[2mms[22m[39m
+   [31m❯[39m Market Data Gateway — CORS Policy Enforcement [2m(5)[22m
+     [32m✓[39m allows canonical GitHub Pages production origin[32m 2[2mms[22m[39m
+     [32m✓[39m allows standard local development origins on ports 5173 and 5174[32m 0[2mms[22m[39m
+     [32m✓[39m allows same-origin / server-to-server requests without Origin header[32m 0[2mms[22m[39m
+     [32m✓[39m strictly rejects arbitrary or malicious origins with 403 Forbidden[32m 2[2mms[22m[39m
+[31m     [31m×[31m sets Access-Control-Allow-Origin header and handles OPTIONS preflight[39m[32m 7[2mms[22m[39m
+   [32m✓[39m Market Data Gateway — Input Sanitization & Symbol Validation [2m(3)[22m
+     [32m✓[39m accepts valid ticker symbols of various formats[32m 1[2mms[22m[39m
+     [32m✓[39m rejects path traversal, script injection, and SQL injection payloads with 400[32m 1[2mms[22m[39m
+     [32m✓[39m rejects missing symbol parameter with 400[32m 0[2mms[22m[39m
+   [32m✓[39m Market Data Gateway — Standardized Schema & Multi-Tier Resolution [2m(2)[22m
+     [32m✓[39m Tier 1: Returns normalized quote from primary Yahoo Finance provider[32m 2[2mms[22m[39m
+     [32m✓[39m Tier 2: Falls back to FCS API when Yahoo Finance fails[32m 3[2mms[22m[39m
+   [32m✓[39m Market Data Gateway — STALE Cache Preservation & Critical Zero-Price Defense [2m(4)[22m
+     [32m✓[39m Tier 3: Serves STALE quote from Firestore cache when both external providers fail[32m 2[2mms[22m[39m
+     [32m✓[39m CRITICAL ZERO-PRICE DEFENSE: Never returns price: 0 or coerces failed quote to zero[32m 1[2mms[22m[39m
+     [32m✓[39m Complete outage without prior cache returns 503 error, NEVER a zero-price quote[32m 3[2mms[22m[39m
+     [32m✓[39m Cache safety: Never saves quotes with zero/negative price or quotes already marked stale[32m 0[2mms[22m[39m
+   [31m❯[39m Market Data Gateway — Batch Symbols & HTTP Handling [2m(3)[22m
+     [32m✓[39m handles batch symbols query param[32m 0[2mms[22m[39m
+[31m     [31m×[31m handles POST request with body parameter[39m[32m 1[2mms[22m[39m
+     [32m✓[39m exports cloud function handler getMarketQuote[32m 0[2mms[22m[39m
+ [32m✓[39m tests/sync.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 168[2mms[22m[39m
+ [32m✓[39m tests/repository.test.ts [2m([22m[2m15 tests[22m[2m)[22m[33m 351[2mms[22m[39m
+[90mstderr[2m | tests/adversarial-tier5-hardening.test.ts[2m > [22m[2mTier 5 Hardening — Domain R3: Market Data Gateway Cloud Function[2m > [22m[2mR3.4: STALE Quote Preservation: Never returns zero, serves valid stale price on provider failure
+[22m[39m{"severity":"WARNING","message":"Primary Yahoo provider failed for BDO.PS: AxiosError: Request failed with status code 404\n    at settle (file:///home/runner/work/tala/tala/node_modules/axios/lib/core/settle.js:19:12)\n    at IncomingMessage.handleStreamEnd (file:///home/runner/work/tala/tala/node_modules/axios/lib/adapters/http.js:1318:13)\n    at IncomingMessage.emit (node:events:526:24)\n    at endReadableNT (node:internal/streams/readable:1764:12)\n    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)\n    at Axios.request (file:///home/runner/work/tala/tala/node_modules/axios/lib/core/Axios.js:48:43)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at fetchYahooQuote (/home/runner/work/tala/tala/functions/src/index.ts:149:20)\n    at resolveMarketQuote (/home/runner/work/tala/tala/functions/src/index.ts:263:19)\n    at handleMarketQuoteRequest (/home/runner/work/tala/tala/functions/src/index.ts:396:19)\n    at /home/runner/work/tala/tala/tests/adversarial-tier5-hardening.test.ts:514:5\n    at async file:///home/runner/work/tala/tala/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2783:20 {\n  isAxiosError: true,\n  code: 'ERR_BAD_REQUEST',\n  config: [Object: null prototype] {\n    transitional: {\n      silentJSONParsing: true,\n      forcedJSONParsing: true,\n      clarifyTimeoutError: false,\n      legacyInterceptorReqResOrdering: true,\n      advertiseZstdAcceptEncoding: false,\n      validateStatusUndefinedResolves: true\n    },\n    adapter: [ 'xhr', 'http', 'fetch' ],\n    transformRequest: [ [Function: transformRequest] ],\n    transformResponse: [ [Function: transformResponse] ],\n    timeout: 8000,\n    xsrfCookieName: 'XSRF-TOKEN',\n    xsrfHeaderName: 'X-XSRF-TOKEN',\n    maxContentLength: -1,\n    maxBodyLength: -1,\n    env: { FormData: [Function], Blob: [class Blob] },\n    validateStatus: [Function: validateStatus],\n    headers: Object [AxiosHeaders] {\n      Accept: 'application/json',\n      'Content-Type': undefined,\n      'User-Agent': 'Mozilla/5.0 TalaFinance/2.0 (compatible; MarketGateway/1.0)',\n      'Accept-Encoding': 'gzip, compress, deflate, br'\n    },\n    method: 'get',\n    url: 'https://query1.finance.yahoo.com/v8/finance/chart/BDO.PS?interval=1d&range=1mo',\n    allowAbsoluteUrls: true,\n    data: undefined\n  },\n  request: <ref *1> ClientRequest {\n    _events: [Object: null prototype] {\n      abort: [Function (anonymous)],\n      aborted: [Function (anonymous)],\n      connect: [Function (anonymous)],\n      error: [Function (anonymous)],\n      socket: [Function (anonymous)],\n      timeout: [Function (anonymous)],\n      finish: [Function: requestOnFinish]\n    },\n    _eventsCount: 7,\n    _maxListeners: undefined,\n    outputData: [],\n    outputSize: 0,\n    writable: true,\n    destroyed: true,\n    _last: true,\n    chunkedEncoding: false,\n    shouldKeepAlive: true,\n    maxRequestsOnConnectionReached: false,\n    _defaultKeepAlive: true,\n    useChunkedEncodingByDefault: false,\n    sendDate: false,\n    _removedConnection: false,\n    _removedContLen: false,\n    _removedTE: false,\n    strictContentLength: false,\n    _contentLength: 0,\n    _hasBody: true,\n    _trailer: '',\n    finished: true,\n    _headerSent: true,\n    _closed: true,\n    _header: 'GET /v8/finance/chart/BDO.PS?interval=1d&range=1mo HTTP/1.1\\r\\n' +\n      'Accept: application/json\\r\\n' +\n      'User-Agent: Mozilla/5.0 TalaFinance/2.0 (compatible; MarketGateway/1.0)\\r\\n' +\n      'Accept-Encoding: gzip, compress, deflate, br\\r\\n' +\n      'Host: query1.finance.yahoo.com\\r\\n' +\n      'Connection: keep-alive\\r\\n' +\n      '\\r\\n',\n    _keepAliveTimeout: 0,\n    _onPendingData: [Function: nop],\n    agent: Agent {\n      _events: [Object: null prototype],\n      _eventsCount: 2,\n      _maxListeners: undefined,\n      options: [Object: null prototype],\n      defaultPort: 443,\n      protocol: 'https:',\n      requests: [Object: null prototype] {},\n      sockets: [Object: null prototype] {},\n      freeSockets: [Object: null prototype],\n      keepAliveMsecs: 1000,\n      keepAlive: true,\n      maxSockets: Infinity,\n      maxFreeSockets: 256,\n      scheduling: 'lifo',\n      maxTotalSockets: Infinity,\n      totalSocketCount: 1,\n      agentKeepAliveTimeoutBuffer: 1000,\n      maxCachedSessions: 100,\n      _sessionCache: [Object],\n      Symbol(shapeMode): false,\n      Symbol(kCapture): false\n    },\n    socketPath: undefined,\n    method: 'GET',\n    maxHeaderSize: undefined,\n    insecureHTTPParser: false,\n    httpValidation: undefined,\n    joinDuplicateHeaders: undefined,\n    _ended: true,\n    res: IncomingMessage {\n      _events: [Object],\n      _readableState: [ReadableState],\n      _maxListeners: undefined,\n      socket: null,\n      httpVersionMajor: 1,\n      httpVersionMinor: 1,\n      httpVersion: '1.1',\n      complete: true,\n      rawHeaders: [Array],\n      rawTrailers: [],\n      joinDuplicateHeaders: undefined,\n      aborted: false,\n      upgrade: false,\n      url: '',\n      method: null,\n      statusCode: 404,\n      statusMessage: 'Not Found',\n      client: [TLSSocket],\n      _consuming: false,\n      _dumped: false,\n      req: [Circular *1],\n      _eventsCount: 4,\n      responseUrl: 'https://query1.finance.yahoo.com/v8/finance/chart/BDO.PS?interval=1d&range=1mo',\n      redirects: [],\n      Symbol(shapeMode): true,\n      Symbol(kCapture): false,\n      Symbol(kHeaders): [Object],\n      Symbol(kHeadersCount): 34,\n      Symbol(kTrailers): null,\n      Symbol(kTrailersCount): 0,\n      Symbol(kAbortController): null,\n      Symbol(kAbortSignalSocket): null,\n      Symbol(kAbortSignalListener): null,\n      Symbol(kAbortSignalDetached): true\n    },\n    aborted: false,\n    timeoutCb: null,\n    upgradeOrConnect: false,\n    parser: null,\n    maxHeadersCount: null,\n    reusedSocket: false,\n    host: 'query1.finance.yahoo.com',\n    protocol: 'https:',\n    _redirectable: Writable {\n      _events: [Object],\n      _writableState: [WritableState],\n      _maxListeners: undefined,\n      _options: [Object],\n      _ended: true,\n      _ending: true,\n      _redirectCount: 0,\n      _redirects: [],\n      _requestBodyLength: 0,\n      _requestBodyBuffers: [],\n      _eventsCount: 4,\n      _onNativeResponse: [Function (anonymous)],\n      _headerFilter: /^(?:Authorization|Proxy-Authorization|Cookie)$/i,\n      _currentRequest: [Circular *1],\n      _currentUrl: 'https://query1.finance.yahoo.com/v8/finance/chart/BDO.PS?interval=1d&range=1mo',\n      _timeout: null,\n      Symbol(shapeMode): true,\n      Symbol(kCapture): false\n    },\n    Symbol(shapeMode): false,\n    Symbol(kCapture): false,\n    Symbol(kBytesWritten): 0,\n    Symbol(kNeedDrain): false,\n    Symbol(corked): 0,\n    Symbol(kChunkedBuffer): [],\n    Symbol(kChunkedLength): 0,\n    Symbol(kSocket): TLSSocket {\n      _tlsOptions: [Object],\n      _secureEstablished: true,\n      _securePending: false,\n      _newSessionPending: false,\n      _controlReleased: true,\n      secureConnecting: false,\n      _SNICallback: null,\n      servername: 'query1.finance.yahoo.com',\n      alpnProtocol: false,\n      authorized: true,\n      authorizationError: null,\n      encrypted: true,\n      _events: [Object: null prototype],\n      _eventsCount: 9,\n      connecting: false,\n      _hadError: false,\n      _parent: null,\n      _host: 'query1.finance.yahoo.com',\n      _closeAfterHandlingError: false,\n      _readableState: [ReadableState],\n      _writableState: [WritableState],\n      allowHalfOpen: false,\n      _maxListeners: undefined,\n      _sockname: null,\n      _pendingData: null,\n      _pendingEncoding: '',\n      server: undefined,\n      _server: null,\n      ssl: [TLSWrap],\n      _requestCert: true,\n      _rejectUnauthorized: true,\n      timeout: 5000,\n      _httpMessage: null,\n      parser: null,\n      autoSelectFamilyAttemptedAddresses: [Array],\n      Symbol(alpncallback): null,\n      Symbol(res): [TLSWrap],\n      Symbol(verified): true,\n      Symbol(pendingSession): null,\n      Symbol(async_id_symbol): -1,\n      Symbol(kHandle): [TLSWrap],\n      Symbol(lastWriteQueueSize): 0,\n      Symbol(timeout): Timeout {\n        _idleTimeout: 5000,\n        _idlePrev: [TimersList],\n        _idleNext: [TimersList],\n        _idleStart: 2419,\n        _onTimeout: [Function: onStreamTimeout],\n        _timerArgs: [Array],\n        _repeat: null,\n        _destroyed: false,\n        Symbol(refed): false,\n        Symbol(kHasPrimitive): false,\n        Symbol(asyncId): 108,\n        Symbol(triggerId): 106,\n        Symbol(kAsyncContextFrame): undefined\n      },\n      Symbol(kBuffer): null,\n      Symbol(kBufferCb): null,\n      Symbol(kBufferGen): null,\n      Symbol(shapeMode): true,\n      Symbol(kCapture): false,\n      Symbol(kSetNoDelay): true,\n      Symbol(kSetKeepAlive): true,\n      Symbol(kSetKeepAliveInitialDelay): 1,\n      Symbol(kSetTOS): undefined,\n      Symbol(kBytesRead): 0,\n      Symbol(kBytesWritten): 0,\n      Symbol(connect-options): [Object],\n      Symbol(kSetKeepAliveInterval): undefined,\n      Symbol(kSetKeepAliveCount): undefined,\n      Symbol(axios.http.socketListener): true,\n      Symbol(axios.http.currentReq): [Writable]\n    },\n    Symbol(kOutHeaders): [Object: null prototype] {\n      accept: [Array],\n      'user-agent': [Array],\n      'accept-encoding': [Array],\n      host: [Array]\n    },\n    Symbol(errored): null,\n    Symbol(kWritableFinished): true,\n    Symbol(kEndCallbacks): null,\n    Symbol(kFlushError): null,\n    Symbol(kHighWaterMark): 65536,\n    Symbol(kRejectNonStandardBodyWrites): false,\n    Symbol(kPath): '/v8/finance/chart/BDO.PS?interval=1d&range=1mo',\n    Symbol(kProxyRewrittenToAbsolute): false,\n    Symbol(kAuthority): 'query1.finance.yahoo.com',\n    Symbol(kUniqueHeaders): null\n  },\n  response: {\n    status: 404,\n    statusText: 'Not Found',\n    headers: Object [AxiosHeaders] {\n      'content-type': 'application/json;charset=utf-8',\n      'y-rid': '0f3t0mtlcja64',\n      vary: 'Origin',\n      'content-length': '108',\n      'x-envoy-upstream-service-time': '2',\n      date: 'Sat, 10 Oct 2026 02:53:56 GMT',\n      server: 'ATS',\n      'x-envoy-decorator-operation': 'finance-chart-api--mtls-production-gq1.finance-k8s:4080/*',\n      'cache-control': 'max-age=0, private',\n      expires: '-1',\n      age: '0',\n      'strict-transport-security': 'max-age=31536000',\n      'referrer-policy': 'no-referrer-when-downgrade',\n      'x-content-type-options': 'nosniff',\n      'x-xss-protection': '1; mode=block',\n      'x-frame-options': 'SAMEORIGIN',\n      connection: 'keep-alive'\n    },\n    config: [Object: null prototype] {\n      transitional: [Object],\n      adapter: [Array],\n      transformRequest: [Array],\n      transformResponse: [Array],\n      timeout: 8000,\n      xsrfCookieName: 'XSRF-TOKEN',\n      xsrfHeaderName: 'X-XSRF-TOKEN',\n      maxContentLength: -1,\n      maxBodyLength: -1,\n      env: [Object],\n      validateStatus: [Function: validateStatus],\n      headers: [Object [AxiosHeaders]],\n      method: 'get',\n      url: 'https://query1.finance.yahoo.com/v8/finance/chart/BDO.PS?interval=1d&range=1mo',\n      allowAbsoluteUrls: true,\n      data: undefined\n    },\n    request: <ref *1> ClientRequest {\n      _events: [Object: null prototype],\n      _eventsCount: 7,\n      _maxListeners: undefined,\n      outputData: [],\n      outputSize: 0,\n      writable: true,\n      destroyed: true,\n      _last: true,\n      chunkedEncoding: false,\n      shouldKeepAlive: true,\n      maxRequestsOnConnectionReached: false,\n      _defaultKeepAlive: true,\n      useChunkedEncodingByDefault: false,\n      sendDate: false,\n      _removedConnection: false,\n      _removedContLen: false,\n      _removedTE: false,\n      strictContentLength: false,\n      _contentLength: 0,\n      _hasBody: true,\n      _trailer: '',\n      finished: true,\n      _headerSent: true,\n      _closed: true,\n      _header: 'GET /v8/finance/chart/BDO.PS?interval=1d&range=1mo HTTP/1.1\\r\\n' +\n        'Accept: application/json\\r\\n' +\n        'User-Agent: Mozilla/5.0 TalaFinance/2.0 (compatible; MarketGateway/1.0)\\r\\n' +\n        'Accept-Encoding: gzip, compress, deflate, br\\r\\n' +\n        'Host: query1.finance.yahoo.com\\r\\n' +\n        'Connection: keep-alive\\r\\n' +\n        '\\r\\n',\n      _keepAliveTimeout: 0,\n      _onPendingData: [Function: nop],\n      agent: [Agent],\n      socketPath: undefined,\n      method: 'GET',\n      maxHeaderSize: undefined,\n      insecureHTTPParser: false,\n      httpValidation: undefined,\n      joinDuplicateHeaders: undefined,\n      _ended: true,\n      res: [IncomingMessage],\n      aborted: false,\n      timeoutCb: null,\n      upgradeOrConnect: false,\n      parser: null,\n      maxHeadersCount: null,\n      reusedSocket: false,\n      host: 'query1.finance.yahoo.com',\n      protocol: 'https:',\n      _redirectable: [Writable],\n      Symbol(shapeMode): false,\n      Symbol(kCapture): false,\n      Symbol(kBytesWritten): 0,\n      Symbol(kNeedDrain): false,\n      Symbol(corked): 0,\n      Symbol(kChunkedBuffer): [],\n      Symbol(kChunkedLength): 0,\n      Symbol(kSocket): [TLSSocket],\n      Symbol(kOutHeaders): [Object: null prototype],\n      Symbol(errored): null,\n      Symbol(kWritableFinished): true,\n      Symbol(kEndCallbacks): null,\n      Symbol(kFlushError): null,\n      Symbol(kHighWaterMark): 65536,\n      Symbol(kRejectNonStandardBodyWrites): false,\n      Symbol(kPath): '/v8/finance/chart/BDO.PS?interval=1d&range=1mo',\n      Symbol(kProxyRewrittenToAbsolute): false,\n      Symbol(kAuthority): 'query1.finance.yahoo.com',\n      Symbol(kUniqueHeaders): null\n    },\n    data: { chart: [Object] }\n  },\n  status: 404\n}"}
+
+ [32m✓[39m tests/ui-accessibility.test.ts [2m([22m[2m20 tests[22m[2m)[22m[32m 32[2mms[22m[39m
+ [32m✓[39m tests/financial-integrity.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 22[2mms[22m[39m
+[90mstderr[2m | tests/adversarial-tier5-hardening.test.ts[2m > [22m[2mTier 5 Hardening — Domain R3: Market Data Gateway Cloud Function[2m > [22m[2mR3.4: STALE Quote Preservation: Never returns zero, serves valid stale price on provider failure
+[22m[39m{"severity":"WARNING","message":"Secondary FCS provider failed for BDO.PS: Error: FCS API empty response for symbol BDO.PS\n    at fetchFcsQuote (/home/runner/work/tala/tala/functions/src/index.ts:204:11)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at resolveMarketQuote (/home/runner/work/tala/tala/functions/src/index.ts:274:19)\n    at handleMarketQuoteRequest (/home/runner/work/tala/tala/functions/src/index.ts:396:19)\n    at /home/runner/work/tala/tala/tests/adversarial-tier5-hardening.test.ts:514:5\n    at async file:///home/runner/work/tala/tala/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2783:20"}
+
+ [32m✓[39m tests/firestore-rules.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m tests/adversarial-tier5-hardening.test.ts [2m([22m[2m21 tests[22m[2m)[22m[33m 2087[2mms[22m[39m
+   [32m✓[39m Tier 5 Hardening — Domain R3: Market Data Gateway Cloud Function [2m(4)[22m
+     [33m[2m✓[22m[39m R3.4: STALE Quote Preservation: Never returns zero, serves valid stale price on provider failure[33m 1822[2mms[22m[39m
+ [32m✓[39m tests/csv.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [31m❯[39m tests/monte-carlo.test.ts [2m([22m[2m16 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 950[2mms[22m[39m
+   [31m❯[39m Advanced FIRE Monte Carlo Simulation (R5) [2m(16)[22m
+     [32m✓[39m Student’s t-Distribution Sampling [2m(3)[22m
+       [32m✓[39m generates standard Gaussian samples centered at zero with unit variance[32m 9[2mms[22m[39m
+       [32m✓[39m generates Student’s t-distribution (nu=5) with theoretical variance ~ 1.67[32m 19[2mms[22m[39m
+       [32m✓[39m scaled Student’s t-distribution achieves unit variance via sqrt((df - 2) / df)[32m 14[2mms[22m[39m
+     [32m✓[39m Fat-Tailed Risk & Kurtosis [2m(3)[22m
+       [32m✓[39m verifies standard Gaussian kurtosis is approximately 3.0[32m 6[2mms[22m[39m
+       [32m✓[39m verifies Student’s t-distribution (nu=5) exhibits fat tails with kurtosis > 3.0[32m 18[2mms[22m[39m
+       [32m✓[39m exhibits heavier tail risk with nu=3 compared to nu=5[32m 26[2mms[22m[39m
+     [32m✓[39m Simulation Scale & Performance [2m(2)[22m
+       [32m✓[39m enforces minimum 5,000 discrete iterations execution[32m 75[2mms[22m[39m
+       [32m✓[39m executes 5,000 iterations using Float64Array buffers with high performance (< 250ms)[32m 102[2mms[22m[39m
+     [32m✓[39m Statistical Convergence (SE <= 0.01 at N = 5000) [2m(1)[22m
+       [32m✓[39m guarantees standard error SE <= 0.01 across arbitrary success rates[32m 151[2mms[22m[39m
+     [31m❯[39m Probability Density Function (PDF) of Depletion Years [2m(3)[22m
+       [32m✓[39m outputs valid PDF where probabilities are bounded and sum <= 1.0[32m 47[2mms[22m[39m
+       [32m✓[39m concentrates depletion PDF in early years during rapid depletion[32m 8[2mms[22m[39m
+[31m       [31m×[31m yields zero depletion probability across all years for perpetual endowment[39m[32m 75[2mms[22m[39m
+     [32m✓[39m Percentile Trajectory Fan Charts (P10, P50, P90) [2m(2)[22m
+       [32m✓[39m maintains ordering invariant P10 <= P50 <= P90 at every horizon year[32m 91[2mms[22m[39m
+       [32m✓[39m conforms to deterministic compounding benchmark when volatility is zero[32m 12[2mms[22m[39m
+     [32m✓[39m Long Horizon Boundary & Heavy Tails [2m(2)[22m
+       [32m✓[39m executes 80-year horizon without memory exhaustion or NaN values[32m 243[2mms[22m[39m
+       [32m✓[39m handles extreme fat tails (nu = 3) gracefully[32m 52[2mms[22m[39m
+ [32m✓[39m tests/backup.test.ts [2m([22m[2m7 tests[22m[2m)[22m[33m 402[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 3 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m tests/market-gateway.test.ts[2m > [22mMarket Data Gateway — CORS Policy Enforcement[2m > [22msets Access-Control-Allow-Origin header and handles OPTIONS preflight
+[31m[1mAssertionError[22m: expected undefined to be 'https://angelohizon-coder.github.io' // Object.is equality[39m
+
+[32m- Expected:[39m
+"https://angelohizon-coder.github.io"
+
+[31m+ Received:[39m
+undefined
+
+[36m [2m❯[22m tests/market-gateway.test.ts:[2m141:56[22m[39m
+    [90m139|[39m
+    [90m140|[39m     expect(res.statusCode).toBe(204);
+    [90m141|[39m     expect(res.headers['Access-Control-Allow-Origin']).toBe('https://a…
+    [90m   |[39m                                                        [31m^[39m
+    [90m142|[39m     expect(res.headers['Access-Control-Allow-Methods']).toContain('GET…
+    [90m143|[39m     expect(res.ended).toBe(true);
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/market-gateway.test.ts[2m > [22mMarket Data Gateway — Batch Symbols & HTTP Handling[2m > [22mhandles POST request with body parameter
+[31m[1mAssertionError[22m: expected undefined to be 'https://angelohizon-coder.github.io' // Object.is equality[39m
+
+[32m- Expected:[39m
+"https://angelohizon-coder.github.io"
+
+[31m+ Received:[39m
+undefined
+
+[36m [2m❯[22m tests/market-gateway.test.ts:[2m528:56[22m[39m
+    [90m526|[39m     expect(res.body.symbol).toBe('MSFT');
+    [90m527|[39m     expect(res.body.price).toBe(430.25);
+    [90m528|[39m     expect(res.headers['Access-Control-Allow-Origin']).toBe('https://a…
+    [90m   |[39m                                                        [31m^[39m
+    [90m529|[39m   });
+    [90m530|[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/monte-carlo.test.ts[2m > [22mAdvanced FIRE Monte Carlo Simulation (R5)[2m > [22mProbability Density Function (PDF) of Depletion Years[2m > [22myields zero depletion probability across all years for perpetual endowment
+[31m[1mAssertionError[22m: expected 0.0002 to be +0 // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 0[39m
+[31m+ 0.0002[39m
+
+[36m [2m❯[22m tests/monte-carlo.test.ts:[2m260:22[22m[39m
+    [90m258|[39m
+    [90m259|[39m       for (const prob of Object.values(result.depletionYearPdf)) {
+    [90m260|[39m         expect(prob).toBe(0.0);
+    [90m   |[39m                      [31m^[39m
+    [90m261|[39m       }
+    [90m262|[39m     });
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯[22m[39m
 
 
 [2m Test Files [22m [1m[31m2 failed[39m[22m[2m | [22m[1m[32m14 passed[39m[22m[90m (16)[39m
-[2m      Tests [22m [1m[32m255 passed[39m[22m[90m (255)[39m
-[2m   Start at [22m 02:51:08
-[2m   Duration [22m 3.21s[2m (tests 76%, import 13%, transform 10%, worker 2%)[22m
+[2m      Tests [22m [1m[31m3 failed[39m[22m[2m | [22m[1m[32m290 passed[39m[22m[90m (293)[39m
+[2m   Start at [22m 02:53:54
+[2m   Duration [22m 3.50s[2m (tests 76%, import 14%, transform 9%, worker 1%)[22m
 
-[2m    Isolate [22m [33m16 workers spawned[39m[2m · ~157ms startup each (spawn + environment, per file)[22m
-[2m            [22m [2mat least ~680ms faster with [22m[33misolate: false[39m[2m — reuses workers across files instead of one per file[22m
+[2m    Isolate [22m [33m16 workers spawned[39m[2m · ~128ms startup each (spawn + environment, per file)[22m
+[2m            [22m [2mat least ~553ms faster with [22m[33misolate: false[39m[2m — reuses workers across files instead of one per file[22m
 
 
-::error file=/home/runner/work/tala/tala/functions/src/index.ts,title=tests/adversarial-tier5-hardening.test.ts,line=4,column=1::Error: Cannot find package 'axios' imported from /home/runner/work/tala/tala/functions/src/index.ts%0A ❯ functions/src/index.ts:4:1%0A ❯ tests/adversarial-tier5-hardening.test.ts:33:1%0A%0A⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯%0ASerialized Error: { code: 'ERR_MODULE_NOT_FOUND' }%0A
+::error file=/home/runner/work/tala/tala/tests/market-gateway.test.ts,title=tests/market-gateway.test.ts > Market Data Gateway — CORS Policy Enforcement > sets Access-Control-Allow-Origin header and handles OPTIONS preflight,line=141,column=56::AssertionError: expected undefined to be 'https://angelohizon-coder.github.io' // Object.is equality%0A%0A- Expected:%0A"https://angelohizon-coder.github.io"%0A%0A+ Received:%0Aundefined%0A%0A ❯ tests/market-gateway.test.ts:141:56%0A%0A
 
-::error file=/home/runner/work/tala/tala/functions/src/index.ts,title=tests/market-gateway.test.ts,line=4,column=1::Error: Cannot find package 'axios' imported from /home/runner/work/tala/tala/functions/src/index.ts%0A ❯ functions/src/index.ts:4:1%0A ❯ tests/market-gateway.test.ts:16:1%0A%0A⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯%0ASerialized Error: { code: 'ERR_MODULE_NOT_FOUND' }%0A
+::error file=/home/runner/work/tala/tala/tests/market-gateway.test.ts,title=tests/market-gateway.test.ts > Market Data Gateway — Batch Symbols & HTTP Handling > handles POST request with body parameter,line=528,column=56::AssertionError: expected undefined to be 'https://angelohizon-coder.github.io' // Object.is equality%0A%0A- Expected:%0A"https://angelohizon-coder.github.io"%0A%0A+ Received:%0Aundefined%0A%0A ❯ tests/market-gateway.test.ts:528:56%0A%0A
+
+::error file=/home/runner/work/tala/tala/tests/monte-carlo.test.ts,title=tests/monte-carlo.test.ts > Advanced FIRE Monte Carlo Simulation (R5) > Probability Density Function (PDF) of Depletion Years > yields zero depletion probability across all years for perpetual endowment,line=260,column=22::AssertionError: expected 0.0002 to be +0 // Object.is equality%0A%0A- Expected%0A+ Received%0A%0A- 0%0A+ 0.0002%0A%0A ❯ tests/monte-carlo.test.ts:260:22%0A%0A
