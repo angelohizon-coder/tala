@@ -1,20 +1,34 @@
-## 2026-10-09T18:46:47Z
-You are Survey Explorer 1 (teamwork_preview_explorer) for the Tala financial SPA modernization project.
+# Survey Task: UI Animations & Component Transitions
+Working directory: e:\Visual Studio Code\tala\.agents\teamwork\explorer_survey_1
+Project root: e:\Visual Studio Code\tala
+Original request: e:\Visual Studio Code\tala\.agents\teamwork\ORIGINAL_REQUEST.md (see request dated 2026-10-10T03:02:29Z)
+
+## Objective
+Investigate the existing codebase for UI animation opportunities and constraints:
+1. Examine page routing and view rendering in `src/` (e.g., `src/App.tsx`, `src/pages/*`, `src/components/*`).
+2. Identify modal implementations and opening/closing lifecycle (e.g., transaction modal, account modal, etc.).
+3. Identify all charts across the application (e.g., Net Worth chart, FIRE Monte Carlo fan/distribution charts, spending charts) and how they render.
+4. Determine the best, most performant way to animate page transitions, modal opening/closing, and chart rendering on load without layout thrashing.
+5. Identify Tailwind CSS / PostCSS configuration and whether CSS transitions, keyframes, or lightweight animation hooks/utilities fit best.
+6. Write a comprehensive survey report in `handoff.md` in your working directory. Use `send_message` to notify orchestrator_2 when done.
+
+## 2026-10-10T03:05:40Z
+You are explorer_survey_1.
 Your working directory is: e:\Visual Studio Code\tala\.agents\teamwork\explorer_survey_1
-The project root is: e:\Visual Studio Code\tala
-Authoritative user request and requirements: e:\Visual Studio Code\tala\.agents\teamwork\ORIGINAL_REQUEST.md
-Parent conversation ID: 64bc598d-7c84-4fe3-b439-553f079769f4
+Project root: e:\Visual Studio Code\tala
+MANDATORY: Read ORIGINAL_REQUEST.md before starting work:
+e:\Visual Studio Code\tala\.agents\teamwork\ORIGINAL_REQUEST.md (specifically the latest request dated 2026-10-10T03:02:29Z).
 
-You must read `e:\Visual Studio Code\tala\.agents\teamwork\ORIGINAL_REQUEST.md` before starting work.
+Also read your dispatch task at:
+e:\Visual Studio Code\tala\.agents\teamwork\explorer_survey_1\DISPATCH.md
 
-Your objective is Phase 0 Survey: Codebase Structure, Architecture, Firebase Sync Engine & Legacy Cleanup.
-Specifically investigate and document:
-1. Current project structure, build tools (Vite, Webpack, etc.), package.json dependencies, TypeScript/JavaScript config, test harnesses (Vitest/Jest/Playwright/Cypress).
-2. Existing Supabase usage across the entire codebase (files, imports, client initialization, queries, auth, schema) to plan complete removal.
-3. Legacy `finance_entities` data structures and schema, storage layer (LocalStorage, IndexedDB, etc.), and how migration should be structured.
-4. Existing Firebase setup (if any) or requirements for Firestore structure `/users/{uid}/{tableName}/{id}`, security rules emulator, deny-by-default rules.
-5. Synchronization mechanism: `navigator.locks` multi-tab synchronization design, cursor-based pagination for Firestore pulls, offline mutation queue, reconnect merge.
-6. GitHub Pages hosting compatibility (base path, router, asset bundling).
+Your Task:
+Investigate UI animations & transitions in the Tala SPA:
+1. Examine page routing and view rendering in `src/` (e.g. `src/App.tsx`, `src/pages/*`, `src/components/*`).
+2. Identify modal implementations and opening/closing lifecycle (e.g., transaction modal, account modal, etc.).
+3. Identify all charts across the application (e.g., Net Worth chart, FIRE Monte Carlo fan/distribution charts, spending charts) and how they render.
+4. Determine the best, most performant way to animate page transitions, modal opening/closing, and chart rendering on load without layout thrashing.
+5. Identify Tailwind CSS / PostCSS configuration and whether CSS transitions, keyframes, or lightweight animation hooks/utilities fit best.
+6. Write a comprehensive survey report in `handoff.md` and keep `progress.md` updated in your working directory.
+7. Use `send_message` to notify orchestrator_2 when done.
 
-Output: Write your detailed survey report to `e:\Visual Studio Code\tala\.agents\teamwork\explorer_survey_1\survey_report.md` and `handoff.md`. Include concrete file paths, code snippets, dependency list, and architectural recommendations.
-Send a message back to the orchestrator when finished.

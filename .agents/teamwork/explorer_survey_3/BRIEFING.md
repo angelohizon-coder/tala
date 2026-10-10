@@ -1,7 +1,7 @@
-# BRIEFING — 2026-10-09T18:55:00Z
+# BRIEFING — 2026-10-10T03:38:00Z
 
 ## Mission
-Survey Tala codebase and design detailed architecture for R3 (Market Data Gateway), R4 (Client-Side ML Categorization), R5 (FIRE Monte Carlo with Student's t-distribution), and R6 (UI/UX/Accessibility).
+Investigate accessibility controls (`prefers-reduced-motion`), global sound mute toggle placement/integration, and testing infrastructure (Vitest/test suites) for the Tala UI overhaul.
 
 ## 🔒 My Identity
 - Archetype: teamwork_preview_explorer
@@ -9,6 +9,9 @@ Survey Tala codebase and design detailed architecture for R3 (Market Data Gatewa
 - Working directory: e:\Visual Studio Code\tala\.agents\teamwork\explorer_survey_3
 - Original parent: 64bc598d-7c84-4fe3-b439-553f079769f4
 - Milestone: Phase 0 Survey (R3, R4, R5, R6)
+- Roles (UI Overhaul): Accessibility, Controls & Testing Infrastructure Survey Explorer
+- Current Parent Conversation ID: 70aacd32-1475-457c-a20e-3878c97d92ae
+- Milestone (UI Overhaul): Phase 0 Survey (Animations, Sound Cues, A11y & Testing)
 
 ## 🔒 Key Constraints
 - Read-only investigation — do NOT implement
@@ -17,25 +20,30 @@ Survey Tala codebase and design detailed architecture for R3 (Market Data Gatewa
 - Client-side ML categorization (R4): ONNX Runtime Web / TensorFlow.js in Web Worker, quantized model (q4/q8), zero backend data transmission, asset bundling
 - Advanced FIRE Projections (R5): Monte Carlo with Student's t-distribution, 5000+ iterations in Web Worker, PDF output, statistical convergence, UI visualization
 - UI/UX/A11y (R6): Tailwind CSS & PostCSS, green brand identity, honest empty states (zero demo data), WCAG compliance (visible keyboard focus, adequate contrast, accessible labels, color-independent gain/loss indicators)
+- Read-only investigation for Phase 0 survey of UI animations, sound cues, a11y, and testing
+- Must test `window.matchMedia('(prefers-reduced-motion: reduce)')`
+- Must provide global mute toggle in UI & settings
+- Zero regressions on existing test suite
 
 ## Current Parent
-- Conversation ID: 64bc598d-7c84-4fe3-b439-553f079769f4
-- Updated: 2026-10-09T18:55:00Z
+- Conversation ID: 70aacd32-1475-457c-a20e-3878c97d92ae
+- Updated: 2026-10-10T03:38:00Z
 
 ## Investigation State
-- **Explored paths**: `ORIGINAL_REQUEST.md`, `functions/src/index.ts`, `functions/package.json`, `src/pages/PlanningPages.tsx`, `src/pages/DataPage.tsx`, `src/pages/Overview.tsx`, `src/pages/InvestmentPages.tsx`, `src/pages/LedgerPages.tsx`, `src/core/calculations.ts`, `src/core/types.ts`, `src/market/providers.ts`, `src/styles.css`, `tailwind.config.js`, `postcss.config.js`, `src/components/ui/*`.
-- **Key findings**: 
-  - R3: Cloud Function in `functions/src/index.ts` is minimal (45 lines), lacks FCS API fallback, fails on error with 500 without Firestore STALE quote preservation (risk of 0 quote), and CORS is hardcoded without Vite preview port 5174.
-  - R4: DataPage statement import lacks any ML categorization. Recommended ONNX Runtime Web with INT8-quantized model in Web Worker with zero backend network calls.
-  - R5: FIRE calculator is purely deterministic. Parameterized Student's t-distribution ($\nu=5, N \ge 5000$) in Web Worker designed with depletion PDF and percentile fan chart outputs.
-  - R6: Tailwind theme unextended; styles.css is 20KB monolithic. Gain/loss uses color-only classes (violates WCAG 1.4.1); text `#7a8782` has 3.42:1 contrast (violates WCAG 1.4.3 AA). Remediations designed.
-- **Unexplored areas**: None within R3, R4, R5, R6 survey scope. Ready for implementation phase.
+- **Explored paths**: `src/styles.css` (existing line 12 reduced motion CSS rule), `src/App.tsx`, `src/pages/PlanningPages.tsx` (SettingsPage), `src/ui/shared.tsx` (Dialog component), `src/pages/Overview.tsx` (Recharts integration), `src/hooks/useRouteFocus.tsx`, `src/db/repository.ts` (Dexie settings methods), `tests/ui-accessibility.test.ts`, `vitest.config.ts`, `package.json`, `tests/e2e/run-all.mjs`.
+- **Key findings**:
+  1. `src/styles.css:12` contains `@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto!important}}`. However, Recharts SVGs require `isAnimationActive={false}`, and modal/dialog unmounts/transitions require JS coordination (or duration=0) to prevent broken `transitionend` handlers.
+  2. A dedicated `useReducedMotion()` hook wrapping `window.matchMedia('(prefers-reduced-motion: reduce)')` is missing and must be introduced to supply motion preference to React components and Recharts.
+  3. Global Sound Mute Toggle: Recommended dual placement: (a) Header/topbar icon button in `src/App.tsx` (`topbar-actions`) for instant one-click muting (`Volume2`/`VolumeX`), and (b) Settings page (`SettingsPage` in `PlanningPages.tsx`) under "Sound cues and audio".
+  4. Mute persistence: Synchronous `localStorage` + asynchronous Dexie `settings` table via `financeRepository.setSetting('soundMuted', boolean)`.
+  5. Test suite status: `node --test tests/*.test.mjs` (141 tests) 100% pass; `node tests/e2e/run-all.mjs` (93 tests) 100% pass; `tsc --noEmit` passes cleanly; Vite build produces clean output. Vitest runs in Node environment (`vitest.config.ts`), so DOM/media-query tests should use `renderToStaticMarkup` or global window/matchMedia mocks.
+- **Unexplored areas**: None remaining for this survey.
 
 ## Key Decisions Made
-- Completed detailed technical survey across R3, R4, R5, R6.
-- Produced `survey_report.md` with complete architecture diagrams, schemas, worker contracts, and WCAG remediation.
-- Produced 5-component `handoff.md`.
+- Formulated comprehensive test plans for `prefers-reduced-motion` and global sound mute toggle that run in the Vitest Node environment without requiring uninstalled browser emulators.
+- Architected dual-layer reduced-motion strategy (CSS/Tailwind + React hook + Recharts props).
+- Architected dual-placement sound mute toggle (topbar quick toggle + settings page preference).
 
 ## Artifact Index
-- `survey_report.md` — Comprehensive architectural and implementation survey report for R3, R4, R5, R6
-- `handoff.md` — Formal 5-component handoff report
+- `progress.md` — Liveness heartbeat and status
+- `handoff.md` — Final 5-component survey report

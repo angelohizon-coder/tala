@@ -7,6 +7,7 @@ import { financeRepository } from '../db/repository';
 import { ACCOUNT_TYPES, TRANSACTION_TYPES, type Account, type Budget, type Transaction, type TransactionType } from '../core/types';
 import { toMinor, fromMinor, currencyScale, calculateBudget, calculateAmortization } from '../core/calculations';
 import { Money, Empty, Dialog } from '../ui/shared';
+import { soundService } from '../ui/soundManager';
 import { Button, buttonVariants } from '../components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
@@ -86,8 +87,9 @@ function AccountForm({ account, onClose }: { account?: Account; onClose: () => v
       let institutionId = institutions.find(value => value.name.toLowerCase() === institution.trim().toLowerCase())?.id;
       if (institution.trim() && !institutionId) { institutionId = crypto.randomUUID(); await financeRepository.save('institutions', { id: institutionId, name: institution.trim() }); }
       await financeRepository.save('accounts', { ...account, id: entryId, name: name.trim(), accountType, currency, openingBalances: { [currency]: openingBalance }, openingBalance, openingDate, institutionId, includeInNetWorth: netWorth, includeInLiquidNetWorth: liquid, includeInFire: fire, emergency, archived: account?.archived || false });
+      soundService.play('success');
       onClose();
-    } catch (failure) { setError(errorText(failure)); } finally { setBusy(false); }
+    } catch (failure) { soundService.play('error'); setError(errorText(failure)); } finally { setBusy(false); }
   }
   return <Dialog title={account ? 'Edit account' : 'Add an account'} onClose={onClose}><form onSubmit={save} className="ledger-form">
     <div className="form-grid"><Field label="Account name"><input autoFocus required maxLength={100} value={name} onChange={event => setName(event.target.value)} placeholder="e.g. BDO savings" /></Field>
@@ -115,7 +117,7 @@ export function AccountsPage() {
   const [error, setError] = useState('');
   const active = accounts.filter(account => !account.archived);
   const displayed = accounts.filter(account => showArchived || !account.archived);
-  async function archive(account: Account) { try { setError(''); await financeRepository.save('accounts', { ...account, archived: !account.archived }); } catch (failure) { setError(errorText(failure)); } }
+  async function archive(account: Account) { try { setError(''); soundService.play(account.archived ? 'success' : 'delete'); await financeRepository.save('accounts', { ...account, archived: !account.archived }); } catch (failure) { soundService.play('error'); setError(errorText(failure)); } }
   return <div className="space-y-6 max-w-[1400px] mx-auto p-4 md:p-8"><Heading title="Your accounts" description="A complete view of your cash, investments and liabilities, in their original currencies." action={<Button onClick={() => setEditing('new')}><Plus size={17} className="mr-2" />Add account</Button>} />
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
       <Card><CardContent className="p-6">
@@ -210,8 +212,9 @@ function TransactionForm({ transaction, onClose, initialType, initialDestination
         tags: tags.split(',').map(tag => tag.trim()).filter(Boolean), instrumentId: trade ? instrumentId : undefined, units: trade ? Number(units) : undefined,
         unitPrice: trade && unitPrice ? Number(unitPrice) : undefined, fees: trade && fees ? toMinor(Number(fees), currency) : undefined };
       if (recurringSave) await recurringSave(entry); else { await financeRepository.saveTransaction(entry); await financeRepository.setSetting('ledger:recent-entry', { accountId, categoryId: type === 'EXPENSE' ? categoryId : undefined }).catch(() => {}); }
+      soundService.play('success');
       onClose();
-    } catch (failure) { setError(errorText(failure)); } finally { setBusy(false); }
+    } catch (failure) { soundService.play('error'); setError(errorText(failure)); } finally { setBusy(false); }
   }
   return <Dialog title={recurringSave ? 'Recurring transaction details' : transaction ? 'Edit transaction' : 'Add transaction'} onClose={onClose}><form onSubmit={save} className="ledger-form"><div className="form-grid">
     <Field label="Transaction type"><select value={type} onChange={event => { setType(event.target.value as TransactionType); setCategoryId(''); }}>{TRANSACTION_TYPES.map(value => <option key={value} value={value}>{readable(value)}</option>)}</select></Field>
@@ -229,7 +232,7 @@ function TransactionForm({ transaction, onClose, initialType, initialDestination
 
 function DeleteTransaction({ transaction, onClose }: { transaction: Transaction; onClose: () => void }) {
   const [error, setError] = useState(''); const [busy, setBusy] = useState(false);
-  return <Dialog title="Delete this transaction?" onClose={onClose}><p>Delete {readable(transaction.type).toLowerCase()} from {dateText(transaction.date)} for <Money amount={transaction.amount} currency={transaction.currency} />? Account balances, budgets and reports will update.</p><ErrorMessage message={error} /><div className="dialog-actions"><button className="button" onClick={onClose}>Keep transaction</button><button className="button danger" disabled={busy} onClick={async () => { setBusy(true); try { await financeRepository.deleteTransaction(transaction.id); onClose(); } catch (failure) { setError(errorText(failure)); setBusy(false); } }}>{busy ? 'DeletingÃ¢â‚¬Â¦' : 'Delete transaction'}</button></div></Dialog>;
+  return <Dialog title="Delete this transaction?" onClose={onClose}><p>Delete {readable(transaction.type).toLowerCase()} from {dateText(transaction.date)} for <Money amount={transaction.amount} currency={transaction.currency} />? Account balances, budgets and reports will update.</p><ErrorMessage message={error} /><div className="dialog-actions"><button className="button" onClick={onClose}>Keep transaction</button><button className="button danger" disabled={busy} onClick={async () => { setBusy(true); try { soundService.play('delete'); await financeRepository.deleteTransaction(transaction.id); onClose(); } catch (failure) { soundService.play('error'); setError(errorText(failure)); setBusy(false); } }}>{busy ? 'DeletingÃ¢â‚¬Â¦' : 'Delete transaction'}</button></div></Dialog>;
 }
 
 export function TransactionsPage() {
@@ -276,8 +279,8 @@ function BudgetForm({ budget, onClose }: { budget?: Budget; onClose: () => void 
   const [busy, setBusy] = useState(false); const [error, setError] = useState('');
   async function save(event: FormEvent) {
     event.preventDefault(); setBusy(true); setError('');
-    try { if (!categoryId) throw new Error('Choose an expense category.'); await financeRepository.save('budgets', { ...budget, id: budget?.id || crypto.randomUUID(), categoryId, periodType, period: periodType === 'annual' ? period.slice(0, 4) : period, currency, amount: requireAmount(amount, currency), includeChildren: children }); onClose(); }
-    catch (failure) { setError(errorText(failure)); } finally { setBusy(false); }
+    try { if (!categoryId) throw new Error('Choose an expense category.'); await financeRepository.save('budgets', { ...budget, id: budget?.id || crypto.randomUUID(), categoryId, periodType, period: periodType === 'annual' ? period.slice(0, 4) : period, currency, amount: requireAmount(amount, currency), includeChildren: children }); soundService.play('success'); onClose(); }
+    catch (failure) { soundService.play('error'); setError(errorText(failure)); } finally { setBusy(false); }
   }
   return <Dialog title={budget ? 'Edit budget' : 'Create a budget'} onClose={onClose}><form className="ledger-form" onSubmit={save}><div className="form-grid">
     <Field label="Expense category"><select required value={categoryId} onChange={event => setCategoryId(event.target.value)}><option value="">Choose category</option>{categories.filter(category => category.kind === 'expense' && (!category.archived || category.id === categoryId)).map(category => <option key={category.id} value={category.id}>{category.parentId ? `${categories.find(parent => parent.id === category.parentId)?.name || 'Category'} Ã¢â€ â€™ ` : ''}{category.name}</option>)}</select></Field>
@@ -313,8 +316,9 @@ function RecurringForm({ rule, onClose }: { rule?: RecurringRule; onClose: () =>
         startDate, nextDate, endDate: endDate || undefined, monthlyDay: frequency === 'custom' ? monthlyDay : undefined, active,
         template: { ...template, type, accountId, amount: value, currency, transferAccountId: transfer ? target?.id : undefined, transferCurrency: transfer ? target?.currency : undefined,
           transferAmount: transfer && target ? target.currency === currency ? value : requireAmount(received, target.currency) : undefined, categoryId: transfer ? undefined : categoryId || undefined, notes: notes.trim() || undefined } });
+      soundService.play('success');
       onClose();
-    } catch (failure) { setError(errorText(failure)); } finally { setBusy(false); }
+    } catch (failure) { soundService.play('error'); setError(errorText(failure)); } finally { setBusy(false); }
   }
   return <Dialog title={rule ? 'Edit recurring rule' : 'Create a recurring rule'} onClose={onClose}><form className="ledger-form" onSubmit={save}><div className="form-grid">
     <Field label="Rule name"><input autoFocus required value={name} onChange={event => setName(event.target.value)} maxLength={100} placeholder="e.g. Salary, rent, card payment" /></Field>
@@ -345,8 +349,8 @@ function RecurringSection() {
       <div className="row-actions"><button className="button small" disabled={['Paused', 'Ended'].includes(dueStatus(rule))} onClick={() => { setError(''); setConfirming(rule); }}><Check size={14} />Confirm</button><button className="button icon small" aria-label={`Edit ${rule.name} recurring rule`} onClick={() => setEditing(rule)}><Pencil size={14} /></button><button className="button icon small" aria-label={`Remove ${rule.name} recurring rule`} onClick={() => setRemoving(rule)}><Trash2 size={14} /></button></div>
     </div>)}</div>}
     {editing && <RecurringForm rule={editing === 'new' ? undefined : editing} onClose={() => setEditing(null)} />}
-    {confirming && <Dialog title="Confirm this occurrence" onClose={() => !busy && setConfirming(null)}><p>Record <strong>{confirming.name}</strong> on {dateText(confirming.nextDate)} for <Money amount={confirming.template.amount} currency={confirming.template.currency} />? This creates one actual transaction.</p><p className="muted">Only confirm when the payment or income has happened. You can edit the resulting entry in Transactions.</p><ErrorMessage message={error} /><div className="dialog-actions"><button className="button" disabled={busy} onClick={() => setConfirming(null)}>Cancel</button><button className="button primary" disabled={busy} onClick={async () => { setBusy(true); setError(''); try { await financeRepository.confirmRecurring(confirming.id, confirming.nextDate); setConfirming(null); } catch (failure) { setError(errorText(failure)); } finally { setBusy(false); } }}>{busy ? 'RecordingÃ¢â‚¬Â¦' : 'Record occurrence'}</button></div></Dialog>}
-    {removing && <Dialog title="Remove recurring rule?" onClose={() => !busy && setRemoving(null)}><p>Remove <strong>{removing.name}</strong>? Previously confirmed transactions stay in your ledger.</p><ErrorMessage message={error} /><div className="dialog-actions"><button className="button" disabled={busy} onClick={() => setRemoving(null)}>Keep rule</button><button className="button danger" disabled={busy} onClick={async () => { setBusy(true); try { await financeRepository.remove('recurringRules', removing.id); setRemoving(null); } catch (failure) { setError(errorText(failure)); } finally { setBusy(false); } }}>Remove rule</button></div></Dialog>}
+    {confirming && <Dialog title="Confirm this occurrence" onClose={() => !busy && setConfirming(null)}><p>Record <strong>{confirming.name}</strong> on {dateText(confirming.nextDate)} for <Money amount={confirming.template.amount} currency={confirming.template.currency} />? This creates one actual transaction.</p><p className="muted">Only confirm when the payment or income has happened. You can edit the resulting entry in Transactions.</p><ErrorMessage message={error} /><div className="dialog-actions"><button className="button" disabled={busy} onClick={() => setConfirming(null)}>Cancel</button><button className="button primary" disabled={busy} onClick={async () => { setBusy(true); setError(''); try { await financeRepository.confirmRecurring(confirming.id, confirming.nextDate); soundService.play('success'); setConfirming(null); } catch (failure) { soundService.play('error'); setError(errorText(failure)); } finally { setBusy(false); } }}>{busy ? 'RecordingÃ¢â‚¬Â¦' : 'Record occurrence'}</button></div></Dialog>}
+    {removing && <Dialog title="Remove recurring rule?" onClose={() => !busy && setRemoving(null)}><p>Remove <strong>{removing.name}</strong>? Previously confirmed transactions stay in your ledger.</p><ErrorMessage message={error} /><div className="dialog-actions"><button className="button" disabled={busy} onClick={() => setRemoving(null)}>Keep rule</button><button className="button danger" disabled={busy} onClick={async () => { setBusy(true); try { soundService.play('delete'); await financeRepository.remove('recurringRules', removing.id); setRemoving(null); } catch (failure) { soundService.play('error'); setError(errorText(failure)); } finally { setBusy(false); } }}>Remove rule</button></div></Dialog>}
   </section>;
 }
 
@@ -381,7 +385,7 @@ export function BudgetsPage() {
       {!summary.complete && <p className="form-error">Some expenses need a currency conversion. Spending and remaining amounts are unavailable until a valid FX rate is entered.</p>}<small className="muted">{budget.includeChildren ? 'Includes child categories.' : 'This category only.'} Averages include zero-spending months.</small>
     </article>)}</div>}
     <RecurringSection />{editing && <BudgetForm budget={editing === 'new' ? undefined : editing} onClose={() => setEditing(null)} />}
-    {removing && <Dialog title="Remove budget?" onClose={() => !busy && setRemoving(null)}><p>Remove this {removing.period} budget? Your transactions and historical spending remain unchanged.</p><ErrorMessage message={error} /><div className="dialog-actions"><button className="button" disabled={busy} onClick={() => setRemoving(null)}>Keep budget</button><button className="button danger" disabled={busy} onClick={async () => { setBusy(true); try { await financeRepository.remove('budgets', removing.id); setRemoving(null); } catch (failure) { setError(errorText(failure)); } finally { setBusy(false); } }}>Remove budget</button></div></Dialog>}
+    {removing && <Dialog title="Remove budget?" onClose={() => !busy && setRemoving(null)}><p>Remove this {removing.period} budget? Your transactions and historical spending remain unchanged.</p><ErrorMessage message={error} /><div className="dialog-actions"><button className="button" disabled={busy} onClick={() => setRemoving(null)}>Keep budget</button><button className="button danger" disabled={busy} onClick={async () => { setBusy(true); try { soundService.play('delete'); await financeRepository.remove('budgets', removing.id); setRemoving(null); } catch (failure) { soundService.play('error'); setError(errorText(failure)); } finally { setBusy(false); } }}>Remove budget</button></div></Dialog>}
   </div>;
 }
 
@@ -401,8 +405,9 @@ function DebtTermsForm({ account, terms, onClose }: { account: Account; terms?: 
       await financeRepository.save('liabilityTerms', { ...terms, id: terms?.id || crypto.randomUUID(), accountId: account.id, annualInterestRate, minimumPayment,
         dueDay: dueDay ? Number(dueDay) : undefined, termMonths: months ? Number(months) : undefined, startDate,
         principal: principal ? requireAmount(principal, account.currency) : undefined });
+      soundService.play('success');
       onClose();
-    } catch (failure) { setError(errorText(failure)); } finally { setBusy(false); }
+    } catch (failure) { soundService.play('error'); setError(errorText(failure)); } finally { setBusy(false); }
   }
   return <Dialog title={`Debt terms Ã‚Â· ${account.name}`} onClose={onClose}><form className="ledger-form" onSubmit={save}><div className="form-grid">
     <Field label={`Original principal (${account.currency}, optional)`} help="Reference information; the current balance comes from your ledger."><input type="number" step={moneyStep(account.currency)} min="0" value={principal} onChange={event => setPrincipal(event.target.value)} /></Field>

@@ -1,7 +1,7 @@
-# BRIEFING — 2026-10-09T18:52:30Z
+# BRIEFING — 2026-10-10T03:35:00Z
 
 ## Mission
-Phase 0 Survey: Multi-Currency Data Modeling & Valuation Layer (R2 and Financial Integrity Acceptance Criteria) for Tala financial SPA modernization.
+Survey sound cues architecture & interaction points for Tala SPA (identifying key user interactions, audio asset strategy, sound service / useSound playback architecture, mute state storage, autoplay handling).
 
 ## 🔒 My Identity
 - Archetype: explorer
@@ -9,44 +9,38 @@ Phase 0 Survey: Multi-Currency Data Modeling & Valuation Layer (R2 and Financial
 - Working directory: e:\Visual Studio Code\tala\.agents\teamwork\explorer_survey_2
 - Original parent: 64bc598d-7c84-4fe3-b439-553f079769f4
 - Milestone: Phase 0 Architecture & Codebase Survey
+- Archetype: explorer
+- Roles: sound cues investigator, audio architecture surveyor
+- Working directory: e:\Visual Studio Code\tala\.agents\teamwork\explorer_survey_2
+- Original parent: 70aacd32-1475-457c-a20e-3878c97d92ae
+- Milestone: UI Overhaul - Sound Cues Architecture & Interaction Points
 
 ## 🔒 Key Constraints
 - Read-only investigation — do NOT implement or modify application source code
 - Files for content delivery, messages for coordination
 - Handoff report with 5 components (Observation, Logic Chain, Caveats, Conclusion, Verification Method)
 - Self-contained handoff and survey report
+- Sound cues must respect global mute toggle, browser autoplay policies, and prevent concurrency/clipping issues
 
 ## Current Parent
-- Conversation ID: 64bc598d-7c84-4fe3-b439-553f079769f4
-- Updated: 2026-10-09T18:52:30Z
+- Conversation ID: 70aacd32-1475-457c-a20e-3878c97d92ae
+- Updated: 2026-10-10T03:35:00Z
 
 ## Investigation State
-- **Explored paths**:
-  - `ORIGINAL_REQUEST.md` (all requirements R1-R6 and Acceptance Criteria)
-  - `src/core/types.ts` (Entity, Account, Transaction, Posting, FxRate, NetWorthSummary, PositionSummary)
-  - `src/core/calculations.ts` (currencyScale, toMinor, fromMinor, convertMoney, getFxRate, buildLedger, accountBalances, calculateNetWorthFromBalances, calculateCashFlow, netWorthHistory)
-  - `src/db/database.ts` (Dexie tables, indexes, schemas, outbox, conflicts)
-  - `src/db/repository.ts` (repository methods, writeTransaction, accountBalances, validation)
-  - `src/pages/LedgerPages.tsx` (AccountForm, TransactionForm, AccountsPage, TransactionsPage)
-  - `src/ui/useFinance.ts` and `src/pages/Overview.tsx`
-  - `tests/calculations.test.ts`, `tests/repository.test.ts`, `tests/backup.test.ts`, `tests/csv.test.ts`
-  - Git commit history (`d300c0922866499d040bae47f1203b96261ab405`, `f577f613ea60208da4b35c37acc000e1cdf26f1e`)
+- **Explored paths**: `src/App.tsx`, `src/pages/LedgerPages.tsx`, `src/pages/InvestmentPages.tsx`, `src/pages/PlanningPages.tsx`, `src/pages/DataPage.tsx`, `src/pages/Overview.tsx`, `src/ui/shared.tsx`, `src/db/database.ts`, `src/db/repository.ts`, `package.json`, `vitest.config.ts`.
 - **Key findings**:
-  - Multi-currency sub-ledgers modeled naturally via `Account.openingBalances: Record<Currency, Money>` and currency-partitioned `Posting` records.
-  - Integer minor units (`Money = number`) with symmetric half-cent rounding and `currencyScale` prevent floating point drift.
-  - Valuation layer operates in two tiers: sub-ledger to account primary currency, then account primary currency to user base currency using dated exchange rates.
-  - Missing FX rates return `null`, flag portfolio incomplete, and exclude foreign balances from `knownNetWorth` instead of applying 1:1 conversion.
-  - Cross-currency transfers mandate explicit destination amounts and generate zero net income/expense.
-  - Test case verified: 10,000 PHP + 100 USD @ 56 PHP/USD converts to exactly PHP 15,600 without double-counting.
-  - Diagnosed root cause of 13 Vitest test failures in current codebase due to uncompleted sub-ledger refactor in commit `d300c092`.
-- **Unexplored areas**: Market gateway Cloud Function (assigned to other explorers), Client-side ML ONNX worker, Monte Carlo engine.
+  1. Identified all 20+ user interaction points mapped to a clean 5-semantic-cue sound palette (`success`, `error`, `delete`, `dialog_open`, `dialog_close`).
+  2. Proposed hybrid asset strategy: lightweight CC0 MP3 assets (<15KB total in `public/sounds/`) with a procedural Web Audio API synthesizer fallback (zero external dependencies, 100% offline).
+  3. Formulated audio playback architecture with lazy `AudioContext` autoplay unlocking, 120ms debounce throttling, max 3-voice limiting, master volume control, and dynamics compression.
+  4. Designed dual mute persistence combining synchronous `localStorage` caching with canonical Dexie `settings` table storage (`soundMuted`) and reactive `useLiveQuery` integration.
+- **Unexplored areas**: None within the sound cues survey scope.
 
 ## Key Decisions Made
-- Fully documented entity schemas, type definitions, conversion logic, and executable test cases in `survey_report.md`.
-- Produced comprehensive 5-component `handoff.md`.
+- Selected 5-semantic-cue taxonomy instead of single-purpose audio bloat to maintain calm, pleasant UX.
+- Formulated zero-npm-dependency architecture (native Web Audio API + HTMLAudioElement) avoiding heavy libraries like Howler.
+- Placed global mute toggle in Topbar (`src/App.tsx`) and Settings page (`src/pages/PlanningPages.tsx`).
 
 ## Artifact Index
-- DISPATCH.md — Initial dispatch message
-- progress.md — Liveness heartbeat and progress tracker
-- survey_report.md — Detailed survey report on multi-currency data modeling and valuation layer
-- handoff.md — 5-component handoff report
+- `DISPATCH.md` — Dispatch log
+- `progress.md` — Liveness heartbeat and progress tracker
+- `handoff.md` — Comprehensive 5-component survey and architectural handoff report

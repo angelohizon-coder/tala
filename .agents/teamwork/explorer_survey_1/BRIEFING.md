@@ -1,7 +1,7 @@
-# BRIEFING — 2026-10-09T18:55:00Z
+# BRIEFING — 2026-10-10T03:36:00Z
 
 ## Mission
-Phase 0 Survey: Codebase Structure, Architecture, Firebase Sync Engine & Legacy Cleanup for Tala financial SPA modernization.
+Comprehensive Survey of UI Animations, Page Transitions, Modal Lifecycles, and Chart Renderings for Tala SPA.
 
 ## 🔒 My Identity
 - Archetype: teamwork_preview_explorer
@@ -9,36 +9,36 @@ Phase 0 Survey: Codebase Structure, Architecture, Firebase Sync Engine & Legacy 
 - Working directory: e:\Visual Studio Code\tala\.agents\teamwork\explorer_survey_1
 - Original parent: 64bc598d-7c84-4fe3-b439-553f079769f4
 - Milestone: Phase 0 Architecture & Codebase Survey
+- Subagent Invocation: 2026-10-10 UI Animations & Component Transitions Survey
+- Assigned by: orchestrator_2 (70aacd32-1475-457c-a20e-3878c97d92ae)
 
 ## 🔒 Key Constraints
 - Read-only investigation — do NOT implement
 - Base analysis on concrete file paths, line numbers, and actual codebase evidence
 - Output survey_report.md and handoff.md in working directory
 - Communicate via send_message to parent 64bc598d-7c84-4fe3-b439-553f079769f4
+- Strictly read-only: propose solutions, architectures, and design patterns; do not edit app source code.
+- Respect prefers-reduced-motion and performance constraints (zero layout thrashing).
 
 ## Current Parent
-- Conversation ID: 64bc598d-7c84-4fe3-b439-553f079769f4
-- Updated: 2026-10-09T18:55:00Z
+- Conversation ID: 70aacd32-1475-457c-a20e-3878c97d92ae
+- Updated: 2026-10-10T03:36:00Z
 
 ## Investigation State
-- **Explored paths**:
-  - `package.json`, `vite.config.ts`, `vitest.config.ts`, `tsconfig.json`, `firebase.json`, `firestore.rules`, `firestore.indexes.json`
-  - `src/firebase.ts`, `src/sync/*`, `src/db/*`, `src/core/*`, `src/pages/*`, `src/ui/*`, `src/App.tsx`, `src/main.tsx`
-  - `functions/*`, `supabase/*`, `public/*`, `site/*`, `tools/*`, `tests/*`, `debug_build.txt`, `debug_test.txt`
+- **Explored paths**: `src/App.tsx`, `src/pages/Overview.tsx`, `src/pages/LedgerPages.tsx`, `src/pages/InvestmentPages.tsx`, `src/pages/PlanningPages.tsx`, `src/pages/DataPage.tsx`, `src/ui/shared.tsx`, `src/styles.css`, `tailwind.config.js`, `postcss.config.js`, `tests/ui-accessibility.test.ts`.
 - **Key findings**:
-  1. Build & Compilation Blockers: Syntax error in `src/sync/engine.ts` (lines 27, 38, 41), UTF-16LE encoding in `src/firebase.ts`, PostCSS `@import` order in `src/styles.css`.
-  2. Supabase: Already uninstalled from `package.json` and 0 imports in `src/`, but residual `supabase/schema.sql`, `package-lock.json`, and `README.md` must be pruned.
-  3. Legacy Storage & Migration: Financial data is purely in Dexie IndexedDB (`tala-finance`), never localStorage. Remote legacy `finance_entities` migration function exists in `src/sync/firebase.ts` but needs pagination and idempotency hardening.
-  4. Firebase & Firestore Rules: Current `firestore.rules` fails to reject anonymous users and breaks document deletion; emulator config missing from `firebase.json`; `@firebase/rules-unit-testing` missing.
-  5. Sync Engine: Web Locks (`navigator.locks`) properly serialize multi-tab writes, but `pull()` has a shared scalar timestamp cursor flaw across 17 tables that causes cross-table starvation, plus boundary duplicates with `>=`.
-  6. GitHub Pages: Relative base path (`./`) in `vite.config.ts` conflicts with React Router v7 `BrowserRouter basename`. Must be set to `/tala/` in production.
-- **Unexplored areas**: None for Phase 0 Survey scope.
+  1. Routing: `react-router-dom` v7 with 11 top-level views. `useRouteFocus()` manages accessibility focus on h1. Entrance animations using lightweight CSS keyframe `opacity` + `translateY` on page container ensure immediate DOM mounting and seamless focus.
+  2. Modals: All 17 modals in the entire SPA use a single centralized `<Dialog>` component in `src/ui/shared.tsx` with native HTML `<dialog>`. Adding entrance and exit lifecycle to `<Dialog>` cleanly animates every modal without altering any modal form.
+  3. Charts: 6 Recharts visualizations across Overview and PlanningPages currently hardcode `isAnimationActive={false}`. Re-enabling SVG animations (`isAnimationActive={!prefersReducedMotion}`) with fixed-height `.chart-container` elements prevents layout thrashing completely.
+  4. Tailwind: Tailwind 3.4.4 can be cleanly extended with custom keyframes & animation tokens, backed by `motion-safe:` / `motion-reduce:` and `src/styles.css` media queries.
+- **Unexplored areas**: None for UI animation scope; survey complete.
 
 ## Key Decisions Made
-- Survey completed. Comprehensive analysis report written to `survey_report.md` and 5-component report written to `handoff.md`.
+- Recommend pure CSS composite-only animations (`opacity`, `transform`) over heavy JS animation libraries.
+- Center modal transitions on `src/ui/shared.tsx` `Dialog` component.
+- Implement reactive `useReducedMotion()` hook to control Recharts SVG `isAnimationActive`.
 
 ## Artifact Index
-- `survey_report.md` — Comprehensive Phase 0 Survey Report (8 detailed sections)
-- `handoff.md` — 5-Component Handoff Report (Observation, Logic Chain, Caveats, Conclusion, Verification Method)
-- `progress.md` — Progress tracker (all completed)
-- `DISPATCH.md` — Incoming dispatch log
+- `handoff.md` — 5-Component Handoff Report for orchestrator_2
+- `progress.md` — Real-time progress and liveness heartbeat
+- `DISPATCH.md` — Incoming task specifications

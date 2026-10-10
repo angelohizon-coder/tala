@@ -61,3 +61,42 @@ Integrity mode: development
 ### Synchronization
 - [ ] Two concurrent browser tabs writing data correctly serialize uploads via Web Locks, avoiding duplicated records.
 - [ ] Reconnecting after being offline successfully merges queued local mutations with the remote Firestore database.
+
+
+## 2026-10-10T03:02:29Z
+
+# Teamwork Project Prompt — Launched
+
+> Status: Launched
+> Goal: Craft prompt → get user approval → delegate to teamwork_preview
+> Requested team: The full team
+
+Use the full team of agents. Add UI animations and sound cues to the Tala application. This should be handled as part of a comprehensive UI overhaul.
+
+Working directory: e:/Visual Studio Code/tala
+Integrity mode: benchmark
+
+## Requirements
+
+### R1. UI Animations
+Animate page transitions, modal opening/closing, and chart rendering on load. Ensure animations are smooth, performant, and do not cause layout thrashing. 
+
+### R2. Sound Cues
+Integrate open-source UI sound assets for key interactions (e.g., success and error states). 
+
+### R3. Accessibility & Controls
+Respect the user's `prefers-reduced-motion` OS settings by disabling animations automatically when requested. Implement a global settings toggle allowing users to mute all sound cues.
+
+## Acceptance Criteria
+
+### Verification: Programmatic Tests
+- [ ] Add unit/accessibility tests verifying that animation classes/styles are completely disabled when `window.matchMedia('(prefers-reduced-motion: reduce)')` is true.
+- [ ] Add tests verifying that the global mute toggle correctly prevents the sound implementation from being called.
+- [ ] The existing test suite (`npm test` / vitest) must pass without regressions.
+
+### Verification: Agent-as-Judge (UI/UX Review)
+- [ ] An independent reviewer must verify that page transitions and modals do not stutter or cause layout shifting during animation.
+- [ ] An independent reviewer must verify that sound assets trigger appropriately on success/error without overlapping unpleasantly or throwing console errors.
+
+---
+*Next: when approved → delegate via invoke_subagent (see Delegation Protocol)*

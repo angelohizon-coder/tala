@@ -9,10 +9,12 @@ import { useFinance } from '../ui/useFinance';
 import { Money, PageHeading, formatMoney, minorToMajor, today } from '../ui/shared';
 import { EmptyState } from '../components/EmptyState';
 import { TrendIndicator } from '../components/TrendIndicator';
+import { useReducedMotion } from '../hooks/useReducedMotion';
 
 const colors=['#74948c','#b7a4dc','#d9b76c','#7db1bd','#abb99c','#e1a19e'];
 
 export function Overview(){
+  const prefersReducedMotion = useReducedMotion();
   const data=useFinance();
   const goals=useLiveQuery(()=>financeDb.goals.filter(s=>!s.deletedAt).toArray(),[]);
 
@@ -148,8 +150,8 @@ export function Overview(){
                   <XAxis dataKey="month" tickFormatter={v=>new Date(v+'-15').toLocaleDateString('en',{month:'short'})} tickLine={false} axisLine={false} fontSize={11}/>
                   <YAxis tickFormatter={v=>v>=1000?`${(v/1000).toLocaleString()}k`:v} tickLine={false} axisLine={false} fontSize={11} width={45}/>
                   <Tooltip formatter={(v)=>new Intl.NumberFormat('en',{style:'currency',currency}).format(Number(v))}/>
-                  <Area isAnimationActive={false} dataKey="income" name="Income" stroke="#1f664a" fill="url(#incomeFade)" strokeWidth={2}/>
-                  <Area isAnimationActive={false} dataKey="expenses" name="Expenses" stroke="#6d549e" fill="transparent" strokeWidth={2}/>
+                  <Area isAnimationActive={!prefersReducedMotion} animationDuration={prefersReducedMotion ? 0 : 600} dataKey="income" name="Income" stroke="#1f664a" fill="url(#incomeFade)" strokeWidth={2}/>
+                  <Area isAnimationActive={!prefersReducedMotion} animationDuration={prefersReducedMotion ? 0 : 600} dataKey="expenses" name="Expenses" stroke="#6d549e" fill="transparent" strokeWidth={2}/>
                 </AreaChart>
               </ResponsiveContainer>
             </div>
@@ -179,7 +181,7 @@ export function Overview(){
               <div className="allocation-chart">
                 <ResponsiveContainer width="100%" height={180}>
                   <PieChart>
-                    <Pie isAnimationActive={false} data={allocation} dataKey="value" innerRadius={58} outerRadius={78} strokeWidth={4}>
+                    <Pie isAnimationActive={!prefersReducedMotion} animationDuration={prefersReducedMotion ? 0 : 600} data={allocation} dataKey="value" innerRadius={58} outerRadius={78} strokeWidth={4}>
                       {allocation.map((_,i)=><Cell key={i} fill={colors[i%colors.length]}/>)}
                     </Pie>
                     <Tooltip formatter={v=>formatMoney(Number(v),currency)}/>

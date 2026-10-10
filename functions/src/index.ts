@@ -315,6 +315,12 @@ export async function handleMarketQuoteRequest(
     return;
   }
 
+  if (origin && typeof res.setHeader === "function") {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  }
+
   if (req.method === "OPTIONS") {
     res.status(204);
     if (typeof res.end === "function") res.end();

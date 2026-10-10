@@ -65,6 +65,40 @@ export default {
         sans: ['DM Sans', 'system-ui', 'sans-serif'],
         display: ['Manrope', 'system-ui', 'sans-serif'],
       },
+      keyframes: {
+        pageFadeIn: {
+          '0%': { opacity: '0', transform: 'translateY(4px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        dialogEnter: {
+          '0%': { opacity: '0', transform: 'scale(0.96) translateY(8px)' },
+          '100%': { opacity: '1', transform: 'scale(1) translateY(0)' },
+        },
+        dialogExit: {
+          '0%': { opacity: '1', transform: 'scale(1) translateY(0)' },
+          '100%': { opacity: '0', transform: 'scale(0.96) translateY(4px)' },
+        },
+        backdropEnter: {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
+        backdropExit: {
+          '0%': { opacity: '1' },
+          '100%': { opacity: '0' },
+        },
+        chartFadeIn: {
+          '0%': { opacity: '0', transform: 'translateY(6px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+      },
+      animation: {
+        'page-fade-in': 'pageFadeIn 180ms cubic-bezier(0.16, 1, 0.3, 1) both',
+        'modal-in': 'dialogEnter 200ms cubic-bezier(0.16, 1, 0.3, 1) both',
+        'modal-out': 'dialogExit 150ms cubic-bezier(0.16, 1, 0.3, 1) both',
+        'backdrop-in': 'backdropEnter 200ms ease-out both',
+        'backdrop-out': 'backdropExit 150ms ease-in both',
+        'chart-in': 'chartFadeIn 350ms cubic-bezier(0.16, 1, 0.3, 1) both',
+      },
     },
   },
   plugins: [],

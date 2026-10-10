@@ -1,21 +1,51 @@
-## 2026-10-09T18:46:47Z
-You are Survey Explorer 2 (teamwork_preview_explorer) for the Tala financial SPA modernization project.
+# Survey Task: Sound Cues Architecture & Interaction Points
+Working directory: e:\Visual Studio Code\tala\.agents\teamwork\explorer_survey_2
+Project root: e:\Visual Studio Code\tala
+Original request: e:\Visual Studio Code\tala\.agents\teamwork\ORIGINAL_REQUEST.md (see request dated 2026-10-10T03:02:29Z)
+
+## Objective
+Investigate sound cue requirements and audio architecture:
+1. Identify all key user interaction points in the app where sound cues should trigger (e.g. success: transaction added/saved, transfer completed, statement imported, sync completed; error: form validation failure, sync error, deletion warning/error).
+2. Propose sound asset integration strategy (e.g., lightweight open-source audio assets in `public/sounds/` or synthesized Web Audio API fallback/assets).
+3. Investigate audio playback architecture: how to implement a clean Sound Service / `useSound` hook that manages audio instances, avoids overlapping unpleasantly, handles concurrency/debounce, and gracefully handles browser autoplay policies or audio playback errors.
+4. Investigate audio mute state storage (e.g., localStorage / Dexie settings table / React context).
+5. Write a comprehensive survey report in `handoff.md` in your working directory. Use `send_message` to notify orchestrator_2 when done.
+
+
+## 2026-10-10T03:05:40Z
+You are explorer_survey_2.
 Your working directory is: e:\Visual Studio Code\tala\.agents\teamwork\explorer_survey_2
-The project root is: e:\Visual Studio Code\tala
-Authoritative user request and requirements: e:\Visual Studio Code\tala\.agents\teamwork\ORIGINAL_REQUEST.md
-Parent conversation ID: 64bc598d-7c84-4fe3-b439-553f079769f4
+Project root: e:\Visual Studio Code\tala
+MANDATORY: Read ORIGINAL_REQUEST.md before starting work:
+e:\Visual Studio Code\tala\.agents\teamwork\ORIGINAL_REQUEST.md (specifically the latest request dated 2026-10-10T03:02:29Z).
 
-You must read `e:\Visual Studio Code\tala\.agents\teamwork\ORIGINAL_REQUEST.md` before starting work.
+Also read your dispatch task at:
+e:\Visual Studio Code\tala\.agents\teamwork\explorer_survey_2\DISPATCH.md
 
-Your objective is Phase 0 Survey: Multi-Currency Data Modeling & Valuation Layer (R2 and Financial Integrity Acceptance Criteria).
-Specifically investigate and document:
-1. Current account, transaction, and ledger data structures in the codebase.
-2. How accounts with sub-ledgers for multiple fiat currencies (PHP, USD, EUR) should be modeled and stored.
-3. Storage of cash amounts as integer minor units (cents, centavos, etc.) to eliminate floating-point errors (precision rules, formatting, conversions).
-4. Unified valuation layer converting native amounts to selected base currency using dated exchange rates.
-5. Handling of missing/removed exchange rates: how foreign balance must be excluded from aggregated net worth rather than treating as 1:1 conversion.
-6. Cross-currency transfers modeling: linked source/destination entries, separate actual amounts and fees, ensuring zero generated net income/expense.
-7. Test verification: A test account holding PHP 10,000 and USD 100 correctly shows a converted total of PHP 15,600 (at test rate PHP 56/USD) without double-counting.
+Your Task:
+Investigate sound cues architecture & interaction points in the Tala SPA:
+1. Identify all key user interaction points in the app where sound cues should trigger (e.g. success: transaction added/saved, transfer completed, statement imported, sync completed; error: form validation failure, sync error, deletion warning/error).
+2. Propose sound asset integration strategy (e.g., lightweight open-source audio assets in `public/sounds/` or synthesized Web Audio API fallback/assets).
+3. Investigate audio playback architecture: how to implement a clean Sound Service / `useSound` hook that manages audio instances, avoids overlapping unpleasantly, handles concurrency/debounce, and gracefully handles browser autoplay policies or audio playback errors.
+4. Investigate audio mute state storage (e.g., localStorage / Dexie settings table / React context).
+5. Write a comprehensive survey report in `handoff.md` and keep `progress.md` updated in your working directory.
+6. Use `send_message` to notify orchestrator_2 when done.
 
-Output: Write your detailed survey report to `e:\Visual Studio Code\tala\.agents\teamwork\explorer_survey_2\survey_report.md` and `handoff.md`. Include entity schemas, type definitions, conversion logic, and test cases.
-Send a message back to the orchestrator when finished.
+## 2026-10-10T03:30:19Z
+You are explorer_survey_2.
+Your working directory is: e:\Visual Studio Code\tala\.agents\teamwork\explorer_survey_2
+Project root: e:\Visual Studio Code\tala
+MANDATORY: Read ORIGINAL_REQUEST.md before starting work:
+e:\Visual Studio Code\tala\.agents\teamwork\ORIGINAL_REQUEST.md (specifically the latest request dated 2026-10-10T03:02:29Z).
+
+Also read your dispatch task at:
+e:\Visual Studio Code\tala\.agents\teamwork\explorer_survey_2\DISPATCH.md
+
+Your Task:
+Investigate sound cues architecture & interaction points in the Tala SPA:
+1. Identify all key user interaction points in the app where sound cues should trigger (e.g. success: transaction added/saved, transfer completed, statement imported, sync completed; error: form validation failure, sync error, deletion warning/error).
+2. Propose sound asset integration strategy (e.g., lightweight open-source audio assets in `public/sounds/` or synthesized Web Audio API fallback/assets).
+3. Investigate audio playback architecture: how to implement a clean Sound Service / `useSound` hook that manages audio instances, avoids overlapping unpleasantly, handles concurrency/debounce, and gracefully handles browser autoplay policies or audio playback errors.
+4. Investigate audio mute state storage (e.g., localStorage / Dexie settings table / React context).
+5. Write a comprehensive survey report in `handoff.md` and keep `progress.md` updated in your working directory.
+6. Use `send_message` to notify orchestrator_2 when done.
