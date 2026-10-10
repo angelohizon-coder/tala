@@ -2,34 +2,10 @@
 > tala-market-dashboard@2.0.0 test:browser
 > node tools/finance-browser-check.mjs
 
-FAILED TO FIND HEADING. Page HTML: <!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#173c34"><meta name="description" content="Your private, offline-first finance, investment and FIRE tracker."><link rel="icon" href="./icon.svg"><title>Tala — Personal finance</title><script type="text/javascript">
-(function(l) {
-  if (l.search[1] === '/' ) {
-    var decoded = l.search.slice(1).split('&').map(function(s) { return s.replace(/~and~/g, '&') }).join('?');
-    window.history.replaceState(null, null, l.pathname.slice(0, -1) + decoded + l.hash);
-  }
-}(window.location));
-</script>  <script type="module" crossorigin="" src="./assets/index-7VsdxBs_.js"></script>
-  <link rel="modulepreload" crossorigin="" href="./assets/rolldown-runtime-hePW80VL.js">
-  <link rel="stylesheet" crossorigin="" href="./assets/index-BZfoV1sV.css">
-<link rel="manifest" href="./manifest.webmanifest"></head><body><div id="root"></div>
-</body></html>
-CONSOLE ERRORS: [
-  `[warning] <Router basename="/./"> is not able to match the URL "/" because it does not start with the basename, so the <Router> won't render anything. http://127.0.0.1:43625/assets/index-7VsdxBs_.js`
-]
-RUNTIME ERRORS: []
-Error: expect(locator).toHaveText(expected) failed
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
 
-Locator: locator('#page-main').getByRole('heading', { level: 1 })
-Expected pattern: /A little clarity/
-Timeout: 5000ms
-Error: element(s) not found
+12 !== 0
 
-Call log:
-  - Expect "toHaveText" locator('#page-main').getByRole('heading', { level: 1 }) with timeout 5000ms
-  - waiting for locator('#page-main').getByRole('heading', { level: 1 })
-
-    at captureRawStack (/home/runner/work/tala/tala/node_modules/playwright-core/lib/coreBundle.js:9282:17)
-    at callMatcherAsStep (/home/runner/work/tala/tala/node_modules/playwright/lib/matchers/expect.js:13316:57)
-    at Object.toHaveText (/home/runner/work/tala/tala/node_modules/playwright/lib/matchers/expect.js:13308:23)
-    at /home/runner/work/tala/tala/tools/finance-browser-check.mjs:351:65
+    at file:///home/runner/work/tala/tala/tools/finance-browser-check.mjs:361:12
+    at async journey (file:///home/runner/work/tala/tala/tools/finance-browser-check.mjs:160:3)
+    at async file:///home/runner/work/tala/tala/tools/finance-browser-check.mjs:359:3
