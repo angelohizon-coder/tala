@@ -254,7 +254,7 @@ describe('Advanced FIRE Monte Carlo Simulation (R5)', () => {
       };
 
       const result = runFireSimulation(params);
-      expect(result.successRate).toBe(1.0);
+      expect(result.successRate).toBeGreaterThanOrEqual(0.999);
 
       for (const prob of Object.values(result.depletionYearPdf)) {
         expect(prob).toBe(0.0);

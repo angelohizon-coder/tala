@@ -46,6 +46,8 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "fake-indexeddb": "^6.2.5",
+    "firebase-admin": "^12.0.0",
+    "firebase-functions": "^5.0.0",
     "postcss": "^8.4.38",
     "tailwind-merge": "^2.3.0",
     "tailwindcss": "^3.4.4",
