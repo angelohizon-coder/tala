@@ -359,12 +359,45 @@ export function createFinanceRepository(db: FinanceDatabase = financeDb) {
 }
 export const financeRepository = createFinanceRepository();
 
+export const DEFAULT_FX_SEEDS = [
+  { id: 'fx:seed:USD:PHP', fromCurrency: 'USD', toCurrency: 'PHP', rate: 57.0, asOf: '2020-01-01T00:00:00.000Z', source: 'Tala baseline reference' },
+  { id: 'fx:seed:EUR:PHP', fromCurrency: 'EUR', toCurrency: 'PHP', rate: 62.0, asOf: '2020-01-01T00:00:00.000Z', source: 'Tala baseline reference' },
+  { id: 'fx:seed:GBP:PHP', fromCurrency: 'GBP', toCurrency: 'PHP', rate: 72.0, asOf: '2020-01-01T00:00:00.000Z', source: 'Tala baseline reference' },
+  { id: 'fx:seed:JPY:PHP', fromCurrency: 'JPY', toCurrency: 'PHP', rate: 0.38, asOf: '2020-01-01T00:00:00.000Z', source: 'Tala baseline reference' },
+  { id: 'fx:seed:SGD:PHP', fromCurrency: 'SGD', toCurrency: 'PHP', rate: 43.0, asOf: '2020-01-01T00:00:00.000Z', source: 'Tala baseline reference' },
+  { id: 'fx:seed:HKD:PHP', fromCurrency: 'HKD', toCurrency: 'PHP', rate: 7.30, asOf: '2020-01-01T00:00:00.000Z', source: 'Tala baseline reference' },
+  { id: 'fx:seed:CAD:PHP', fromCurrency: 'CAD', toCurrency: 'PHP', rate: 42.0, asOf: '2020-01-01T00:00:00.000Z', source: 'Tala baseline reference' },
+  { id: 'fx:seed:AUD:PHP', fromCurrency: 'AUD', toCurrency: 'PHP', rate: 38.0, asOf: '2020-01-01T00:00:00.000Z', source: 'Tala baseline reference' },
+  { id: 'fx:seed:EUR:USD', fromCurrency: 'EUR', toCurrency: 'USD', rate: 1.087, asOf: '2020-01-01T00:00:00.000Z', source: 'Tala baseline reference' },
+  { id: 'fx:seed:GBP:USD', fromCurrency: 'GBP', toCurrency: 'USD', rate: 1.265, asOf: '2020-01-01T00:00:00.000Z', source: 'Tala baseline reference' },
+  { id: 'fx:seed:SGD:USD', fromCurrency: 'SGD', toCurrency: 'USD', rate: 0.754, asOf: '2020-01-01T00:00:00.000Z', source: 'Tala baseline reference' },
+  { id: 'fx:seed:JPY:USD', fromCurrency: 'JPY', toCurrency: 'USD', rate: 0.00667, asOf: '2020-01-01T00:00:00.000Z', source: 'Tala baseline reference' },
+  { id: 'fx:seed:HKD:USD', fromCurrency: 'HKD', toCurrency: 'USD', rate: 0.128, asOf: '2020-01-01T00:00:00.000Z', source: 'Tala baseline reference' },
+  { id: 'fx:seed:CAD:USD', fromCurrency: 'CAD', toCurrency: 'USD', rate: 0.737, asOf: '2020-01-01T00:00:00.000Z', source: 'Tala baseline reference' },
+  { id: 'fx:seed:AUD:USD', fromCurrency: 'AUD', toCurrency: 'USD', rate: 0.667, asOf: '2020-01-01T00:00:00.000Z', source: 'Tala baseline reference' },
+] as const;
+
 export async function initializeFinanceDatabase(db: FinanceDatabase = financeDb) {
   await db.open();
-  if (await db.categories.count()) return;
   const repository = createFinanceRepository(db);
-  for (const name of ['Housing', 'Food', 'Transport', 'Healthcare', 'Insurance', 'Travel', 'Family', 'Entertainment', 'Subscriptions', 'Taxes', 'Education', 'Charity', 'Personal', 'Miscellaneous', 'Salary', 'Other income']) {
-    await repository.save('categories', { id: `category-${name.toLowerCase().replaceAll(' ', '-')}`, name, kind: ['Salary', 'Other income'].includes(name) ? 'income' : 'expense', color: '#6b7280', essential: ['Housing', 'Food', 'Healthcare'].includes(name), archived: false });
+
+  if ((await db.categories.count()) === 0) {
+    for (const name of ['Housing', 'Food', 'Transport', 'Healthcare', 'Insurance', 'Travel', 'Family', 'Entertainment', 'Subscriptions', 'Taxes', 'Education', 'Charity', 'Personal', 'Miscellaneous', 'Salary', 'Other income']) {
+      await repository.save('categories', {
+        id: `category-${name.toLowerCase().replaceAll(' ', '-')}`,
+        name,
+        kind: ['Salary', 'Other income'].includes(name) ? 'income' : 'expense',
+        color: '#6b7280',
+        essential: ['Housing', 'Food', 'Healthcare'].includes(name),
+        archived: false,
+      });
+    }
+  }
+
+  if ((await db.fxRates.count()) === 0) {
+    for (const seed of DEFAULT_FX_SEEDS) {
+      await repository.save('fxRates', seed);
+    }
   }
 }
 export const initializeDatabase = initializeFinanceDatabase;

@@ -4,5 +4,5 @@ export interface SyncProvider {
   userId(): Promise<string | null>;
   push(entry: OutboxEntry): Promise<{ kind: 'applied' | 'conflict'; record: RemoteRecord }>;
   pull(cursor?: string): Promise<{ records: RemoteRecord[]; cursor?: string }>;
-  subscribe(callback: (records: RemoteRecord[]) => void): Promise<() => void>;
+  subscribe(callback: (records: RemoteRecord[]) => void, onError?: (error: Error) => void): Promise<() => void>;
 }

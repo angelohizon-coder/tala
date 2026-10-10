@@ -1,0 +1,102 @@
+--- a/src/market/providers.ts
++++ b/src/market/providers.ts
+@@ -6,8 +6,8 @@
+ import { app } from '../firebase';
+ 
+ export interface MarketInstrument {symbol:string;name:string;currency:string;market?:string;exchange?:string;timeZone?:string;assetType:string;}
+-export interface MarketQuote extends MarketInstrument {value:number;asOf:string;marketDate?:string;timestampPrecision?:string;source:string;sourceUrl?:string;freshness:string;changePercent?:number;}
+-export interface PriceProvider {search(query:string,market:string):Promise<MarketInstrument[]>;latestPrice(symbol:string):Promise<MarketQuote>;priceHistory(symbol:string,range:string):Promise<{points:{date:string;close:number|null}[];source:string;currency?:string}>;}
++export interface MarketQuote extends MarketInstrument {value:number;asOf:string;marketDate?:string;timestampPrecision?:string;source:string;sourceUrl?:string;freshness:string;changePercent?:number;isStale?:boolean;change?:number;staleReason?:string;}
++export interface PriceProvider {search(query:string,market:string):Promise<MarketInstrument[]>;latestPrice(symbol:string):Promise<MarketQuote>;priceHistory(symbol:string,range:string):Promise<{points:{date:string;close:number|null}[];source:string;currency?:string}>;}
+ const international=createFreeGlobalMirror({browserCors:true,timeoutMs:20000});
+ const starters:Record<string,string[]>={US:['US:AAPL','US:MSFT','US:NVDA'],HK:['HK:0700'],JP:['JP:7203'],GB:['GB:VOD'],CA:['CA:SHOP'],AU:['AU:BHP']};
+ function safeBase(value:string){const u=new URL(value);if(u.protocol!=='https:'&&!(u.protocol==='http:'&&['127.0.0.1','localhost'].includes(u.hostname)))throw new Error('Use an HTTPS gateway URL.');if(u.username||u.password||u.search||u.hash)throw new Error('Use a base URL without credentials.');return u.href.replace(/\/$/,'');}
+@@ -16,10 +16,92 @@
+   let queryStr=path.split('?')[1]||'';if(path.startsWith('/history/')&&!queryStr.includes('symbol=')){queryStr+=(queryStr?'&':'')+'symbol='+path.split('/')[2].split('?')[0];}const fetchUrl=base.endsWith('getMarketQuote')?base+'?'+queryStr:base+path;const headers:Record<string,string>={Accept:'application/json'};try{const auth=getAuth(app);const token=await auth.currentUser?.getIdToken();if(token)headers['Authorization']=`Bearer ${token}`;}catch{}const response=await fetch(fetchUrl,{signal:AbortSignal.timeout(10000),headers});if(!response.ok)throw new Error('The market source could not return this data. Your last saved prices are kept.');return response.json();}
+ async function globalResponse(path:string){if(['localhost','127.0.0.1'].includes(location.hostname)){try{return await externalResponse(path);}catch{/* Public daily data also works without a local gateway. */}}const url=new URL(path,'https://local.invalid');if(url.pathname==='/catalog'){const market=url.searchParams.get('market')||'US',query=url.searchParams.get('q')||'',catalog=await international.catalog(market,query);return {...catalog,instruments:query?catalog.instruments:catalog.instruments.filter(i=>(starters[market]||[]).includes(i.symbol))};}if(url.pathname==='/quotes'){const quote=await international.quote(url.searchParams.get('symbols')||'');return {quotes:[quote]};}if(url.pathname.startsWith('/history/'))return international.history(decodeURIComponent(url.pathname.slice(9)),url.searchParams.get('range')||'1m');throw new Error('Unsupported market request.');}
++
++export function normalizeQuote(raw: any, fallbackSymbol?: string): MarketQuote {
++  if (!raw || typeof raw !== 'object') throw new Error('Invalid quote data: expected an object.');
++  const rawSymbol = typeof raw.symbol === 'string' && raw.symbol.trim() ? raw.symbol.trim() : (fallbackSymbol ? fallbackSymbol.trim() : '');
++  if (!rawSymbol) throw new Error('Invalid quote data: missing ticker symbol.');
++  const rawValue = raw.value ?? raw.price;
++  const value = typeof rawValue === 'number' ? rawValue : Number(rawValue);
++  if (!Number.isFinite(value) || value <= 0) throw new Error(`Invalid market price for ${rawSymbol}: ${rawValue}`);
++  const currency = typeof raw.currency === 'string' && raw.currency.trim() ? raw.currency.trim().toUpperCase() : 'PHP';
++  if (!/^[A-Z]{3}$/.test(currency)) throw new Error(`Invalid currency code for ${rawSymbol}: ${raw.currency}`);
++  let source: string;
++  if (typeof raw.source === 'string' && raw.source.trim()) source = raw.source.trim();
++  else if (typeof raw.provider === 'string' && raw.provider.trim()) {
++    const prov = raw.provider.trim().toLowerCase();
++    source = prov === 'cache' ? 'Gateway Cache (Stale)' : `Gateway (${raw.provider.trim()})`;
++  } else source = 'Market Gateway';
++  const freshness = typeof raw.freshness === 'string' && raw.freshness.trim() ? raw.freshness.trim() : (raw.isStale ? 'stale' : 'delayed');
++  const isStale = Boolean(raw.isStale || freshness === 'stale');
++  let asOf: string;
++  if (typeof raw.asOf === 'string' && raw.asOf.trim() && Number.isFinite(Date.parse(raw.asOf))) asOf = raw.asOf.trim();
++  else if (Number.isFinite(raw.timestamp) && raw.timestamp > 0) asOf = new Date(raw.timestamp).toISOString();
++  else asOf = new Date().toISOString();
++  if (Date.parse(asOf) > Date.now() + 300000) asOf = new Date().toISOString();
++  const name = typeof raw.name === 'string' && raw.name.trim() ? raw.name.trim() : rawSymbol;
++  const assetType = typeof raw.assetType === 'string' && raw.assetType.trim() ? raw.assetType.trim() : 'stock';
++  const changePercent = typeof raw.changePercent === 'number' && Number.isFinite(raw.changePercent) ? raw.changePercent : undefined;
++  const change = typeof raw.change === 'number' && Number.isFinite(raw.change) ? raw.change : undefined;
++  return {
++    ...raw,
++    symbol: rawSymbol,
++    name,
++    currency,
++    assetType,
++    value,
++    source,
++    asOf,
++    freshness,
++    isStale,
++    ...(changePercent !== undefined ? { changePercent } : {}),
++    ...(change !== undefined ? { change } : {}),
++  };
++}
++
++export async function getStalePriceFromDb(symbol: string): Promise<MarketQuote | null> {
++  try {
++    const cleanSym = symbol.trim().toUpperCase(), baseSym = cleanSym.replace(/\.PS$/, '');
++    const matchingInstruments = await financeDb.instruments.filter(inst => {
++      if (inst.deletedAt) return false;
++      const s = inst.symbol?.toUpperCase(), src = inst.sourceSymbol?.toUpperCase();
++      return inst.id === symbol || s === cleanSym || src === cleanSym || (Boolean(s) && s!.replace(/\.PS$/, '') === baseSym) || (Boolean(src) && src!.replace(/\.PS$/, '') === baseSym);
++    }).toArray();
++    const instrumentIds = new Set(matchingInstruments.map(i => i.id));
++    instrumentIds.add(symbol);
++    const prices = await financeDb.prices.filter(p => {
++      if (p.deletedAt || !Number.isFinite(p.value) || p.value <= 0) return false;
++      if (instrumentIds.has(p.instrumentId)) return true;
++      const pSym = p.sourceSymbol?.toUpperCase();
++      return pSym ? (pSym === cleanSym || pSym.replace(/\.PS$/, '') === baseSym) : false;
++    }).toArray();
++    if (!prices.length) return null;
++    prices.sort((a, b) => (Date.parse(b.asOf) || Date.parse(b.fetchedAt) || 0) - (Date.parse(a.asOf) || Date.parse(a.fetchedAt) || 0));
++    const latest = prices[0];
++    const matchedInst = matchingInstruments.find(i => i.id === latest.instrumentId);
++    const baseSource = latest.source || 'Saved price';
++    const sourceWithStale = baseSource.toLowerCase().includes('stale') || baseSource.toLowerCase().includes('cache') ? baseSource : `${baseSource} (Stale cache)`;
++    return {
++      symbol: latest.sourceSymbol || matchedInst?.symbol || symbol,
++      name: matchedInst?.name || latest.sourceSymbol || symbol,
++      currency: latest.currency || matchedInst?.currency || 'PHP',
++      assetType: matchedInst?.instrumentType?.toLowerCase().includes('etf') ? 'etf' : 'stock',
++      value: latest.value,
++      source: sourceWithStale,
++      asOf: latest.asOf,
++      freshness: 'stale',
++      isStale: true,
++    };
++  } catch { return null; }
++}
++
+ export const marketProvider:PriceProvider={
+-  async search(query,market){const path=`/catalog${market==='PH'?'':`?market=${market}`}${query?`${market==='PH'?'?':'&'}q=${encodeURIComponent(query)}`:''}`;const data=market==='PH'?await externalResponse(path):await globalResponse(path);return data.instruments||[];},
+-  async latestPrice(symbol){const path='/quotes?symbols='+encodeURIComponent(symbol),data=symbol.includes(':')?await globalResponse(path):await externalResponse(path);const quote=data.quotes?.find((q:MarketQuote)=>q.symbol===symbol);if(!quote||!Number.isFinite(quote.value)||quote.value<=0||!Number.isFinite(Date.parse(quote.asOf))||Date.parse(quote.asOf)>Date.now()+300000||typeof quote.currency!=='string'||!/^[A-Z]{3}$/.test(quote.currency)||typeof quote.source!=='string'||!quote.source.trim())throw new Error(data.issues?.[0]?.message||'No recent verified quote is available for this ticker.');return quote;},
++  async search(query,market){const path=`/catalog${market==='PH'?'':`?market=${market}`}${query?`${market==='PH'?'?':'&'}q=${encodeURIComponent(query)}`:''}`;try{const data=market==='PH'?await externalResponse(path):await globalResponse(path);return data.instruments||[];}catch{return [];}},
++  async latestPrice(symbol){const cleanSymbol=symbol.trim(),path='/quotes?symbols='+encodeURIComponent(cleanSymbol);let liveQuote:MarketQuote|null=null,fetchError:Error|null=null;try{const data=cleanSymbol.includes(':')?await globalResponse(path):await externalResponse(path);if(data){const cleanUpper=cleanSymbol.toUpperCase(),baseUpper=cleanUpper.replace(/\.PS$/,'');let rawQuote:any=null;if(Array.isArray(data.quotes)&&data.quotes.length>0){rawQuote=data.quotes.find((q:any)=>{if(!q)return false;const s=typeof q.symbol==='string'?q.symbol.trim().toUpperCase():'';return s===cleanUpper||s.replace(/\.PS$/,'')===baseUpper;});if(!rawQuote&&data.quotes.length===1)rawQuote=data.quotes[0];}else if(data.price!==undefined||data.value!==undefined)rawQuote=data;if(rawQuote)liveQuote=normalizeQuote(rawQuote,cleanSymbol);}}catch(err:any){fetchError=err instanceof Error?err:new Error(String(err));}if(liveQuote)return liveQuote;const staleQuote=await getStalePriceFromDb(cleanSymbol);if(staleQuote)return staleQuote;throw fetchError||new Error(`No recent verified quote is available for ${cleanSymbol}.`);},
+   async priceHistory(symbol,range){const path='/history/'+encodeURIComponent(symbol)+'?range='+encodeURIComponent(range);return symbol.includes(':')?globalResponse(path):externalResponse(path);},
+ };

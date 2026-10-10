@@ -1,4 +1,4 @@
-import { cloneElement, isValidElement, useEffect, useId, useMemo, useState, type FormEvent, type ReactNode } from 'react';
+import { cloneElement, isValidElement, useCallback, useEffect, useId, useMemo, useRef, useState, type DragEvent, type FormEvent, type ReactNode } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { Plus, Pencil, Archive, Trash2, ArrowRightLeft, CalendarClock, Check, RotateCcw } from 'lucide-react';
@@ -108,6 +108,25 @@ function AccountForm({ account, onClose }: { account?: Account; onClose: () => v
   </form></Dialog>;
 }
 
+const SORT_OPTIONS = ['custom', 'name', 'balance', 'currency', 'type'] as const;
+type SortOption = typeof SORT_OPTIONS[number];
+const ACCOUNTS_ORDER_KEY = 'tala:accounts:order';
+const ACCOUNTS_SORT_KEY = 'tala:accounts:sort';
+
+function loadAccountOrder(): string[] {
+  try { return JSON.parse(localStorage.getItem(ACCOUNTS_ORDER_KEY) || '[]'); } catch { return []; }
+}
+function saveAccountOrder(ids: string[]) {
+  try { localStorage.setItem(ACCOUNTS_ORDER_KEY, JSON.stringify(ids)); } catch {}
+}
+function loadAccountSort(): SortOption {
+  const v = localStorage.getItem(ACCOUNTS_SORT_KEY);
+  return (SORT_OPTIONS as readonly string[]).includes(v || '') ? (v as SortOption) : 'custom';
+}
+function saveAccountSort(v: SortOption) {
+  try { localStorage.setItem(ACCOUNTS_SORT_KEY, v); } catch {}
+}
+
 export function AccountsPage() {
   const accounts = useAccounts();
   const institutions = useInstitutions();
@@ -115,8 +134,81 @@ export function AccountsPage() {
   const [editing, setEditing] = useState<Account | 'new' | null>(null);
   const [showArchived, setShowArchived] = useState(false);
   const [error, setError] = useState('');
+  const [sortBy, setSortBy] = useState<SortOption>(loadAccountSort);
+  const [customOrder, setCustomOrder] = useState<string[]>(loadAccountOrder);
+  const dragId = useRef<string | null>(null);
+  const dragOverId = useRef<string | null>(null);
+
   const active = accounts.filter(account => !account.archived);
   const displayed = accounts.filter(account => showArchived || !account.archived);
+
+  // Build sorted/ordered list
+  const sorted = useMemo(() => {
+    const list = [...displayed];
+    if (sortBy === 'custom') {
+      const orderMap = new Map(customOrder.map((id, i) => [id, i]));
+      list.sort((a, b) => {
+        const ai = orderMap.has(a.id) ? orderMap.get(a.id)! : 9999;
+        const bi = orderMap.has(b.id) ? orderMap.get(b.id)! : 9999;
+        return ai - bi;
+      });
+    } else if (sortBy === 'name') {
+      list.sort((a, b) => a.name.localeCompare(b.name));
+    } else if (sortBy === 'balance') {
+      list.sort((a, b) => {
+        const ba = balances[b.id]?.[b.currency] ?? b.openingBalances?.[b.currency] ?? b.openingBalance ?? 0;
+        const aa = balances[a.id]?.[a.currency] ?? a.openingBalances?.[a.currency] ?? a.openingBalance ?? 0;
+        return ba - aa;
+      });
+    } else if (sortBy === 'currency') {
+      list.sort((a, b) => a.currency.localeCompare(b.currency) || a.name.localeCompare(b.name));
+    } else if (sortBy === 'type') {
+      list.sort((a, b) => a.accountType.localeCompare(b.accountType) || a.name.localeCompare(b.name));
+    }
+    return list;
+  }, [displayed, sortBy, customOrder, balances]);
+
+  // Initialize custom order from db order when first loaded
+  useEffect(() => {
+    if (customOrder.length === 0 && accounts.length > 0) {
+      const initial = accounts.map(a => a.id);
+      setCustomOrder(initial);
+      saveAccountOrder(initial);
+    }
+  }, [accounts, customOrder.length]);
+
+  const handleSortChange = useCallback((v: SortOption) => {
+    setSortBy(v);
+    saveAccountSort(v);
+  }, []);
+
+  function onDragStart(e: DragEvent, id: string) {
+    dragId.current = id;
+    e.dataTransfer.effectAllowed = 'move';
+  }
+  function onDragOver(e: DragEvent, id: string) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    dragOverId.current = id;
+  }
+  function onDrop(e: DragEvent) {
+    e.preventDefault();
+    const from = dragId.current, to = dragOverId.current;
+    if (!from || !to || from === to) return;
+    const base = sorted.map(a => a.id);
+    const fi = base.indexOf(from), ti = base.indexOf(to);
+    if (fi < 0 || ti < 0) return;
+    base.splice(fi, 1);
+    base.splice(ti, 0, from);
+    setCustomOrder(base);
+    saveAccountOrder(base);
+    setSortBy('custom');
+    saveAccountSort('custom');
+    dragId.current = null;
+    dragOverId.current = null;
+  }
+  function onDragEnd() { dragId.current = null; dragOverId.current = null; }
+
   async function archive(account: Account) { try { setError(''); soundService.play(account.archived ? 'success' : 'delete'); await financeRepository.save('accounts', { ...account, archived: !account.archived }); } catch (failure) { soundService.play('error'); setError(errorText(failure)); } }
   return <div className="space-y-6 max-w-[1400px] mx-auto p-4 md:p-8"><Heading title="Your accounts" description="A complete view of your cash, investments and liabilities, in their original currencies." action={<Button onClick={() => setEditing('new')}><Plus size={17} className="mr-2" />Add account</Button>} />
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -137,8 +229,34 @@ export function AccountsPage() {
         <strong className="block text-3xl font-bold mt-2">{active.filter(account => liabilityTypes.has(account.accountType)).length}</strong>
       </CardContent></Card>
     </div>
-    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-sm"><p className="text-slate-500">Balances update as you record transactions, including while offline.</p><label className="flex items-center gap-2 font-medium cursor-pointer"><input type="checkbox" className="rounded border-slate-300 text-primary focus:ring-primary h-4 w-4" checked={showArchived} onChange={event => setShowArchived(event.target.checked)} />Show archived</label></div><ErrorMessage message={error} />
-    {!displayed.length ? <Empty title="Start with an account" description="Add your actual bank, wallet, cash or loan balance. No personal balances are prefilled." action={<Button onClick={() => setEditing('new')}>Add your first account</Button>} /> : <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">{displayed.map(account => <Card className={`account-card ${account.archived ? 'opacity-60 grayscale' : ''}`} key={account.id}>
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-sm">
+      <p className="text-slate-500">Drag cards to reorder. Balances update as you record transactions, including while offline.</p>
+      <div className="flex flex-wrap items-center gap-3">
+        <label className="flex items-center gap-2 font-medium cursor-pointer">
+          <span className="text-slate-500 text-xs">Sort by</span>
+          <select className="text-xs border border-slate-200 rounded-lg px-2 py-1.5 bg-white" value={sortBy} onChange={e => handleSortChange(e.target.value as SortOption)}>
+            <option value="custom">Custom order</option>
+            <option value="name">Name</option>
+            <option value="balance">Balance</option>
+            <option value="currency">Currency</option>
+            <option value="type">Account type</option>
+          </select>
+        </label>
+        <label className="flex items-center gap-2 font-medium cursor-pointer">
+          <input type="checkbox" className="rounded border-slate-300 text-primary focus:ring-primary h-4 w-4" checked={showArchived} onChange={event => setShowArchived(event.target.checked)} />Show archived
+        </label>
+      </div>
+    </div><ErrorMessage message={error} />
+    {!sorted.length ? <Empty title="Start with an account" description="Add your actual bank, wallet, cash or loan balance. No personal balances are prefilled." action={<Button onClick={() => setEditing('new')}>Add your first account</Button>} /> : <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">{sorted.map(account => <Card
+      className={`account-card cursor-grab select-none ${account.archived ? 'opacity-60 grayscale' : ''}`}
+      key={account.id}
+      draggable={sortBy === 'custom'}
+      onDragStart={e => onDragStart(e, account.id)}
+      onDragOver={e => onDragOver(e, account.id)}
+      onDrop={onDrop}
+      onDragEnd={onDragEnd}
+      style={{ transition: 'box-shadow 0.15s' }}
+    >
       <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
         <div>
           <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">{readable(account.accountType)}</span>
@@ -158,6 +276,7 @@ export function AccountsPage() {
     </Card>)}</div>}{editing && <AccountForm account={editing === 'new' ? undefined : editing} onClose={() => setEditing(null)} />}
   </div>;
 }
+
 
 const transactionHelp: Record<TransactionType, string> = {
   EXPENSE: 'A purchase reduces cash, or increases the amount owed on a credit card. It counts toward spending once.',

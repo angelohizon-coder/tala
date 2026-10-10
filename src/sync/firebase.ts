@@ -50,7 +50,9 @@ export function createFirebaseSyncProvider(db: FinanceDatabase = financeDb) {
 
   const requireOwner = async () => {
     const user = auth.currentUser;
-    if (!user) throw new Error('Sign in before enabling cloud synchronization.');
+    if (!user || user.isAnonymous) {
+      throw new Error('Sign in with a verified account before enabling cloud synchronization.');
+    }
     return user.uid;
   };
 
@@ -136,7 +138,9 @@ export function createFirebaseSyncProvider(db: FinanceDatabase = financeDb) {
 
   const provider: SyncProvider = {
     async userId() {
-      return auth.currentUser?.uid ?? null;
+      const user = auth.currentUser;
+      if (!user || user.isAnonymous) return null;
+      return user.uid;
     },
     async push(entry: OutboxEntry) {
       const ownerId = await requireOwner();
@@ -236,29 +240,40 @@ export function createFirebaseSyncProvider(db: FinanceDatabase = financeDb) {
 
       return { records, cursor: JSON.stringify(tableCursors) };
     },
-    async subscribe(callback) {
+    async subscribe(callback, onError) {
       const ownerId = await requireOwner();
       const unsubscribes: (() => void)[] = [];
 
       for (const tableName of FINANCE_TABLES) {
         const q = query(collection(firestore, 'users', ownerId, tableName));
 
-        const unsubscribe = onSnapshot(q, (snapshot) => {
-          const records: RemoteRecord[] = [];
-          snapshot.docChanges().forEach((change) => {
-            if (change.type === 'added' || change.type === 'modified') {
-              const row = change.doc.data();
-              try {
-                records.push(remote(row, ownerId, tableName));
-              } catch {
-                // Ignore ownership/schema failures
+        const unsubscribe = onSnapshot(
+          q,
+          (snapshot) => {
+            const records: RemoteRecord[] = [];
+            snapshot.docChanges().forEach((change) => {
+              if (change.type === 'added' || change.type === 'modified') {
+                const row = change.doc.data();
+                try {
+                  records.push(remote(row, ownerId, tableName));
+                } catch {
+                  // Ignore ownership/schema failures
+                }
               }
+            });
+            if (records.length > 0) {
+              callback(records);
             }
-          });
-          if (records.length > 0) {
-            callback(records);
+          },
+          (error) => {
+            console.warn(`Firestore snapshot subscription error for table ${tableName}:`, error);
+            void db.syncState.put({
+              id: 'lastSyncError',
+              value: `Cloud listener error on ${tableName}: ${error.message || 'connection interrupted'}`
+            }).catch(() => {});
+            onError?.(error);
           }
-        });
+        );
         unsubscribes.push(unsubscribe);
       }
 

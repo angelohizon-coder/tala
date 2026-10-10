@@ -10,6 +10,7 @@ import { Money, PageHeading, formatMoney, minorToMajor, today } from '../ui/shar
 import { EmptyState } from '../components/EmptyState';
 import { TrendIndicator } from '../components/TrendIndicator';
 import { useReducedMotion } from '../hooks/useReducedMotion';
+import { safeRefreshFx } from '../market/providers';
 
 const colors=['#74948c','#b7a4dc','#d9b76c','#7db1bd','#abb99c','#e1a19e'];
 
@@ -19,22 +20,31 @@ export function Overview(){
   const goals=useLiveQuery(()=>financeDb.goals.filter(s=>!s.deletedAt).toArray(),[]);
 
   useEffect(()=>{
-    if(!data?.accounts.length||!data.netWorth.complete||data.netWorth.netWorth===null)return;
+    if(!data?.accounts.length)return;
     const {netWorth,settings}=data;
+    const currentNetWorth = netWorth.netWorth ?? netWorth.knownNetWorth;
+    const currentAssets = netWorth.assets ?? netWorth.knownAssets;
+    const currentLiabilities = netWorth.liabilities ?? netWorth.knownLiabilities;
+    if (currentNetWorth === null || currentAssets === null || currentLiabilities === null) return;
     const id=`snapshot:${today()}:${settings.baseCurrency}`;
     void financeDb.balanceSnapshots.get(id).then(old=>{
-      if(old?.netWorth===netWorth.netWorth&&old?.assets===netWorth.assets&&old?.liabilities===netWorth.liabilities)return;
+      if(old?.netWorth===currentNetWorth&&old?.assets===currentAssets&&old?.liabilities===currentLiabilities)return;
       return financeRepository.save('balanceSnapshots',{
         id,
         date:today(),
-        netWorth:netWorth.netWorth!,
-        assets:netWorth.assets!,
-        liabilities:netWorth.liabilities!,
+        netWorth:currentNetWorth,
+        assets:currentAssets,
+        liabilities:currentLiabilities,
         currency:settings.baseCurrency,
-        notes:'Recorded local ledger valuation'
+        notes:netWorth.complete ? 'Recorded local ledger valuation' : 'Estimated local ledger valuation'
       });
     }).catch(()=>{});
-  },[data?.netWorth.netWorth,data?.netWorth.assets,data?.netWorth.liabilities,data?.netWorth.complete,data?.settings.baseCurrency,data?.accounts.length]);
+  },[
+    data?.netWorth.netWorth, data?.netWorth.knownNetWorth,
+    data?.netWorth.assets, data?.netWorth.knownAssets,
+    data?.netWorth.liabilities, data?.netWorth.knownLiabilities,
+    data?.netWorth.complete, data?.settings.baseCurrency, data?.accounts.length
+  ]);
 
   if(!data)return <div className="loading">Opening your local financial ledger…</div>;
   const {settings,netWorth,fire,accounts,current,savings}=data,currency=settings.baseCurrency,hasAccounts=accounts.length>0;
@@ -49,7 +59,7 @@ export function Overview(){
         description="Your money, your milestones, your pace."
         action={
           <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
-            <select aria-label="Base currency" value={currency} onChange={async e=>{const value=e.target.value;await financeRepository.setSetting('finance',{...settings,baseCurrency:value});}} style={{ padding: '4px 8px', borderRadius: '4px', border: '1px solid #d1d5db', background: 'transparent' }}>
+            <select aria-label="Base currency" value={currency} onChange={async e=>{const value=e.target.value;await financeRepository.setSetting('finance',{...settings,baseCurrency:value});void safeRefreshFx(value).catch(()=>{});}} style={{ padding: '4px 8px', borderRadius: '4px', border: '1px solid #d1d5db', background: 'transparent' }}>
               {['PHP','USD','EUR','GBP','JPY','HKD','CAD','AUD','SGD'].map(c=><option key={c}>{c}</option>)}
             </select>
             <span className="date-label">
@@ -73,19 +83,33 @@ export function Overview(){
           </Link>
         </div>
       )}
-      {!netWorth.complete && (
+      {!netWorth.complete && hasAccounts && (
         <div className="notice warning">
-          Some valuations need a price or currency rate. Totals stay incomplete until those values are supplied.{' '}
-          <Link to="/investments" className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tala-green">
-            Review investments
-          </Link>
+          Some valuations need a price or currency rate. Showing known converted totals ({currency}).{' '}
+          {netWorth.issues?.some(i => i.code === 'missing_fx') ? (
+            <Link to="/settings" className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tala-green">
+              Check currency reference rates
+            </Link>
+          ) : (
+            <Link to="/investments" className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-tala-green">
+              Review investments
+            </Link>
+          )}
         </div>
       )}
       <div className="metric-grid">
         <article className="metric-card worth-card">
-          <div className="metric-label">TOTAL NET WORTH<Wallet size={18}/></div>
-          <strong className="metric-value"><Money amount={hasAccounts?netWorth.netWorth:null} currency={currency}/></strong>
-          <div className="metric-foot"><span>Assets minus liabilities</span><ArrowUpRight size={17}/></div>
+          <div className="metric-label">
+            <span>TOTAL NET WORTH</span>
+            {!netWorth.complete && hasAccounts && (
+              <span className="badge warning" title="Some accounts use cached or estimated conversion rates" style={{ fontSize: '8px', padding: '2px 6px', lineHeight: 1.2 }}>
+                Estimated
+              </span>
+            )}
+            <Wallet size={18}/>
+          </div>
+          <strong className="metric-value"><Money amount={hasAccounts ? (netWorth.netWorth ?? netWorth.knownNetWorth) : null} currency={currency}/></strong>
+          <div className="metric-foot"><span>{!netWorth.complete && hasAccounts ? 'Known converted balance' : 'Assets minus liabilities'}</span><ArrowUpRight size={17}/></div>
           <div className="card-watermark">✳</div>
         </article>
         <article className="metric-card">
@@ -110,8 +134,8 @@ export function Overview(){
         </article>
       </div>
       <div className="mini-stat-row">
-        <div><span>Assets</span><strong><Money amount={hasAccounts?netWorth.assets:null} currency={currency}/></strong></div>
-        <div><span>Liabilities</span><strong><Money amount={hasAccounts?netWorth.liabilities:null} currency={currency}/></strong></div>
+        <div><span>Assets</span><strong><Money amount={hasAccounts ? (netWorth.assets ?? netWorth.knownAssets) : null} currency={currency}/></strong></div>
+        <div><span>Liabilities</span><strong><Money amount={hasAccounts ? (netWorth.liabilities ?? netWorth.knownLiabilities) : null} currency={currency}/></strong></div>
         <div>
           <span>This month’s cash flow</span>
           <strong>
@@ -187,7 +211,7 @@ export function Overview(){
                     <Tooltip formatter={v=>formatMoney(Number(v),currency)}/>
                   </PieChart>
                 </ResponsiveContainer>
-                <span><small>Total assets</small><strong><Money amount={netWorth.assets} currency={currency}/></strong></span>
+                <span><small>Total assets</small><strong><Money amount={netWorth.assets ?? netWorth.knownAssets} currency={currency}/></strong></span>
               </div>
               <div className="allocation-legend">
                 {allocation.slice(0,6).map((a,i)=>(

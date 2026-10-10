@@ -344,3 +344,106 @@ describe('budgets, debt, duplicate preview and dated history', () => {
     expect(calculateCashFlow(rows, accounts, { to: AS_OF }).expenses).toBe(0);
   });
 });
+
+describe('triangular cross-rate FX conversions', () => {
+  it('resolves cross-rate via USD when direct pair is missing', () => {
+    // EUR -> USD = 1.08, USD -> PHP = 56.0 => EUR -> PHP = 60.48
+    const rates: FxRate[] = [
+      fx({ id: 'eur-usd', fromCurrency: 'EUR', toCurrency: 'USD', rate: 1.08, asOf: '2026-10-08T00:00:00Z' }),
+      fx({ id: 'usd-php', fromCurrency: 'USD', toCurrency: 'PHP', rate: 56.0, asOf: '2026-10-08T00:00:00Z' }),
+    ];
+    const rate = getFxRate('EUR', 'PHP', rates, '2026-10-09');
+    expect(rate).not.toBeNull();
+    expect(rate!).toBeCloseTo(60.48, 4);
+
+    // 100 EUR = 6,048 PHP (604,800 minor units)
+    expect(convertMoney(10000, 'EUR', 'PHP', rates, '2026-10-09')).toBe(604800);
+  });
+
+  it('resolves cross-rate with inverse legs (e.g. PHP/USD and JPY/USD)', () => {
+    // Rates quoted relative to USD: USD -> PHP = 56, USD -> JPY = 150
+    // PHP -> JPY = (1 / 56) * 150 = 2.67857
+    const rates: FxRate[] = [
+      fx({ id: 'usd-php', fromCurrency: 'USD', toCurrency: 'PHP', rate: 56.0, asOf: '2026-10-08T00:00:00Z' }),
+      fx({ id: 'usd-jpy', fromCurrency: 'USD', toCurrency: 'JPY', rate: 150.0, asOf: '2026-10-08T00:00:00Z' }),
+    ];
+    const rate = getFxRate('PHP', 'JPY', rates, '2026-10-09');
+    expect(rate).not.toBeNull();
+    expect(rate!).toBeCloseTo(150 / 56, 4);
+  });
+
+  it('prefers direct rate over triangular routing when both are available', () => {
+    const rates: FxRate[] = [
+      fx({ id: 'eur-usd', fromCurrency: 'EUR', toCurrency: 'USD', rate: 1.08, asOf: '2026-10-08T00:00:00Z' }),
+      fx({ id: 'usd-php', fromCurrency: 'USD', toCurrency: 'PHP', rate: 56.0, asOf: '2026-10-08T00:00:00Z' }),
+      fx({ id: 'direct-eur-php', fromCurrency: 'EUR', toCurrency: 'PHP', rate: 61.0, asOf: '2026-10-08T00:00:00Z' }),
+    ];
+    expect(getFxRate('EUR', 'PHP', rates, '2026-10-09')).toBe(61.0);
+  });
+
+  it('returns null when intermediate currencies are completely disconnected', () => {
+    const rates: FxRate[] = [
+      fx({ id: 'eur-usd', fromCurrency: 'EUR', toCurrency: 'USD', rate: 1.08, asOf: '2026-10-08T00:00:00Z' }),
+      fx({ id: 'cad-jpy', fromCurrency: 'CAD', toCurrency: 'JPY', rate: 110.0, asOf: '2026-10-08T00:00:00Z' }),
+    ];
+    expect(getFxRate('EUR', 'JPY', rates, '2026-10-09')).toBeNull();
+  });
+
+  it('respects temporal cutoff dates on both legs of triangular routing', () => {
+    const rates: FxRate[] = [
+      fx({ id: 'eur-usd-old', fromCurrency: 'EUR', toCurrency: 'USD', rate: 1.05, asOf: '2026-10-01T00:00:00Z' }),
+      fx({ id: 'eur-usd-new', fromCurrency: 'EUR', toCurrency: 'USD', rate: 1.10, asOf: '2026-10-10T00:00:00Z' }), // Future!
+      fx({ id: 'usd-php', fromCurrency: 'USD', toCurrency: 'PHP', rate: 56.0, asOf: '2026-10-05T00:00:00Z' }),
+    ];
+    // As of 2026-10-06, eur-usd-new is future and must be ignored; eur-usd-old (1.05) is used
+    expect(getFxRate('EUR', 'PHP', rates, '2026-10-06')).toBeCloseTo(1.05 * 56.0, 4);
+  });
+});
+
+describe('resilient multi-currency net worth and missingFx reporting', () => {
+  it('populates missingFx with unique unconvertible currency codes', () => {
+    const accounts = [
+      account('php-acc', { openingBalance: 1000000 }),
+      account('gbp-acc', { currency: 'GBP', openingBalance: 50000 }),
+      account('chf-acc', { currency: 'CHF', openingBalance: 20000 }),
+    ];
+    const result = calculateNetWorthFromBalances(
+      accounts,
+      { 'php-acc': 1000000, 'gbp-acc': 50000, 'chf-acc': 20000 },
+      [],
+      [],
+      { baseCurrency: 'PHP' },
+      '2026-10-09'
+    );
+    expect(result.netWorth).toBeNull();
+    expect(result.complete).toBe(false);
+    expect(result.knownNetWorth).toBe(1000000);
+    expect(result.missingFx).toEqual(expect.arrayContaining(['GBP', 'CHF']));
+    expect(result.missingFx).toHaveLength(2);
+  });
+
+  it('aggregates multi-currency balances seamlessly via triangular cross-rates', () => {
+    const accounts = [
+      account('php-acc', { openingBalance: 1000000 }), // PHP 10,000.00
+      account('eur-acc', { currency: 'EUR', openingBalance: 10000 }), // EUR 100.00
+    ];
+    const rates: FxRate[] = [
+      fx({ id: 'eur-usd', fromCurrency: 'EUR', toCurrency: 'USD', rate: 1.08, asOf: '2026-10-08T00:00:00Z' }),
+      fx({ id: 'usd-php', fromCurrency: 'USD', toCurrency: 'PHP', rate: 56.0, asOf: '2026-10-08T00:00:00Z' }),
+    ];
+    const result = calculateNetWorthFromBalances(
+      accounts,
+      { 'php-acc': 1000000, 'eur-acc': 10000 },
+      [],
+      rates,
+      { baseCurrency: 'PHP' },
+      '2026-10-09'
+    );
+    expect(result.complete).toBe(true);
+    expect(result.missingFx).toEqual([]);
+    // 1,000,000 PHP + 100 EUR * (1.08 * 56.0) = 1,000,000 + 604,800 = 1,604,800
+    expect(result.netWorth).toBe(1604800);
+    expect(result.knownNetWorth).toBe(1604800);
+  });
+});
+

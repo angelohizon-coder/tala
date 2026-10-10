@@ -64,14 +64,16 @@ export function FirePage(){
   },[projectionReady,netWorth.fireAssets,fire.target,settings.monthlyContribution,settings.annualSpending,settings.withdrawalRate,settings.investmentReturnAssumption,settings.inflationAssumption]);
 
   const currentYear=new Date().getFullYear();
+  const safeRound=(v:number)=>Number.isFinite(v)?Math.round(Math.max(-1e14,Math.min(1e14,v))):0;
   const trajectories=simulation?.trajectories.map((pt,idx)=>{
-    const targetCompounded=(fire.target??0)*Math.pow(1+(settings.inflationAssumption??0.03),idx);
+    const inflFactor=Math.min(Math.pow(1+(settings.inflationAssumption??0.03),idx),1e6);
+    const targetCompounded=(fire.target??0)*inflFactor;
     return {
       year:currentYear+pt.year,
-      p10:fromMinor(Math.round(pt.p10),currency),
-      p50:fromMinor(Math.round(pt.p50),currency),
-      p90:fromMinor(Math.round(pt.p90),currency),
-      target:fromMinor(Math.round(targetCompounded),currency)
+      p10:fromMinor(safeRound(pt.p10),currency),
+      p50:fromMinor(safeRound(pt.p50),currency),
+      p90:fromMinor(safeRound(pt.p90),currency),
+      target:fromMinor(safeRound(targetCompounded),currency)
     };
   })??[];
 

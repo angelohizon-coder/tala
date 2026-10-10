@@ -55,10 +55,25 @@ export function fromMinor(value: Money, currency: Currency, precision: Precision
   return minor(value) / currencyScale(currency, precision);
 }
 
-export function getFxRate(from: Currency, to: Currency, rates: readonly FxRate[], asOf = today()): number | null {
-  if (from === to) return 1;
-  const cutoff = throughDate(asOf);
-  let direct: FxRate | undefined, inverse: FxRate | undefined, directTime = -Infinity, inverseTime = -Infinity;
+const STANDARD_PIVOT_CURRENCIES: readonly Currency[] = ['USD', 'EUR', 'PHP'];
+
+interface DirectFxObservation {
+  rate: number;
+  time: number;
+}
+
+/** Resolves single-hop direct or inverse FX rate respecting cutoff date. Never recurses. */
+function getDirectOrInverseFxRate(
+  from: Currency,
+  to: Currency,
+  rates: readonly FxRate[],
+  cutoff: number
+): DirectFxObservation | null {
+  let direct: FxRate | undefined;
+  let inverse: FxRate | undefined;
+  let directTime = -Infinity;
+  let inverseTime = -Infinity;
+
   for (const rate of rates) {
     if (rate.deletedAt || !Number.isFinite(rate.rate) || rate.rate <= 0) continue;
     const isDirect = rate.fromCurrency === from && rate.toCurrency === to;
@@ -69,8 +84,64 @@ export function getFxRate(from: Currency, to: Currency, rates: readonly FxRate[]
     if (isDirect && time > directTime) { direct = rate; directTime = time; }
     if (isInverse && time > inverseTime) { inverse = rate; inverseTime = time; }
   }
-  if (direct && directTime >= inverseTime) return direct.rate;
-  return inverse ? 1 / inverse.rate : null;
+
+  if (direct && directTime >= inverseTime) {
+    return { rate: direct.rate, time: directTime };
+  }
+  if (inverse) {
+    return { rate: 1 / inverse.rate, time: inverseTime };
+  }
+  return null;
+}
+
+export function getFxRate(from: Currency, to: Currency, rates: readonly FxRate[], asOf = today()): number | null {
+  if (from === to) return 1;
+  const cutoff = throughDate(asOf);
+
+  // Step 1: Single-hop direct or inverse lookup
+  const singleHop = getDirectOrInverseFxRate(from, to, rates, cutoff);
+  if (singleHop !== null) return singleHop.rate;
+
+  // Step 2: Triangular cross-rate routing via intermediate pivot currency
+  const rateCurrencies = new Set<Currency>();
+  for (const rate of rates) {
+    if (rate.deletedAt || !Number.isFinite(rate.rate) || rate.rate <= 0) continue;
+    const time = Date.parse(rate.asOf);
+    if (!Number.isFinite(time) || time > cutoff) continue;
+    rateCurrencies.add(rate.fromCurrency);
+    rateCurrencies.add(rate.toCurrency);
+  }
+
+  // Build candidate pivots prioritizing standard vehicles (USD, EUR, PHP)
+  const candidatePivots: Currency[] = [];
+  for (const pivot of STANDARD_PIVOT_CURRENCIES) {
+    if (pivot !== from && pivot !== to && rateCurrencies.has(pivot)) {
+      candidatePivots.push(pivot);
+    }
+  }
+  for (const currency of rateCurrencies) {
+    if (currency !== from && currency !== to && !candidatePivots.includes(currency)) {
+      candidatePivots.push(currency);
+    }
+  }
+
+  let bestRate: number | null = null;
+  let bestTime = -Infinity;
+
+  for (const pivot of candidatePivots) {
+    const leg1 = getDirectOrInverseFxRate(from, pivot, rates, cutoff);
+    if (!leg1) continue;
+    const leg2 = getDirectOrInverseFxRate(pivot, to, rates, cutoff);
+    if (!leg2) continue;
+
+    const effectiveTime = Math.min(leg1.time, leg2.time);
+    if (effectiveTime > bestTime) {
+      bestTime = effectiveTime;
+      bestRate = leg1.rate * leg2.rate;
+    }
+  }
+
+  return bestRate;
 }
 export function convertMoney(amount: Money, from: Currency, to: Currency, rates: readonly FxRate[], asOf = today(), precision: Precision = {}): Money | null {
   minor(amount);
@@ -371,6 +442,7 @@ export interface NetWorthSummary {
   complete: boolean;
   issues: CalculationIssue[];
   accountValues: AccountValue[];
+  missingFx: Currency[];
 }
 
 /** Balances already contain trade cash postings; only the holdings are added here. */
@@ -426,13 +498,20 @@ export function calculateNetWorthFromBalances(accounts: readonly Account[], bala
     if (!liability && account.emergency && account.includeInLiquidNetWorth) { totals.emergency = add(totals.emergency, amount); missing.emergency ||= absent; }
   }
   const assets = missing.assets ? null : totals.assets, liabilities = missing.liabilities ? null : totals.liabilities;
+  const missingFx = Array.from(
+    new Set(
+      issues
+        .filter(i => i.code === 'missing_fx' && i.currency)
+        .map(i => i.currency!)
+    )
+  );
   return {
     assets, liabilities, netWorth: assets === null || liabilities === null ? null : add(assets, -liabilities),
     liquidNetWorth: missing.liquid || liabilities === null ? null : add(totals.liquid, -liabilities),
     investableNetWorth: missing.fire || missing.fireDebt ? null : add(totals.fire, -totals.fireDebt),
     fireAssets: missing.fire ? null : totals.fire, emergencyAssets: missing.emergency ? null : totals.emergency,
     knownAssets: totals.assets, knownLiabilities: totals.liabilities, knownNetWorth: add(totals.assets, -totals.liabilities),
-    complete: !Object.values(missing).some(Boolean), issues, accountValues,
+    complete: !Object.values(missing).some(Boolean), issues, accountValues, missingFx,
   };
 }
 export function calculateNetWorth(data: FinanceData, baseCurrencyOrSettings: Currency | ValuationSettings = 'PHP', asOf = today()): NetWorthSummary {

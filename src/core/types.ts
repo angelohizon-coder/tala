@@ -183,3 +183,20 @@ export interface CalculationIssue {
   currency?: Currency;
   transactionId?: string;
 }
+
+export interface NetWorthSummary {
+  assets: Money | null;
+  liabilities: Money | null;
+  netWorth: Money | null;
+  liquidNetWorth: Money | null;
+  investableNetWorth: Money | null;
+  fireAssets: Money | null;
+  emergencyAssets: Money | null;
+  knownAssets: Money;
+  knownLiabilities: Money;
+  knownNetWorth: Money;
+  complete: boolean;
+  issues: CalculationIssue[];
+  missingFx?: Currency[];
+}
+

@@ -137,45 +137,55 @@ export function runFireSimulation(params: FireSimulationParams): FireSimulationR
   const tScale = df > 2 ? Math.sqrt((df - 2) / df) : 1.0;
 
   // Float64Array typed buffer: N iterations x (Y + 1) years
-  const assetPaths = new Float64Array(N * (Y + 1));
+  // Cap N*Y to prevent OOM: 5000 * 41 = 205,000 slots (safe)
+  const safeY = Math.min(Y, 100);
+  const assetPaths = new Float64Array(N * (safeY + 1));
   const depletionYears = new Int16Array(N);
   depletionYears.fill(-1);
+
+  // Safety cap: prevent Infinity in wealth accumulation (1e15 minor units ≈ 10 trillion in major units)
+  const ASSET_CAP = 1e15;
 
   let successfulRuns = 0;
 
   for (let iter = 0; iter < N; iter++) {
-    let currentAssets = initialAssets;
-    assetPaths[iter * (Y + 1) + 0] = currentAssets;
+    let currentAssets = Number.isFinite(initialAssets) ? Math.min(initialAssets, ASSET_CAP) : 0;
+    assetPaths[iter * (safeY + 1) + 0] = currentAssets;
     let depletedAt = -1;
 
-    for (let yr = 1; yr <= Y; yr++) {
+    for (let yr = 1; yr <= safeY; yr++) {
       if (currentAssets <= 0 && annualContrib <= 0) {
         if (depletedAt === -1) depletedAt = yr - 1;
-        assetPaths[iter * (Y + 1) + yr] = 0;
+        assetPaths[iter * (safeY + 1) + yr] = 0;
         continue;
       }
 
       // Sample Student's t return (or deterministic if volatility is 0)
       const t = sampleStudentT(df);
-      const r = returnVol === 0 ? expectedReturn : Math.max(-1.0, expectedReturn + returnVol * tScale * t);
+      const rawR = returnVol === 0 ? expectedReturn : expectedReturn + returnVol * tScale * t;
+      // Guard: clamp return to [-0.99, +5.0] to avoid runaway compounding
+      const r = Math.max(-0.99, Math.min(5.0, Number.isFinite(rawR) ? rawR : expectedReturn));
 
-      // Sample inflation
-      const inf = inflationVol === 0 ? expectedInflation : expectedInflation + inflationVol * sampleGaussian();
+      // Sample inflation, clamp to realistic range [-0.5, 2.0]
+      const rawInf = inflationVol === 0 ? expectedInflation : expectedInflation + inflationVol * sampleGaussian();
+      const inf = Math.max(-0.5, Math.min(2.0, Number.isFinite(rawInf) ? rawInf : expectedInflation));
 
-      // Inflation-adjusted spending
-      const adjustedExpenses = annualExpenses * Math.pow(1 + inf, yr);
+      // Inflation-adjusted spending — use per-year compounding, capped
+      const inflationFactor = Math.min(Math.pow(1 + inf, yr), 1e6);
+      const adjustedExpenses = Number.isFinite(annualExpenses) ? annualExpenses * inflationFactor : 0;
 
       // Wealth transition
-      currentAssets = currentAssets * (1 + r) + annualContrib - adjustedExpenses;
-      if (currentAssets < 0) currentAssets = 0;
+      const next = currentAssets * (1 + r) + annualContrib - adjustedExpenses;
+      // Guard: NaN or negative → 0; cap at ASSET_CAP
+      currentAssets = !Number.isFinite(next) ? 0 : Math.min(Math.max(0, next), ASSET_CAP);
 
-      assetPaths[iter * (Y + 1) + yr] = currentAssets;
+      assetPaths[iter * (safeY + 1) + yr] = currentAssets;
     }
 
     if (currentAssets > 0) {
       successfulRuns++;
     } else if (depletedAt === -1) {
-      depletedAt = Y;
+      depletedAt = safeY;
     }
     depletionYears[iter] = depletedAt;
   }
@@ -189,17 +199,18 @@ export function runFireSimulation(params: FireSimulationParams): FireSimulationR
   const p90: number[] = [];
   const yearAssets = new Float64Array(N);
 
-  for (let yr = 0; yr <= Y; yr++) {
+  for (let yr = 0; yr <= safeY; yr++) {
     for (let iter = 0; iter < N; iter++) {
-      yearAssets[iter] = assetPaths[iter * (Y + 1) + yr];
+      const v = assetPaths[iter * (safeY + 1) + yr];
+      yearAssets[iter] = Number.isFinite(v) ? v : 0;
     }
     yearAssets.sort(); // TypedArray in-place numerical ascending sort
 
-    const q10 = yearAssets[Math.floor(N * 0.10)];
-    const q25 = yearAssets[Math.floor(N * 0.25)];
-    const q50 = yearAssets[Math.floor(N * 0.50)];
-    const q75 = yearAssets[Math.floor(N * 0.75)];
-    const q90 = yearAssets[Math.floor(N * 0.90)];
+    const q10 = yearAssets[Math.floor(N * 0.10)] ?? 0;
+    const q25 = yearAssets[Math.floor(N * 0.25)] ?? 0;
+    const q50 = yearAssets[Math.floor(N * 0.50)] ?? 0;
+    const q75 = yearAssets[Math.floor(N * 0.75)] ?? 0;
+    const q90 = yearAssets[Math.floor(N * 0.90)] ?? 0;
 
     p10.push(q10);
     p25.push(q25);
@@ -218,16 +229,16 @@ export function runFireSimulation(params: FireSimulationParams): FireSimulationR
   }
 
   // Depletion Year Probability Density Function (PDF)
-  const depletionCounts = new Int32Array(Y + 1);
+  const depletionCounts = new Int32Array(safeY + 1);
   for (let iter = 0; iter < N; iter++) {
     const dep = depletionYears[iter];
-    if (dep >= 0 && dep <= Y) {
+    if (dep >= 0 && dep <= safeY) {
       depletionCounts[dep]++;
     }
   }
 
   const depletionYearPdf: Record<number, number> = {};
-  for (let yr = 0; yr <= Y; yr++) {
+  for (let yr = 0; yr <= safeY; yr++) {
     depletionYearPdf[yr] = depletionCounts[yr] / N;
   }
 
@@ -245,7 +256,7 @@ export function runFireSimulation(params: FireSimulationParams): FireSimulationR
     depletionYearPdf,
     standardError,
     degreesOfFreedom: df,
-    medianEndingAssets: p50[Y] ?? 0,
+    medianEndingAssets: p50[safeY] ?? 0,
     convergence: {
       standardError,
       confidenceInterval95: [
