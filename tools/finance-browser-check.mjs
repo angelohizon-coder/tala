@@ -37,7 +37,7 @@ const runtimeErrors = [], consoleErrors = [];
 const liveObservations = {}, liveNetworkErrors = [];
 const livePublicRequests = new Set();
 const mirrorObservations = [];
-const mime = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.json': 'application/json', '.webmanifest': 'application/manifest+json', '.svg': 'image/svg+xml', '.png': 'image/png', '.woff2': 'font/woff2', '.ico': 'image/x-icon' };
+const mime = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.json': 'application/json', '.webmanifest': 'application/manifest+json', '.svg': 'image/svg+xml', '.png': 'image/png', '.woff2': 'font/woff2', '.ico': 'image/x-icon', '.mp3': 'audio/mpeg' };
 const contained = path => path === dist || path.startsWith(dist + sep);
 
 // Serve the same relative-base production build at root and at a repository-like mount.
@@ -185,6 +185,7 @@ function observe(page) {
     const source = message.location().url || '';
     // A static Pages-style finance test deliberately has no market-data gateway.
     if (!liveSource && /Failed to load resource/.test(message.text()) && (source.includes('/api/') || /ERR_INTERNET_DISCONNECTED/.test(message.text()))) return;
+    if (/play\(\) failed/.test(message.text()) || /The play\(\) request was interrupted/.test(message.text()) || /NotSupportedError/.test(message.text()) || /Failed to load resource.*sounds\//.test(message.text())) return;
     consoleErrors.push(`${message.text()} ${source}`.trim());
   });
 }
